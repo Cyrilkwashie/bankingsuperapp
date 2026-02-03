@@ -2,23 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import './widgets/agent_header_card.dart';
-import './widgets/quick_stats_row.dart';
-import './widgets/categorized_services_widget.dart';
+import './widgets/merchant_header_card.dart';
+import './widgets/merchant_quick_stats_row.dart';
+import './widgets/merchant_categorized_services_widget.dart';
 import '../../settings_screen/settings_screen.dart';
 
-/// Agency Banking Dashboard - Main workspace for banking agents
-/// Redesigned with categorized menu sections and small icon grid buttons
-class AgencyBankingDashboardScreen extends StatefulWidget {
-  const AgencyBankingDashboardScreen({super.key});
+/// Merchant Banking Dashboard - Main workspace for merchant banking operations
+class MerchantBankingDashboardScreen extends StatefulWidget {
+  const MerchantBankingDashboardScreen({super.key});
 
   @override
-  State<AgencyBankingDashboardScreen> createState() =>
-      _AgencyBankingDashboardScreenState();
+  State<MerchantBankingDashboardScreen> createState() =>
+      _MerchantBankingDashboardScreenState();
 }
 
-class _AgencyBankingDashboardScreenState
-    extends State<AgencyBankingDashboardScreen> {
+class _MerchantBankingDashboardScreenState
+    extends State<MerchantBankingDashboardScreen> {
   int _currentIndex = 0;
 
   @override
@@ -36,7 +35,9 @@ class _AgencyBankingDashboardScreenState
               : _currentIndex == 1
               ? _buildTransactionsNavigation()
               : _currentIndex == 2
-              ? _buildLocationsContent()
+              ? _buildCustomersContent()
+              : _currentIndex == 3
+              ? _buildReportsContent()
               : const SettingsScreen(),
         ),
       ),
@@ -90,7 +91,7 @@ class _AgencyBankingDashboardScreenState
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Icon(Icons.dashboard, size: 24),
                 ),
-                label: 'Home',
+                label: 'Dashboard',
                 tooltip: 'Dashboard',
               ),
               BottomNavigationBarItem(
@@ -108,14 +109,26 @@ class _AgencyBankingDashboardScreenState
               BottomNavigationBarItem(
                 icon: Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Icon(Icons.location_on_outlined, size: 24),
+                  child: Icon(Icons.people_outline, size: 24),
                 ),
                 activeIcon: Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Icon(Icons.location_on, size: 24),
+                  child: Icon(Icons.people, size: 24),
                 ),
-                label: 'Locations',
-                tooltip: 'Branch & ATM Locations',
+                label: 'Customers',
+                tooltip: 'Customer Management',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.bar_chart_outlined, size: 24),
+                ),
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.bar_chart, size: 24),
+                ),
+                label: 'Reports',
+                tooltip: 'Business Reports',
               ),
               BottomNavigationBarItem(
                 icon: Padding(
@@ -148,11 +161,11 @@ class _AgencyBankingDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AgentHeaderCard(),
+              const MerchantHeaderCard(),
               SizedBox(height: 2.h),
-              const QuickStatsRow(),
+              const MerchantQuickStatsRow(),
               SizedBox(height: 3.h),
-              const CategorizedServicesWidget(),
+              const MerchantCategorizedServicesWidget(),
               SizedBox(height: 2.h),
             ],
           ),
@@ -163,7 +176,7 @@ class _AgencyBankingDashboardScreenState
 
   Widget _buildTransactionsNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(context).pushNamed('/transaction-history');
+      Navigator.of(context).pushNamed('/merchant-transaction-history-screen');
       setState(() {
         _currentIndex = 0;
       });
@@ -171,7 +184,7 @@ class _AgencyBankingDashboardScreenState
     return const SizedBox.shrink();
   }
 
-  Widget _buildLocationsContent() {
+  Widget _buildCustomersContent() {
     final theme = Theme.of(context);
     return Center(
       child: Padding(
@@ -180,13 +193,13 @@ class _AgencyBankingDashboardScreenState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.location_on,
+              Icons.people,
               size: 80,
               color: const Color(0xFF1B365D).withValues(alpha: 0.3),
             ),
             SizedBox(height: 2.h),
             Text(
-              'Branch & ATM Locations',
+              'Customer Management',
               style: GoogleFonts.inter(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
@@ -195,7 +208,44 @@ class _AgencyBankingDashboardScreenState
             ),
             SizedBox(height: 1.h),
             Text(
-              'Find nearby branches and ATMs',
+              'View and manage your customer base',
+              style: GoogleFonts.inter(
+                fontSize: 14.sp,
+                color: const Color(0xFF6B7280),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReportsContent() {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(4.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.bar_chart,
+              size: 80,
+              color: const Color(0xFF1B365D).withValues(alpha: 0.3),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              'Business Reports',
+              style: GoogleFonts.inter(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1A1D23),
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Text(
+              'View sales analytics and performance metrics',
               style: GoogleFonts.inter(
                 fontSize: 14.sp,
                 color: const Color(0xFF6B7280),

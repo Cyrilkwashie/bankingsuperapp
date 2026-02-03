@@ -3,38 +3,55 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
 
-class QuickStatsRow extends StatelessWidget {
-  const QuickStatsRow({super.key});
+class MerchantQuickStatsRow extends StatelessWidget {
+  const MerchantQuickStatsRow({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildStatCard(
-            'Transactions',
-            '24',
-            Icons.swap_horiz,
-            const Color(0xFF3FA5A5),
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Today\'s Txns',
+                '47',
+                Icons.receipt_long,
+                const Color(0xFF3FA5A5),
+              ),
+            ),
+            SizedBox(width: 3.w),
+            Expanded(
+              child: _buildStatCard(
+                'Revenue',
+                'GH₵12.5K',
+                Icons.trending_up,
+                const Color(0xFF10B981),
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 3.w),
-        Expanded(
-          child: _buildStatCard(
-            'Cash In',
-            'GH₵125K',
-            Icons.arrow_downward,
-            const Color(0xFF10B981),
-          ),
-        ),
-        SizedBox(width: 3.w),
-        Expanded(
-          child: _buildStatCard(
-            'Cash Out',
-            'GH₵75K',
-            Icons.arrow_upward,
-            const Color(0xFFEF4444),
-          ),
+        SizedBox(height: 2.h),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Available',
+                'GH₵85.5K',
+                Icons.account_balance_wallet,
+                const Color(0xFF059669),
+              ),
+            ),
+            SizedBox(width: 3.w),
+            Expanded(
+              child: _buildStatCard(
+                'Customers',
+                '234',
+                Icons.people,
+                const Color(0xFF2E8B8B),
+              ),
+            ),
+          ],
         ),
       ],
     );

@@ -4,7 +4,6 @@ import 'package:local_auth/local_auth.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/app_export.dart';
-import '../../widgets/custom_icon_widget.dart';
 import './widgets/biometric_section_widget.dart';
 import './widgets/login_form_widget.dart';
 import './widgets/security_badge_widget.dart';
@@ -271,41 +270,39 @@ class _LoginScreenState extends State<LoginScreen>
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.brightness == Brightness.light
+          ? const Color(0xFFFAFBFC)
+          : const Color(0xFF0F1419),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            child: AnimatedBuilder(
-              animation: _shakeAnimation,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(_shakeAnimation.value, 0),
-                  child: child,
-                );
-              },
+        child: Padding(
+          padding: EdgeInsets.only(top: 6.h),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 6.h),
-
-                  // Back Button and Welcome Text in same row
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       IconButton(
                         icon: CustomIconWidget(
                           iconName: 'arrow_back',
+                          color: theme.brightness == Brightness.light
+                              ? const Color(0xFF1A1D23)
+                              : const Color(0xFFFAFBFC),
                           size: 24,
-                          color: theme.colorScheme.onSurface,
                         ),
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () => Navigator.pop(context),
                       ),
                       SizedBox(width: 2.w),
                       Text(
                         'Welcome Back',
-                        style: theme.textTheme.headlineMedium?.copyWith(
+                        style: GoogleFonts.inter(
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.w700,
-                          color: theme.colorScheme.onSurface,
+                          color: theme.brightness == Brightness.light
+                              ? const Color(0xFF1A1D23)
+                              : const Color(0xFFFAFBFC),
                         ),
                       ),
                     ],

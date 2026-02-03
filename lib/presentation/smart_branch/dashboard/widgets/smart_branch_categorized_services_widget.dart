@@ -3,48 +3,42 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
 
-class CategorizedServicesWidget extends StatelessWidget {
-  const CategorizedServicesWidget({super.key});
+class SmartBranchCategorizedServicesWidget extends StatelessWidget {
+  const SmartBranchCategorizedServicesWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildServiceSection(context, 'Cash Services', [
-          {'icon': 'add_circle', 'label': 'Cash Deposit'},
-          {'icon': 'remove_circle', 'label': 'Cash Withdrawal'},
+        _buildServiceSection(context, 'Customer Management', [
+          {'icon': 'person_add', 'label': 'Individual Account'},
+          {'icon': 'edit', 'label': 'Customer Update'},
         ]),
         SizedBox(height: 3.h),
-        _buildServiceSection(context, 'Transfers', [
-          {'icon': 'account_balance', 'label': 'Same Bank'},
-          {'icon': 'send', 'label': 'Other Bank'},
+        _buildServiceSection(context, 'Account Management', [
+          {'icon': 'description', 'label': 'Statement Request'},
+          {'icon': 'lock', 'label': 'Lien'},
+          {'icon': 'refresh', 'label': 'Dormancy Reactivation'},
+          {'icon': 'cancel', 'label': 'Close Account'},
+          {'icon': 'block', 'label': 'Account Blockage'},
+          {'icon': 'book', 'label': 'Cheque Book'},
+          {'icon': 'credit_card', 'label': 'ATM Cards'},
+          {'icon': 'stop', 'label': 'Stop Cheque'},
         ]),
         SizedBox(height: 3.h),
-        _buildServiceSection(context, 'QR Services', [
-          {'icon': 'qr_code_scanner', 'label': 'QR Deposit'},
-          {'icon': 'qr_code', 'label': 'QR Withdrawal'},
+        _buildServiceSection(context, 'Teller Activities', [
+          {'icon': 'arrow_upward', 'label': 'Cash Withdrawal'},
+          {'icon': 'arrow_downward', 'label': 'Cash Deposit'},
+          {'icon': 'receipt', 'label': 'Cheque Withdrawal'},
+          {'icon': 'receipt_long', 'label': 'Counter Cheque'},
         ]),
         SizedBox(height: 3.h),
-        _buildServiceSection(context, 'Account Services', [
-          {'icon': 'person_add', 'label': 'Open Account'},
-          {'icon': 'account_balance_wallet', 'label': 'Balance'},
-          {'icon': 'receipt', 'label': 'Mini Statement'},
-        ]),
-        SizedBox(height: 3.h),
-        _buildServiceSection(context, 'Account Requests', [
-          {'icon': 'description', 'label': 'Statement'},
-          {'icon': 'credit_card', 'label': 'ATM Card'},
-          {'icon': 'book', 'label': 'Chequebook'},
-          {'icon': 'block', 'label': 'Block Card'},
-          {'icon': 'cancel', 'label': 'Stop Cheque'},
-        ]),
-        SizedBox(height: 3.h),
-        _buildServiceSection(context, 'Agent Tools', [
-          {'icon': 'history', 'label': 'Daily Txns'},
-          {'icon': 'undo', 'label': 'Reverse'},
-          {'icon': 'location_on', 'label': 'Locations'},
-          {'icon': 'settings', 'label': 'Settings'},
+        _buildServiceSection(context, 'Back Office', [
+          {'icon': 'savings', 'label': 'Fixed Deposit'},
+          {'icon': 'account_balance', 'label': 'Credit Origination'},
+          {'icon': 'post_add', 'label': 'Batch Posting'},
+          {'icon': 'upload_file', 'label': 'Uploads'},
         ]),
       ],
     );

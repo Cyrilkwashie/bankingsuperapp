@@ -4,7 +4,6 @@ import 'package:local_auth/local_auth.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import '../../../widgets/custom_icon_widget.dart';
 import './widgets/merchant_biometric_section_widget.dart';
 import './widgets/merchant_login_form_widget.dart';
 import './widgets/merchant_security_badge_widget.dart';
@@ -104,59 +103,55 @@ class _MerchantLoginScreenState extends State<MerchantLoginScreen>
       final remainingSeconds = _lockoutTime!
           .difference(DateTime.now())
           .inSeconds;
-      _showErrorSnackBar(
-        'Account temporarily locked. Try again in $remainingSeconds seconds.',
+      _showErrorDialog(
+        'Account Locked',
+        'Too many failed attempts. Please try again in $remainingSeconds seconds.',
       );
       return;
     }
 
-    if (!_formKey.currentState!.validate()) {
-      _shakeController.forward().then((_) => _shakeController.reverse());
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    final merchantId = _merchantIdController.text.trim();
-    final password = _passwordController.text;
-
-    if (_authenticateMerchant(merchantId, password)) {
-      _failedAttempts = 0;
-      _lockoutTime = null;
-
+    if (_formKey.currentState!.validate()) {
       setState(() {
-        _biometricEnabled = true;
+        _isLoading = true;
       });
 
-      HapticFeedback.mediumImpact();
-      _navigateToDashboard();
-    } else {
-      _failedAttempts++;
+      await Future.delayed(const Duration(seconds: 2));
 
-      if (_failedAttempts >= 3) {
-        final lockoutDuration = _failedAttempts == 3
-            ? 30
-            : (_failedAttempts == 4 ? 60 : 300);
-        _lockoutTime = DateTime.now().add(Duration(seconds: lockoutDuration));
-        _showErrorSnackBar(
-          'Too many failed attempts. Account locked for $lockoutDuration seconds.',
-        );
+      final merchantId = _merchantIdController.text.trim();
+      final password = _passwordController.text;
+
+      if (merchantId == 'MERCH001' && password == 'Merchant@123') {
+        setState(() {
+          _isLoading = false;
+          _failedAttempts = 0;
+          _lockoutTime = null;
+        });
+
+        if (mounted) {
+          Navigator.of(
+            context,
+          ).pushReplacementNamed('/merchant-banking-dashboard');
+        }
       } else {
-        _showErrorSnackBar(
-          'Invalid credentials. ${3 - _failedAttempts} attempts remaining.',
+        setState(() {
+          _isLoading = false;
+          _failedAttempts++;
+
+          if (_failedAttempts >= 3) {
+            _lockoutTime = DateTime.now().add(const Duration(seconds: 30));
+          }
+        });
+
+        _shakeController.forward().then((_) => _shakeController.reverse());
+
+        _showErrorDialog(
+          'Login Failed',
+          _failedAttempts >= 3
+              ? 'Account locked for 30 seconds due to multiple failed attempts.'
+              : 'Invalid Merchant ID or password. Attempt $_failedAttempts of 3.',
         );
       }
-
-      _shakeController.forward().then((_) => _shakeController.reverse());
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   bool _authenticateMerchant(String merchantId, String password) {
@@ -186,6 +181,24 @@ class _MerchantLoginScreenState extends State<MerchantLoginScreen>
     );
   }
 
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _shakeController.dispose();
@@ -203,83 +216,85 @@ class _MerchantLoginScreenState extends State<MerchantLoginScreen>
           ? const Color(0xFFFAFBFC)
           : const Color(0xFF0F1419),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 6.h),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: CustomIconWidget(
-                        iconName: 'arrow_back',
-                        color: theme.brightness == Brightness.light
-                            ? const Color(0xFF1A1D23)
-                            : const Color(0xFFFAFBFC),
-                        size: 24,
+        child: Padding(
+          padding: EdgeInsets.only(top: 6.h),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: CustomIconWidget(
+                          iconName: 'arrow_back',
+                          color: theme.brightness == Brightness.light
+                              ? const Color(0xFF1A1D23)
+                              : const Color(0xFFFAFBFC),
+                          size: 24,
+                        ),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    SizedBox(width: 2.w),
-                    Text(
-                      'Welcome Back',
+                      SizedBox(width: 2.w),
+                      Text(
+                        'Welcome Back',
+                        style: GoogleFonts.inter(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w700,
+                          color: theme.brightness == Brightness.light
+                              ? const Color(0xFF1A1D23)
+                              : const Color(0xFFFAFBFC),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 1.h),
+                  Padding(
+                    padding: EdgeInsets.only(left: 12.w),
+                    child: Text(
+                      'Sign in to your Merchant Banking account',
                       style: GoogleFonts.inter(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w400,
                         color: theme.brightness == Brightness.light
-                            ? const Color(0xFF1A1D23)
-                            : const Color(0xFFFAFBFC),
+                            ? const Color(0xFF6B7280)
+                            : const Color(0xFF9CA3AF),
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(height: 1.h),
-                Padding(
-                  padding: EdgeInsets.only(left: 12.w),
-                  child: Text(
-                    'Sign in to your Merchant Banking account',
-                    style: GoogleFonts.inter(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                      color: theme.brightness == Brightness.light
-                          ? const Color(0xFF6B7280)
-                          : const Color(0xFF9CA3AF),
+                  ),
+                  SizedBox(height: 4.h),
+                  MerchantSecurityBadgeWidget(),
+                  SizedBox(height: 4.h),
+                  AnimatedBuilder(
+                    animation: _shakeAnimation,
+                    builder: (context, child) {
+                      return Transform.translate(
+                        offset: Offset(_shakeAnimation.value, 0),
+                        child: child,
+                      );
+                    },
+                    child: MerchantLoginFormWidget(
+                      formKey: _formKey,
+                      merchantIdController: _merchantIdController,
+                      passwordController: _passwordController,
+                      isPasswordVisible: _isPasswordVisible,
+                      isLoading: _isLoading,
+                      onPasswordVisibilityToggle: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                      onLogin: _handleLogin,
                     ),
                   ),
-                ),
-                SizedBox(height: 4.h),
-                MerchantSecurityBadgeWidget(),
-                SizedBox(height: 4.h),
-                AnimatedBuilder(
-                  animation: _shakeAnimation,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(_shakeAnimation.value, 0),
-                      child: child,
-                    );
-                  },
-                  child: MerchantLoginFormWidget(
-                    formKey: _formKey,
-                    merchantIdController: _merchantIdController,
-                    passwordController: _passwordController,
-                    isPasswordVisible: _isPasswordVisible,
-                    isLoading: _isLoading,
-                    onPasswordVisibilityToggle: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                    onLogin: _handleLogin,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                if (_biometricAvailable)
-                  MerchantBiometricSectionWidget(
-                    onBiometricLogin: _handleBiometricLogin,
-                  ),
-              ],
+                  SizedBox(height: 3.h),
+                  if (_biometricAvailable)
+                    MerchantBiometricSectionWidget(
+                      onBiometricLogin: _handleBiometricLogin,
+                    ),
+                ],
+              ),
             ),
           ),
         ),

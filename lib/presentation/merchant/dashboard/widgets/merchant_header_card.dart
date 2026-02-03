@@ -3,8 +3,8 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
 
-class AgentHeaderCard extends StatelessWidget {
-  const AgentHeaderCard({super.key});
+class MerchantHeaderCard extends StatelessWidget {
+  const MerchantHeaderCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class AgentHeaderCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1B365D), Color(0xFF2E5A8F)],
+          colors: [Color(0xFF059669), Color(0xFF10B981)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -40,7 +40,7 @@ class AgentHeaderCard extends StatelessWidget {
             ),
             child: Center(
               child: CustomIconWidget(
-                iconName: 'person',
+                iconName: 'store',
                 color: Colors.white,
                 size: 28,
               ),
@@ -52,7 +52,7 @@ class AgentHeaderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'John Doe',
+                  'Kwame Store',
                   style: GoogleFonts.inter(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
@@ -61,7 +61,7 @@ class AgentHeaderCard extends StatelessWidget {
                 ),
                 SizedBox(height: 0.3.h),
                 Text(
-                  'Agent ID: AGENT001',
+                  'Business ID: MERCH001',
                   style: GoogleFonts.inter(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
@@ -81,11 +81,26 @@ class AgentHeaderCard extends StatelessWidget {
                     ),
                     SizedBox(width: 1.w),
                     Text(
-                      'Online',
+                      'Operational',
                       style: GoogleFonts.inter(
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF10B981),
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 2.w),
+                    Icon(
+                      Icons.location_on,
+                      size: 12,
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
+                    SizedBox(width: 0.5.w),
+                    Text(
+                      'Accra',
+                      style: GoogleFonts.inter(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -106,7 +121,7 @@ class AgentHeaderCard extends StatelessWidget {
               ),
               SizedBox(height: 0.3.h),
               Text(
-                'GH₵250,000',
+                'GH₵85,500',
                 style: GoogleFonts.inter(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w700,

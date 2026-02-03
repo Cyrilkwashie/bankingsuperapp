@@ -3,8 +3,8 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
 
-class CategorizedServicesWidget extends StatelessWidget {
-  const CategorizedServicesWidget({super.key});
+class MerchantCategorizedServicesWidget extends StatelessWidget {
+  const MerchantCategorizedServicesWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,39 +12,42 @@ class CategorizedServicesWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildServiceSection(context, 'Cash Services', [
-          {'icon': 'add_circle', 'label': 'Cash Deposit'},
           {'icon': 'remove_circle', 'label': 'Cash Withdrawal'},
         ]),
         SizedBox(height: 3.h),
-        _buildServiceSection(context, 'Transfers', [
-          {'icon': 'account_balance', 'label': 'Same Bank'},
-          {'icon': 'send', 'label': 'Other Bank'},
+        _buildServiceSection(context, 'Pay Utilities', [
+          {'icon': 'phone_android', 'label': 'Airtime'},
+          {'icon': 'flash_on', 'label': 'Electricity'},
+          {'icon': 'water_drop', 'label': 'Water'},
         ]),
         SizedBox(height: 3.h),
-        _buildServiceSection(context, 'QR Services', [
+        _buildServiceSection(context, 'QR Payments', [
           {'icon': 'qr_code_scanner', 'label': 'QR Deposit'},
           {'icon': 'qr_code', 'label': 'QR Withdrawal'},
         ]),
         SizedBox(height: 3.h),
-        _buildServiceSection(context, 'Account Services', [
-          {'icon': 'person_add', 'label': 'Open Account'},
-          {'icon': 'account_balance_wallet', 'label': 'Balance'},
-          {'icon': 'receipt', 'label': 'Mini Statement'},
+        _buildServiceSection(context, 'ATM Cardless', [
+          {'icon': 'atm', 'label': 'Cardless Cash'},
         ]),
         SizedBox(height: 3.h),
-        _buildServiceSection(context, 'Account Requests', [
-          {'icon': 'description', 'label': 'Statement'},
-          {'icon': 'credit_card', 'label': 'ATM Card'},
-          {'icon': 'book', 'label': 'Chequebook'},
-          {'icon': 'block', 'label': 'Block Card'},
-          {'icon': 'cancel', 'label': 'Stop Cheque'},
+        _buildServiceSection(context, 'Card Payments', [
+          {'icon': 'credit_card', 'label': 'POS Payment'},
+          {'icon': 'payment', 'label': 'Online Payment'},
         ]),
         SizedBox(height: 3.h),
-        _buildServiceSection(context, 'Agent Tools', [
-          {'icon': 'history', 'label': 'Daily Txns'},
-          {'icon': 'undo', 'label': 'Reverse'},
-          {'icon': 'location_on', 'label': 'Locations'},
-          {'icon': 'settings', 'label': 'Settings'},
+        _buildServiceSection(context, 'Merchant Profile', [
+          {'icon': 'person', 'label': 'My Profile'},
+          {'icon': 'business', 'label': 'Business Info'},
+        ]),
+        SizedBox(height: 3.h),
+        _buildServiceSection(context, 'Settings', [
+          {'icon': 'settings', 'label': 'Preferences'},
+          {'icon': 'security', 'label': 'Security'},
+        ]),
+        SizedBox(height: 3.h),
+        _buildServiceSection(context, 'Daily Transactions History', [
+          {'icon': 'history', 'label': 'View History'},
+          {'icon': 'download', 'label': 'Export Report'},
         ]),
       ],
     );
@@ -93,13 +96,19 @@ class CategorizedServicesWidget extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('$label - Coming Soon'),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 2),
-              ),
-            );
+            if (label == 'View History') {
+              Navigator.of(
+                context,
+              ).pushNamed('/merchant-transaction-history-screen');
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('$label - Coming Soon'),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            }
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
@@ -111,13 +120,13 @@ class CategorizedServicesWidget extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1B365D).withValues(alpha: 0.1),
+                    color: const Color(0xFF059669).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
                     child: CustomIconWidget(
                       iconName: iconName,
-                      color: const Color(0xFF1B365D),
+                      color: const Color(0xFF059669),
                       size: 24,
                     ),
                   ),

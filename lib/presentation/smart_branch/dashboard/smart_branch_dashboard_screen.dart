@@ -2,30 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import './widgets/agent_header_card.dart';
-import './widgets/quick_stats_row.dart';
-import './widgets/categorized_services_widget.dart';
+import './widgets/branch_header_card.dart';
+import './widgets/branch_quick_stats_row.dart';
+import './widgets/smart_branch_categorized_services_widget.dart';
 import '../../settings_screen/settings_screen.dart';
 
-/// Agency Banking Dashboard - Main workspace for banking agents
-/// Redesigned with categorized menu sections and small icon grid buttons
-class AgencyBankingDashboardScreen extends StatefulWidget {
-  const AgencyBankingDashboardScreen({super.key});
+/// Smart Branch Dashboard - Comprehensive operational hub for Smart Branch banking services
+class SmartBranchDashboardScreen extends StatefulWidget {
+  const SmartBranchDashboardScreen({super.key});
 
   @override
-  State<AgencyBankingDashboardScreen> createState() =>
-      _AgencyBankingDashboardScreenState();
+  State<SmartBranchDashboardScreen> createState() =>
+      _SmartBranchDashboardScreenState();
 }
 
-class _AgencyBankingDashboardScreenState
-    extends State<AgencyBankingDashboardScreen> {
+class _SmartBranchDashboardScreenState
+    extends State<SmartBranchDashboardScreen> {
   int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       backgroundColor: const Color(0xFFFAFBFC),
       body: SafeArea(
@@ -34,9 +30,11 @@ class _AgencyBankingDashboardScreenState
           child: _currentIndex == 0
               ? _buildDashboardContent()
               : _currentIndex == 1
-              ? _buildTransactionsNavigation()
+              ? _buildOperationsContent()
               : _currentIndex == 2
-              ? _buildLocationsContent()
+              ? _buildCustomersContent()
+              : _currentIndex == 3
+              ? _buildReportsContent()
               : const SettingsScreen(),
         ),
       ),
@@ -90,32 +88,44 @@ class _AgencyBankingDashboardScreenState
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Icon(Icons.dashboard, size: 24),
                 ),
-                label: 'Home',
+                label: 'Dashboard',
                 tooltip: 'Dashboard',
               ),
               BottomNavigationBarItem(
                 icon: Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Icon(Icons.receipt_long_outlined, size: 24),
+                  child: Icon(Icons.account_balance_outlined, size: 24),
                 ),
                 activeIcon: Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Icon(Icons.receipt_long, size: 24),
+                  child: Icon(Icons.account_balance, size: 24),
                 ),
-                label: 'Transactions',
-                tooltip: 'Transaction History',
+                label: 'Operations',
+                tooltip: 'Branch Operations',
               ),
               BottomNavigationBarItem(
                 icon: Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Icon(Icons.location_on_outlined, size: 24),
+                  child: Icon(Icons.people_outline, size: 24),
                 ),
                 activeIcon: Padding(
                   padding: const EdgeInsets.only(bottom: 4),
-                  child: Icon(Icons.location_on, size: 24),
+                  child: Icon(Icons.people, size: 24),
                 ),
-                label: 'Locations',
-                tooltip: 'Branch & ATM Locations',
+                label: 'Customers',
+                tooltip: 'Customer Management',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.bar_chart_outlined, size: 24),
+                ),
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.bar_chart, size: 24),
+                ),
+                label: 'Reports',
+                tooltip: 'Branch Reports',
               ),
               BottomNavigationBarItem(
                 icon: Padding(
@@ -148,11 +158,11 @@ class _AgencyBankingDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AgentHeaderCard(),
+              const BranchHeaderCard(),
               SizedBox(height: 2.h),
-              const QuickStatsRow(),
+              const BranchQuickStatsRow(),
               SizedBox(height: 3.h),
-              const CategorizedServicesWidget(),
+              const SmartBranchCategorizedServicesWidget(),
               SizedBox(height: 2.h),
             ],
           ),
@@ -161,18 +171,7 @@ class _AgencyBankingDashboardScreenState
     );
   }
 
-  Widget _buildTransactionsNavigation() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(context).pushNamed('/transaction-history');
-      setState(() {
-        _currentIndex = 0;
-      });
-    });
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildLocationsContent() {
-    final theme = Theme.of(context);
+  Widget _buildOperationsContent() {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(4.w),
@@ -180,13 +179,13 @@ class _AgencyBankingDashboardScreenState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.location_on,
+              Icons.account_balance,
               size: 80,
               color: const Color(0xFF1B365D).withValues(alpha: 0.3),
             ),
             SizedBox(height: 2.h),
             Text(
-              'Branch & ATM Locations',
+              'Branch Operations',
               style: GoogleFonts.inter(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
@@ -195,7 +194,79 @@ class _AgencyBankingDashboardScreenState
             ),
             SizedBox(height: 1.h),
             Text(
-              'Find nearby branches and ATMs',
+              'Manage daily branch operations and workflows',
+              style: GoogleFonts.inter(
+                fontSize: 14.sp,
+                color: const Color(0xFF6B7280),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomersContent() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(4.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.people,
+              size: 80,
+              color: const Color(0xFF1B365D).withValues(alpha: 0.3),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              'Customer Management',
+              style: GoogleFonts.inter(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1A1D23),
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Text(
+              'View and manage customer accounts',
+              style: GoogleFonts.inter(
+                fontSize: 14.sp,
+                color: const Color(0xFF6B7280),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReportsContent() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(4.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.bar_chart,
+              size: 80,
+              color: const Color(0xFF1B365D).withValues(alpha: 0.3),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              'Branch Reports',
+              style: GoogleFonts.inter(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1A1D23),
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Text(
+              'View branch performance and analytics',
               style: GoogleFonts.inter(
                 fontSize: 14.sp,
                 color: const Color(0xFF6B7280),

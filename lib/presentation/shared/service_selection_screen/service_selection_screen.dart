@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import '../../../widgets/custom_icon_widget.dart';
 import './widgets/service_card_widget.dart';
 import './widgets/service_carousel_widget.dart';
 import './widgets/service_info_bottom_sheet.dart';
@@ -55,7 +54,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       "subtitle": "Digital banking operations and account management",
       "description":
           "Access comprehensive digital banking services including account opening, loan applications, investment management, and real-time transaction monitoring with advanced security features.",
-      "route": "/smart-branch-login",
+      "route": "/smart-branch-login-screen",
       "gradientColors": [Color(0xFF1B365D), Color(0xFF2E5A8F)],
     },
     {
@@ -64,7 +63,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       "subtitle": "Agent-powered banking services",
       "description":
           "Empower banking agents to provide essential financial services to customers in remote locations, including cash deposits, withdrawals, bill payments, and account inquiries with secure authentication.",
-      "route": "/agency-login",
+      "route": "/agency-login-screen",
       "gradientColors": [Color(0xFF2E8B8B), Color(0xFF3FA5A5)],
     },
     {
@@ -73,7 +72,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       "subtitle": "Payment and collection solutions",
       "description":
           "Complete merchant payment processing platform with QR code payments, invoice generation, sales analytics, inventory management, and multi-channel payment acceptance for growing businesses.",
-      "route": "/merchant-login",
+      "route": "/merchant-login-screen",
       "gradientColors": [Color(0xFF059669), Color(0xFF10B981)],
     },
   ];
@@ -248,9 +247,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             SizedBox(height: 2.h),
             Text(
               '© 2026 BankingSuperApp. All rights reserved.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall,
             ),
           ],
         ),
@@ -273,15 +270,69 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
           ? const Color(0xFFFAFBFC)
           : const Color(0xFF0F1419),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(4.w, 6.h, 4.w, 2.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Select Banking Service',
+        child: Padding(
+          padding: EdgeInsets.only(top: 6.h),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Welcome',
+                            style: GoogleFonts.inter(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w400,
+                              color: theme.brightness == Brightness.light
+                                  ? const Color(0xFF6B7280)
+                                  : const Color(0xFF9CA3AF),
+                            ),
+                          ),
+                          SizedBox(height: 0.5.h),
+                          Text(
+                            'Choose Your Service',
+                            style: GoogleFonts.inter(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.w700,
+                              color: theme.brightness == Brightness.light
+                                  ? const Color(0xFF1A1D23)
+                                  : const Color(0xFFFAFBFC),
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: CustomIconWidget(
+                          iconName: 'settings',
+                          color: theme.brightness == Brightness.light
+                              ? const Color(0xFF1A1D23)
+                              : const Color(0xFFFAFBFC),
+                          size: 24,
+                        ),
+                        onPressed: _showSettingsDrawer,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 3.h),
+                ServiceCarouselWidget(
+                  pageController: _pageController,
+                  carouselItems: _carouselItems,
+                  currentPage: _currentPage,
+                  onPageChanged: _onPageChanged,
+                  onDotTapped: _onDotTapped,
+                ),
+                SizedBox(height: 4.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w),
+                  child: Text(
+                    'Banking Services',
                     style: GoogleFonts.inter(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
@@ -290,48 +341,19 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                           : const Color(0xFFFAFBFC),
                     ),
                   ),
-                  IconButton(
-                    icon: CustomIconWidget(
-                      iconName: 'settings',
-                      color: theme.brightness == Brightness.light
-                          ? const Color(0xFF1A1D23)
-                          : const Color(0xFFFAFBFC),
-                      size: 24,
-                    ),
-                    onPressed: _showSettingsDrawer,
-                  ),
-                ],
-              ),
-            ),
-            ServiceCarouselWidget(
-              pageController: _pageController,
-              carouselItems: _carouselItems,
-              currentPage: _currentPage,
-              onPageChanged: _onPageChanged,
-              onDotTapped: _onDotTapped,
-            ),
-            SizedBox(height: 3.h),
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 4.w),
-                itemCount: _serviceCards.length,
-                itemBuilder: (context, index) {
+                ),
+                SizedBox(height: 2.h),
+                ..._serviceCards.map((service) {
                   return ServiceCardWidget(
-                    service: _serviceCards[index],
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        _serviceCards[index]['route'],
-                      );
-                    },
-                    onLongPress: () {
-                      _showServiceInfo(_serviceCards[index]);
-                    },
+                    service: service,
+                    onTap: () => Navigator.pushNamed(context, service['route']),
+                    onLongPress: () => _showServiceInfo(service),
                   );
-                },
-              ),
+                }),
+                SizedBox(height: 3.h),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

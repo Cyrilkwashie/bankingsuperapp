@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import '../../../widgets/custom_image_widget.dart';
 
 /// Splash Screen - Initial loading screen with animated logo
 /// Implements smart navigation based on authentication state
@@ -83,90 +82,93 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ),
         child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _fadeAnimation.value,
-                    child: Transform.scale(
-                      scale: _scaleAnimation.value,
-                      child: child,
+          child: Padding(
+            padding: EdgeInsets.only(top: 6.h),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Spacer(),
+                AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _fadeAnimation.value,
+                      child: Transform.scale(
+                        scale: _scaleAnimation.value,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 35.w,
+                    height: 35.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
-                  );
-                },
-                child: Container(
-                  width: 35.w,
-                  height: 35.w,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                    child: Center(
+                      child: CustomImageWidget(
+                        imageUrl: 'assets/images/img_app_logo.svg',
+                        width: 25.w,
+                        height: 25.w,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                AnimatedBuilder(
+                  animation: _fadeAnimation,
+                  builder: (context, child) {
+                    return Opacity(opacity: _fadeAnimation.value, child: child);
+                  },
+                  child: Column(
+                    children: [
+                      Text(
+                        'BankingSuperApp',
+                        style: GoogleFonts.inter(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      SizedBox(height: 1.h),
+                      Text(
+                        'Your Complete Banking Solution',
+                        style: GoogleFonts.inter(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: CustomImageWidget(
-                      imageUrl: 'assets/images/img_app_logo.svg',
-                      width: 25.w,
-                      height: 25.w,
+                ),
+                const Spacer(),
+                AnimatedBuilder(
+                  animation: _fadeAnimation,
+                  builder: (context, child) {
+                    return Opacity(opacity: _fadeAnimation.value, child: child);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 4.h),
+                    child: CircularProgressIndicator(
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                      strokeWidth: 3,
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 4.h),
-              AnimatedBuilder(
-                animation: _fadeAnimation,
-                builder: (context, child) {
-                  return Opacity(opacity: _fadeAnimation.value, child: child);
-                },
-                child: Column(
-                  children: [
-                    Text(
-                      'BankingSuperApp',
-                      style: GoogleFonts.inter(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    SizedBox(height: 1.h),
-                    Text(
-                      'Your Complete Banking Solution',
-                      style: GoogleFonts.inter(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.white.withValues(alpha: 0.9),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              AnimatedBuilder(
-                animation: _fadeAnimation,
-                builder: (context, child) {
-                  return Opacity(opacity: _fadeAnimation.value, child: child);
-                },
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 4.h),
-                  child: CircularProgressIndicator(
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.white,
-                    ),
-                    strokeWidth: 3,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/app_export.dart';
-import '../../routes/app_routes.dart';
 
 /// Settings screen with configuration options for agent preferences and security
 class SettingsScreen extends StatelessWidget {
@@ -18,187 +17,190 @@ class SettingsScreen extends StatelessWidget {
           ? const Color(0xFFFAFBFC)
           : const Color(0xFF0F1419),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 2.h),
-                Text(
-                  'Settings',
-                  style: GoogleFonts.inter(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w700,
-                    color: isDark
-                        ? const Color(0xFFFAFBFC)
-                        : const Color(0xFF1A1D23),
+        child: Padding(
+          padding: EdgeInsets.only(top: 6.h),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 2.h),
+                  Text(
+                    'Settings',
+                    style: GoogleFonts.inter(
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? const Color(0xFFFAFBFC)
+                          : const Color(0xFF1A1D23),
+                    ),
                   ),
-                ),
-                SizedBox(height: 3.h),
-                _buildSectionHeader(context, 'Profile', isDark),
-                SizedBox(height: 1.h),
-                _buildProfileCard(context, isDark),
-                SizedBox(height: 3.h),
-                _buildSectionHeader(context, 'Security', isDark),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.fingerprint,
-                  title: 'Biometric Authentication',
-                  subtitle: 'Use fingerprint or face ID',
-                  trailing: Switch(
-                    value: true,
-                    onChanged: (value) {},
-                    activeColor: theme.colorScheme.primary,
+                  SizedBox(height: 3.h),
+                  _buildSectionHeader(context, 'Profile', isDark),
+                  SizedBox(height: 1.h),
+                  _buildProfileCard(context, isDark),
+                  SizedBox(height: 3.h),
+                  _buildSectionHeader(context, 'Security', isDark),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.fingerprint,
+                    title: 'Biometric Authentication',
+                    subtitle: 'Use fingerprint or face ID',
+                    trailing: Switch(
+                      value: true,
+                      onChanged: (value) {},
+                      activeThumbColor: theme.colorScheme.primary,
+                    ),
+                    isDark: isDark,
                   ),
-                  isDark: isDark,
-                ),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.lock_outline,
-                  title: 'Change Password',
-                  subtitle: 'Update your login password',
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: isDark
-                        ? const Color(0xFF9CA3AF)
-                        : const Color(0xFF6B7280),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.lock_outline,
+                    title: 'Change Password',
+                    subtitle: 'Update your login password',
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280),
+                    ),
+                    onTap: () {},
+                    isDark: isDark,
                   ),
-                  onTap: () {},
-                  isDark: isDark,
-                ),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.pin,
-                  title: 'Change PIN',
-                  subtitle: 'Update your transaction PIN',
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: isDark
-                        ? const Color(0xFF9CA3AF)
-                        : const Color(0xFF6B7280),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.pin,
+                    title: 'Change PIN',
+                    subtitle: 'Update your transaction PIN',
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280),
+                    ),
+                    onTap: () {},
+                    isDark: isDark,
                   ),
-                  onTap: () {},
-                  isDark: isDark,
-                ),
-                SizedBox(height: 3.h),
-                _buildSectionHeader(context, 'Notifications', isDark),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.notifications_outlined,
-                  title: 'Transaction Alerts',
-                  subtitle: 'Get notified for all transactions',
-                  trailing: Switch(
-                    value: true,
-                    onChanged: (value) {},
-                    activeColor: theme.colorScheme.primary,
+                  SizedBox(height: 3.h),
+                  _buildSectionHeader(context, 'Notifications', isDark),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.notifications_outlined,
+                    title: 'Transaction Alerts',
+                    subtitle: 'Get notified for all transactions',
+                    trailing: Switch(
+                      value: true,
+                      onChanged: (value) {},
+                      activeThumbColor: theme.colorScheme.primary,
+                    ),
+                    isDark: isDark,
                   ),
-                  isDark: isDark,
-                ),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.campaign_outlined,
-                  title: 'Promotional Messages',
-                  subtitle: 'Receive offers and updates',
-                  trailing: Switch(
-                    value: false,
-                    onChanged: (value) {},
-                    activeColor: theme.colorScheme.primary,
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.campaign_outlined,
+                    title: 'Promotional Messages',
+                    subtitle: 'Receive offers and updates',
+                    trailing: Switch(
+                      value: false,
+                      onChanged: (value) {},
+                      activeThumbColor: theme.colorScheme.primary,
+                    ),
+                    isDark: isDark,
                   ),
-                  isDark: isDark,
-                ),
-                SizedBox(height: 3.h),
-                _buildSectionHeader(context, 'Display', isDark),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.dark_mode_outlined,
-                  title: 'Dark Mode',
-                  subtitle: 'Switch to dark theme',
-                  trailing: Switch(
-                    value: isDark,
-                    onChanged: (value) {},
-                    activeColor: theme.colorScheme.primary,
+                  SizedBox(height: 3.h),
+                  _buildSectionHeader(context, 'Display', isDark),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.dark_mode_outlined,
+                    title: 'Dark Mode',
+                    subtitle: 'Switch to dark theme',
+                    trailing: Switch(
+                      value: isDark,
+                      onChanged: (value) {},
+                      activeThumbColor: theme.colorScheme.primary,
+                    ),
+                    isDark: isDark,
                   ),
-                  isDark: isDark,
-                ),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.language,
-                  title: 'Language',
-                  subtitle: 'English (US)',
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: isDark
-                        ? const Color(0xFF9CA3AF)
-                        : const Color(0xFF6B7280),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.language,
+                    title: 'Language',
+                    subtitle: 'English (US)',
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280),
+                    ),
+                    onTap: () {},
+                    isDark: isDark,
                   ),
-                  onTap: () {},
-                  isDark: isDark,
-                ),
-                SizedBox(height: 3.h),
-                _buildSectionHeader(context, 'Support', isDark),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.location_on_outlined,
-                  title: 'Branch & ATM Locations',
-                  subtitle: 'Find nearby branches',
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: isDark
-                        ? const Color(0xFF9CA3AF)
-                        : const Color(0xFF6B7280),
+                  SizedBox(height: 3.h),
+                  _buildSectionHeader(context, 'Support', isDark),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.location_on_outlined,
+                    title: 'Branch & ATM Locations',
+                    subtitle: 'Find nearby branches',
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280),
+                    ),
+                    onTap: () {},
+                    isDark: isDark,
                   ),
-                  onTap: () {},
-                  isDark: isDark,
-                ),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.help_outline,
-                  title: 'Help & Support',
-                  subtitle: 'Get assistance',
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: isDark
-                        ? const Color(0xFF9CA3AF)
-                        : const Color(0xFF6B7280),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.help_outline,
+                    title: 'Help & Support',
+                    subtitle: 'Get assistance',
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280),
+                    ),
+                    onTap: () {},
+                    isDark: isDark,
                   ),
-                  onTap: () {},
-                  isDark: isDark,
-                ),
-                SizedBox(height: 1.h),
-                _buildSettingItem(
-                  context,
-                  icon: Icons.info_outline,
-                  title: 'About',
-                  subtitle: 'App version 1.0.0',
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: isDark
-                        ? const Color(0xFF9CA3AF)
-                        : const Color(0xFF6B7280),
+                  SizedBox(height: 1.h),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.info_outline,
+                    title: 'About',
+                    subtitle: 'App version 1.0.0',
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280),
+                    ),
+                    onTap: () {},
+                    isDark: isDark,
                   ),
-                  onTap: () {},
-                  isDark: isDark,
-                ),
-                SizedBox(height: 3.h),
-                _buildLogoutButton(context, isDark),
-                SizedBox(height: 2.h),
-              ],
+                  SizedBox(height: 3.h),
+                  _buildLogoutButton(context, isDark),
+                  SizedBox(height: 2.h),
+                ],
+              ),
             ),
           ),
         ),
