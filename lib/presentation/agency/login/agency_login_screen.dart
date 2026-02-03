@@ -99,63 +99,14 @@ class _AgencyLoginScreenState extends State<AgencyLoginScreen>
   }
 
   Future<void> _handleLogin() async {
-    if (_lockoutTime != null && DateTime.now().isBefore(_lockoutTime!)) {
-      final remainingSeconds = _lockoutTime!
-          .difference(DateTime.now())
-          .inSeconds;
-      _showErrorSnackBar(
-        'Account temporarily locked. Try again in $remainingSeconds seconds.',
-      );
-      return;
-    }
-
-    if (!_formKey.currentState!.validate()) {
-      _shakeController.forward().then((_) => _shakeController.reverse());
-      return;
-    }
-
     setState(() {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
 
-    final agentId = _agentIdController.text.trim();
-    final password = _passwordController.text;
-
-    if (_authenticateAgent(agentId, password)) {
-      _failedAttempts = 0;
-      _lockoutTime = null;
-
-      setState(() {
-        _biometricEnabled = true;
-      });
-
-      HapticFeedback.mediumImpact();
-      _navigateToDashboard();
-    } else {
-      _failedAttempts++;
-
-      if (_failedAttempts >= 3) {
-        final lockoutDuration = _failedAttempts == 3
-            ? 30
-            : (_failedAttempts == 4 ? 60 : 300);
-        _lockoutTime = DateTime.now().add(Duration(seconds: lockoutDuration));
-        _showErrorSnackBar(
-          'Too many failed attempts. Account locked for $lockoutDuration seconds.',
-        );
-      } else {
-        _showErrorSnackBar(
-          'Invalid credentials. ${3 - _failedAttempts} attempts remaining.',
-        );
-      }
-
-      _shakeController.forward().then((_) => _shakeController.reverse());
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
+    HapticFeedback.mediumImpact();
+    _navigateToDashboard();
   }
 
   bool _authenticateAgent(String agentId, String password) {

@@ -38,15 +38,15 @@ class BranchQuickStatsRow extends StatelessWidget {
     Color color,
   ) {
     return Container(
-      padding: EdgeInsets.all(3.w),
+      padding: EdgeInsets.all(2.5.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            blurRadius: 6,
+            offset: const Offset(0, 1.5),
           ),
         ],
       ),
@@ -57,38 +57,38 @@ class BranchQuickStatsRow extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon, color: color, size: 16),
               ),
               Container(
-                width: 8,
-                height: 8,
+                width: 6,
+                height: 6,
                 decoration: BoxDecoration(
                   color: const Color(0xFF10B981),
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(3),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 1.5.h),
+          SizedBox(height: 1.h),
           Text(
             value,
             style: GoogleFonts.inter(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF1A1D23),
             ),
           ),
-          SizedBox(height: 0.3.h),
+          SizedBox(height: 0.2.h),
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 11.sp,
+              fontSize: 9.sp,
               color: const Color(0xFF6B7280),
             ),
           ),

@@ -47,36 +47,36 @@ class QuickStatsRow extends StatelessWidget {
     Color color,
   ) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 2.w),
+      padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 1.5.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            blurRadius: 6,
+            offset: const Offset(0, 1.5),
           ),
         ],
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 20),
-          SizedBox(height: 0.5.h),
+          Icon(icon, color: color, size: 16),
+          SizedBox(height: 0.3.h),
           Text(
             value,
             style: GoogleFonts.inter(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF1A1D23),
             ),
           ),
-          SizedBox(height: 0.2.h),
+          SizedBox(height: 0.1.h),
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 10.sp,
+              fontSize: 8.sp,
               fontWeight: FontWeight.w400,
               color: const Color(0xFF6B7280),
             ),

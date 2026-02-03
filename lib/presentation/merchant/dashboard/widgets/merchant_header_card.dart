@@ -9,44 +9,44 @@ class MerchantHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFF059669), Color(0xFF10B981)],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Colors.white.withValues(alpha: 0.3),
-                width: 2,
+                width: 1.5,
               ),
             ),
             child: Center(
               child: CustomIconWidget(
                 iconName: 'store',
                 color: Colors.white,
-                size: 28,
+                size: 20,
               ),
             ),
           ),
-          SizedBox(width: 3.w),
+          SizedBox(width: 2.5.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,51 +54,51 @@ class MerchantHeaderCard extends StatelessWidget {
                 Text(
                   'Kwame Store',
                   style: GoogleFonts.inter(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 0.3.h),
+                SizedBox(height: 0.2.h),
                 Text(
                   'Business ID: MERCH001',
                   style: GoogleFonts.inter(
-                    fontSize: 12.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w400,
                     color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
-                SizedBox(height: 0.5.h),
+                SizedBox(height: 0.3.h),
                 Row(
                   children: [
                     Container(
-                      width: 8,
-                      height: 8,
+                      width: 6,
+                      height: 6,
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(3),
                       ),
                     ),
-                    SizedBox(width: 1.w),
+                    SizedBox(width: 0.8.w),
                     Text(
                       'Operational',
                       style: GoogleFonts.inter(
-                        fontSize: 11.sp,
+                        fontSize: 9.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(width: 2.w),
+                    SizedBox(width: 1.5.w),
                     Icon(
                       Icons.location_on,
-                      size: 12,
+                      size: 10,
                       color: Colors.white.withValues(alpha: 0.8),
                     ),
-                    SizedBox(width: 0.5.w),
+                    SizedBox(width: 0.3.w),
                     Text(
                       'Accra',
                       style: GoogleFonts.inter(
-                        fontSize: 11.sp,
+                        fontSize: 9.sp,
                         fontWeight: FontWeight.w400,
                         color: Colors.white.withValues(alpha: 0.8),
                       ),
@@ -114,17 +114,17 @@ class MerchantHeaderCard extends StatelessWidget {
               Text(
                 'Balance',
                 style: GoogleFonts.inter(
-                  fontSize: 11.sp,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.w400,
                   color: Colors.white.withValues(alpha: 0.7),
                 ),
               ),
-              SizedBox(height: 0.3.h),
+              SizedBox(height: 0.2.h),
               Text(
                 'GH₵85,500',
                 style: GoogleFonts.inter(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),

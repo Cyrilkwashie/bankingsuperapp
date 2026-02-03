@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../widgets/custom_icon_widget.dart';
 import './widgets/service_card_widget.dart';
 import './widgets/service_carousel_widget.dart';
 import './widgets/service_info_bottom_sheet.dart';
@@ -247,14 +248,16 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             SizedBox(height: 2.h),
             Text(
               '© 2026 BankingSuperApp. All rights reserved.',
-              style: theme.textTheme.bodySmall,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text('Close'),
           ),
         ],
       ),
@@ -265,97 +268,180 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.brightness == Brightness.light
-          ? const Color(0xFFFAFBFC)
-          : const Color(0xFF0F1419),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(top: 6.h),
-          child: SingleChildScrollView(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Exit App'),
+            content: Text('Are you sure you want to exit?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text('Exit'),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldExit == true && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: 6.h,
+              bottom: 2.h,
+              left: 4.w,
+              right: 4.w,
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome',
-                            style: GoogleFonts.inter(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w400,
-                              color: theme.brightness == Brightness.light
-                                  ? const Color(0xFF6B7280)
-                                  : const Color(0xFF9CA3AF),
-                            ),
-                          ),
-                          SizedBox(height: 0.5.h),
-                          Text(
-                            'Choose Your Service',
-                            style: GoogleFonts.inter(
-                              fontSize: 24.sp,
-                              fontWeight: FontWeight.w700,
-                              color: theme.brightness == Brightness.light
-                                  ? const Color(0xFF1A1D23)
-                                  : const Color(0xFFFAFBFC),
-                            ),
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: CustomIconWidget(
-                          iconName: 'settings',
-                          color: theme.brightness == Brightness.light
-                              ? const Color(0xFF1A1D23)
-                              : const Color(0xFFFAFBFC),
-                          size: 24,
-                        ),
-                        onPressed: _showSettingsDrawer,
-                      ),
-                    ],
-                  ),
-                ),
+                _buildHeader(theme),
                 SizedBox(height: 3.h),
-                ServiceCarouselWidget(
-                  pageController: _pageController,
-                  carouselItems: _carouselItems,
-                  currentPage: _currentPage,
-                  onPageChanged: _onPageChanged,
-                  onDotTapped: _onDotTapped,
-                ),
-                SizedBox(height: 4.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5.w),
-                  child: Text(
-                    'Banking Services',
-                    style: GoogleFonts.inter(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w700,
-                      color: theme.brightness == Brightness.light
-                          ? const Color(0xFF1A1D23)
-                          : const Color(0xFFFAFBFC),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ServiceCarouselWidget(
+                          carouselItems: _carouselItems,
+                          pageController: _pageController,
+                          currentPage: _currentPage,
+                          onPageChanged: _onPageChanged,
+                          onDotTapped: _onDotTapped,
+                        ),
+                        SizedBox(height: 4.h),
+                        _buildServiceCards(theme),
+                      ],
                     ),
                   ),
                 ),
-                SizedBox(height: 2.h),
-                ..._serviceCards.map((service) {
-                  return ServiceCardWidget(
-                    service: service,
-                    onTap: () => Navigator.pushNamed(context, service['route']),
-                    onLongPress: () => _showServiceInfo(service),
-                  );
-                }),
-                SizedBox(height: 3.h),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader(ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.secondary,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: CustomIconWidget(
+                  iconName: 'account_balance',
+                  color: theme.colorScheme.onPrimary,
+                  size: 24,
+                ),
+              ),
+            ),
+            SizedBox(width: 3.w),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'BankingSuperApp',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  'One App. Three Solutions',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            IconButton(
+              icon: CustomIconWidget(
+                iconName: 'settings',
+                color: theme.colorScheme.onSurface,
+                size: 24,
+              ),
+              onPressed: _showSettingsDrawer,
+              tooltip: 'Settings',
+            ),
+            SizedBox(width: 2.w),
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+              child: CustomIconWidget(
+                iconName: 'person',
+                color: theme.colorScheme.primary,
+                size: 24,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildServiceCards(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 2.w),
+          child: Text(
+            'Select Banking Service',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        SizedBox(height: 2.h),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _serviceCards.length,
+          separatorBuilder: (context, index) => SizedBox(height: 2.h),
+          itemBuilder: (context, index) {
+            return ServiceCardWidget(
+              service: _serviceCards[index],
+              onTap: () {
+                Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).pushNamed(_serviceCards[index]["route"] as String);
+              },
+              onLongPress: () => _showServiceInfo(_serviceCards[index]),
+            );
+          },
+        ),
+      ],
     );
   }
 }

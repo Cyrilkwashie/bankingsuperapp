@@ -99,59 +99,14 @@ class _MerchantLoginScreenState extends State<MerchantLoginScreen>
   }
 
   Future<void> _handleLogin() async {
-    if (_lockoutTime != null && DateTime.now().isBefore(_lockoutTime!)) {
-      final remainingSeconds = _lockoutTime!
-          .difference(DateTime.now())
-          .inSeconds;
-      _showErrorDialog(
-        'Account Locked',
-        'Too many failed attempts. Please try again in $remainingSeconds seconds.',
-      );
-      return;
-    }
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+    await Future.delayed(const Duration(seconds: 1));
 
-      await Future.delayed(const Duration(seconds: 2));
-
-      final merchantId = _merchantIdController.text.trim();
-      final password = _passwordController.text;
-
-      if (merchantId == 'MERCH001' && password == 'Merchant@123') {
-        setState(() {
-          _isLoading = false;
-          _failedAttempts = 0;
-          _lockoutTime = null;
-        });
-
-        if (mounted) {
-          Navigator.of(
-            context,
-          ).pushReplacementNamed('/merchant-banking-dashboard');
-        }
-      } else {
-        setState(() {
-          _isLoading = false;
-          _failedAttempts++;
-
-          if (_failedAttempts >= 3) {
-            _lockoutTime = DateTime.now().add(const Duration(seconds: 30));
-          }
-        });
-
-        _shakeController.forward().then((_) => _shakeController.reverse());
-
-        _showErrorDialog(
-          'Login Failed',
-          _failedAttempts >= 3
-              ? 'Account locked for 30 seconds due to multiple failed attempts.'
-              : 'Invalid Merchant ID or password. Attempt $_failedAttempts of 3.',
-        );
-      }
-    }
+    HapticFeedback.mediumImpact();
+    _navigateToDashboard();
   }
 
   bool _authenticateMerchant(String merchantId, String password) {
@@ -167,7 +122,10 @@ class _MerchantLoginScreenState extends State<MerchantLoginScreen>
   }
 
   void _navigateToDashboard() {
-    _showErrorSnackBar('Merchant Dashboard - Coming Soon');
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).pushReplacementNamed('/merchant-banking-dashboard');
   }
 
   void _showErrorSnackBar(String message) {
