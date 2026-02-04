@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 
 import '../presentation/agency/dashboard/agency_banking_dashboard_screen.dart';
+import '../presentation/agency/locations/agency_locations_screen.dart';
 import '../presentation/agency/login/agency_login_screen.dart';
+import '../presentation/agency/settings/agency_settings_screen.dart';
 import '../presentation/agency/transaction_history/transaction_history_screen.dart';
-import '../presentation/login_screen/login_screen.dart';
 import '../presentation/merchant/dashboard/merchant_banking_dashboard_screen.dart';
 import '../presentation/merchant/login/merchant_login_screen.dart';
+import '../presentation/merchant/settings/merchant_settings_screen.dart';
 import '../presentation/merchant/transaction_history/merchant_transaction_history_screen.dart';
-import '../presentation/settings_screen/settings_screen.dart';
 import '../presentation/shared/service_selection_screen/service_selection_screen.dart';
 import '../presentation/shared/splash_screen/splash_screen.dart';
 import '../presentation/smart_branch/dashboard/smart_branch_dashboard_screen.dart';
 import '../presentation/smart_branch/login/smart_branch_login_screen.dart';
+import '../presentation/smart_branch/settings/smart_branch_settings_screen.dart';
+import '../presentation/agency/transactions/agency_transactions_screen.dart';
+import '../presentation/merchant/transactions/merchant_transactions_screen.dart';
+import '../presentation/smart_branch/transactions/smart_branch_transactions_screen.dart';
 
 class AppRoutes {
   static const String initial = '/';
@@ -27,13 +32,18 @@ class AppRoutes {
   static const String merchantTransactionHistory =
       '/merchant-transaction-history-screen';
   static const String transactionHistory = '/transaction-history';
-  static const String settings = '/settings-screen';
+  static const String smartBranchSettings = '/smart-branch-settings';
+  static const String agencySettings = '/agency-settings';
+  static const String merchantSettings = '/merchant-settings';
+  static const String smartBranchTransactions = '/smart-branch-transactions';
+  static const String agencyTransactions = '/agency-transactions';
+  static const String merchantTransactions = '/merchant-transactions';
+  static const String agencyLocations = '/agency-locations';
 
   static Map<String, WidgetBuilder> routes = {
     initial: (context) => const SplashScreen(),
     splash: (context) => const SplashScreen(),
     serviceSelection: (context) => const ServiceSelectionScreen(),
-    login: (context) => const LoginScreen(),
     agencyLogin: (context) => const AgencyLoginScreen(),
     merchantLogin: (context) => const MerchantLoginScreen(),
     smartBranchLogin: (context) => const SmartBranchLoginScreen(),
@@ -44,6 +54,12 @@ class AppRoutes {
     merchantTransactionHistory: (context) =>
         const MerchantTransactionHistoryScreen(),
     transactionHistory: (context) => const TransactionHistoryScreen(),
-    settings: (context) => const SettingsScreen(),
+    smartBranchSettings: (context) => const SmartBranchSettingsScreen(),
+    agencySettings: (context) => const AgencySettingsScreen(),
+    merchantSettings: (context) => const MerchantSettingsScreen(),
+    smartBranchTransactions: (context) => const SmartBranchTransactionsScreen(),
+    agencyTransactions: (context) => const AgencyTransactionsScreen(),
+    merchantTransactions: (context) => const MerchantTransactionsScreen(),
+    agencyLocations: (context) => const AgencyLocationsScreen(),
   };
 }

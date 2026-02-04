@@ -18,31 +18,31 @@ class SettingsScreen extends StatelessWidget {
           : const Color(0xFF0F1419),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(top: 6.h),
+          padding: EdgeInsets.only(top: 4.h),
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 1.h),
                   Text(
                     'Settings',
                     style: GoogleFonts.inter(
-                      fontSize: 24.sp,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                       color: isDark
                           ? const Color(0xFFFAFBFC)
                           : const Color(0xFF1A1D23),
                     ),
                   ),
-                  SizedBox(height: 3.h),
+                  SizedBox(height: 2.h),
                   _buildSectionHeader(context, 'Profile', isDark),
                   SizedBox(height: 1.h),
                   _buildProfileCard(context, isDark),
-                  SizedBox(height: 3.h),
+                  SizedBox(height: 2.h),
                   _buildSectionHeader(context, 'Security', isDark),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.fingerprint,
@@ -55,7 +55,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     isDark: isDark,
                   ),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.lock_outline,
@@ -71,7 +71,7 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () {},
                     isDark: isDark,
                   ),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.pin,
@@ -87,9 +87,9 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () {},
                     isDark: isDark,
                   ),
-                  SizedBox(height: 3.h),
+                  SizedBox(height: 2.h),
                   _buildSectionHeader(context, 'Notifications', isDark),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.notifications_outlined,
@@ -102,7 +102,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     isDark: isDark,
                   ),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.campaign_outlined,
@@ -115,9 +115,9 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     isDark: isDark,
                   ),
-                  SizedBox(height: 3.h),
+                  SizedBox(height: 2.h),
                   _buildSectionHeader(context, 'Display', isDark),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.dark_mode_outlined,
@@ -130,7 +130,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     isDark: isDark,
                   ),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.language,
@@ -146,9 +146,9 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () {},
                     isDark: isDark,
                   ),
-                  SizedBox(height: 3.h),
+                  SizedBox(height: 2.h),
                   _buildSectionHeader(context, 'Support', isDark),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.location_on_outlined,
@@ -164,7 +164,7 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () {},
                     isDark: isDark,
                   ),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.help_outline,
@@ -180,7 +180,7 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () {},
                     isDark: isDark,
                   ),
-                  SizedBox(height: 1.h),
+                  SizedBox(height: 0.5.h),
                   _buildSettingItem(
                     context,
                     icon: Icons.info_outline,
@@ -196,9 +196,9 @@ class SettingsScreen extends StatelessWidget {
                     onTap: () {},
                     isDark: isDark,
                   ),
-                  SizedBox(height: 3.h),
-                  _buildLogoutButton(context, isDark),
                   SizedBox(height: 2.h),
+                  _buildLogoutButton(context, isDark),
+                  SizedBox(height: 1.h),
                 ],
               ),
             ),
@@ -212,7 +212,7 @@ class SettingsScreen extends StatelessWidget {
     return Text(
       title,
       style: GoogleFonts.inter(
-        fontSize: 14.sp,
+        fontSize: 12.sp,
         fontWeight: FontWeight.w600,
         color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
         letterSpacing: 0.5,
@@ -222,7 +222,7 @@ class SettingsScreen extends StatelessWidget {
 
   Widget _buildProfileCard(BuildContext context, bool isDark) {
     return Container(
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(2.w),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E2328) : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -240,8 +240,8 @@ class SettingsScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Theme.of(
@@ -251,7 +251,7 @@ class SettingsScreen extends StatelessWidget {
             child: Icon(
               Icons.person,
               color: Theme.of(context).colorScheme.primary,
-              size: 32,
+              size: 20,
             ),
           ),
           SizedBox(width: 3.w),
@@ -262,7 +262,7 @@ class SettingsScreen extends StatelessWidget {
                 Text(
                   'John Anderson',
                   style: GoogleFonts.inter(
-                    fontSize: 16.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                     color: isDark
                         ? const Color(0xFFFAFBFC)
@@ -273,7 +273,7 @@ class SettingsScreen extends StatelessWidget {
                 Text(
                   'AG-2024-1523',
                   style: GoogleFonts.inter(
-                    fontSize: 12.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w400,
                     color: isDark
                         ? const Color(0xFF9CA3AF)
@@ -284,7 +284,7 @@ class SettingsScreen extends StatelessWidget {
                 Text(
                   'john.anderson@bank.com',
                   style: GoogleFonts.inter(
-                    fontSize: 12.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w400,
                     color: isDark
                         ? const Color(0xFF9CA3AF)
@@ -319,7 +319,7 @@ class SettingsScreen extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: EdgeInsets.all(3.w),
+          padding: EdgeInsets.all(1.w),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E2328) : Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -337,7 +337,7 @@ class SettingsScreen extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Theme.of(
                     context,
@@ -347,7 +347,7 @@ class SettingsScreen extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: Theme.of(context).colorScheme.primary,
-                  size: 24,
+                  size: 16,
                 ),
               ),
               SizedBox(width: 3.w),
@@ -358,7 +358,7 @@ class SettingsScreen extends StatelessWidget {
                     Text(
                       title,
                       style: GoogleFonts.inter(
-                        fontSize: 14.sp,
+                        fontSize: 9.sp,
                         fontWeight: FontWeight.w600,
                         color: isDark
                             ? const Color(0xFFFAFBFC)
@@ -369,7 +369,7 @@ class SettingsScreen extends StatelessWidget {
                     Text(
                       subtitle,
                       style: GoogleFonts.inter(
-                        fontSize: 12.sp,
+                        fontSize: 7.sp,
                         fontWeight: FontWeight.w400,
                         color: isDark
                             ? const Color(0xFF9CA3AF)
@@ -438,7 +438,7 @@ class SettingsScreen extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: EdgeInsets.all(4.w),
+          padding: EdgeInsets.all(2.w),
           decoration: BoxDecoration(
             color: const Color(0xFFDC2626).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
@@ -450,12 +450,12 @@ class SettingsScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.logout, color: Color(0xFFDC2626), size: 24),
+              const Icon(Icons.logout, color: Color(0xFFDC2626), size: 16),
               SizedBox(width: 2.w),
               Text(
                 'Logout',
                 style: GoogleFonts.inter(
-                  fontSize: 16.sp,
+                  fontSize: 10.sp,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFFDC2626),
                 ),

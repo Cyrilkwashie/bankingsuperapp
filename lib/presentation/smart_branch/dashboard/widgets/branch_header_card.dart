@@ -4,24 +4,27 @@ import 'package:sizer/sizer.dart';
 import '../../../../core/app_export.dart';
 
 class BranchHeaderCard extends StatelessWidget {
-  const BranchHeaderCard({super.key});
+  final bool isDark;
+
+  const BranchHeaderCard({super.key, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(3.w),
+      padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1B365D), Color(0xFF2E5A8F)],
+          colors: [Color(0xFF1B365D), Color(0xFF2E5A8F), Color(0xFF3B6BA5)],
+          stops: [0.0, 0.5, 1.0],
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: const Color(0xFF1B365D).withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -30,11 +33,18 @@ class BranchHeaderCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.25),
+                      Colors.white.withValues(alpha: 0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.3),
                     width: 1.5,
@@ -44,53 +54,72 @@ class BranchHeaderCard extends StatelessWidget {
                   child: CustomIconWidget(
                     iconName: 'account_balance',
                     color: Colors.white,
-                    size: 20,
+                    size: 22,
                   ),
                 ),
               ),
-              SizedBox(width: 2.5.w),
+              SizedBox(width: 3.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Accra Main Branch',
+                      'Welcome to',
                       style: GoogleFonts.inter(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 0.2.h),
-                    Text(
-                      'Branch Code: BRANCH001',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
+                        fontSize: 9.sp,
                         fontWeight: FontWeight.w400,
                         color: Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
+                    SizedBox(height: 0.2.h),
+                    Text(
+                      'Accra Main Branch',
+                      style: GoogleFonts.inter(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
                     SizedBox(height: 0.3.h),
-                    Row(
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF10B981),
-                            borderRadius: BorderRadius.circular(3),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 2.w,
+                        vertical: 0.3.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4ADE80),
+                              borderRadius: BorderRadius.circular(3),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF4ADE80,
+                                  ).withValues(alpha: 0.5),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 0.8.w),
-                        Text(
-                          'Operational',
-                          style: GoogleFonts.inter(
-                            fontSize: 9.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFF10B981),
+                          SizedBox(width: 1.w),
+                          Text(
+                            'Operational',
+                            style: GoogleFonts.inter(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withValues(alpha: 0.9),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -98,18 +127,30 @@ class BranchHeaderCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 14,
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                  SizedBox(height: 0.2.h),
-                  Text(
-                    'Accra',
-                    style: GoogleFonts.inter(
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white.withValues(alpha: 0.8),
+                  Container(
+                    padding: EdgeInsets.all(1.5.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomIconWidget(
+                          iconName: 'location_on',
+                          color: Colors.white.withValues(alpha: 0.9),
+                          size: 12,
+                        ),
+                        SizedBox(width: 0.5.w),
+                        Text(
+                          'Accra',
+                          style: GoogleFonts.inter(
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -118,23 +159,33 @@ class BranchHeaderCard extends StatelessWidget {
           ),
           SizedBox(height: 1.5.h),
           Container(
-            padding: EdgeInsets.all(2.5.w),
+            padding: EdgeInsets.all(3.w),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: Colors.white.withValues(alpha: 0.15),
                 width: 1,
               ),
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.access_time,
-                  size: 14,
-                  color: Colors.white.withValues(alpha: 0.8),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: CustomIconWidget(
+                      iconName: 'schedule',
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
                 ),
-                SizedBox(width: 1.5.w),
+                SizedBox(width: 2.5.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,12 +198,12 @@ class BranchHeaderCard extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
-                      SizedBox(height: 0.1.h),
+                      SizedBox(height: 0.2.h),
                       Text(
                         'Morning Shift (08:00 - 16:00)',
                         style: GoogleFonts.inter(
                           fontSize: 10.sp,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
                       ),
@@ -161,19 +212,24 @@ class BranchHeaderCard extends StatelessWidget {
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 1.5.w,
-                    vertical: 0.3.h,
+                    horizontal: 2.w,
+                    vertical: 0.4.h,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(5),
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF10B981),
+                        const Color(0xFF059669),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'Active',
                     style: GoogleFonts.inter(
                       fontSize: 8.sp,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF10B981),
+                      color: Colors.white,
                     ),
                   ),
                 ),

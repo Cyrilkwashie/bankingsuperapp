@@ -152,84 +152,68 @@ class _SmartBranchLoginScreenState extends State<SmartBranchLoginScreen>
           ? const Color(0xFFFAFBFC)
           : const Color(0xFF0F1419),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(top: 6.h),
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: CustomIconWidget(
-                          iconName: 'arrow_back',
-                          color: theme.brightness == Brightness.light
-                              ? const Color(0xFF1A1D23)
-                              : const Color(0xFFFAFBFC),
-                          size: 24,
-                        ),
-                        onPressed: () => Navigator.pop(context),
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: 1.h),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Welcome Back',
+                      style: GoogleFonts.inter(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: theme.brightness == Brightness.light
+                            ? const Color(0xFF1A1D23)
+                            : const Color(0xFFFAFBFC),
                       ),
-                      SizedBox(width: 2.w),
-                      Text(
-                        'Welcome Back',
-                        style: GoogleFonts.inter(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w700,
-                          color: theme.brightness == Brightness.light
-                              ? const Color(0xFF1A1D23)
-                              : const Color(0xFFFAFBFC),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 1.h),
-                  Padding(
-                    padding: EdgeInsets.only(left: 12.w),
-                    child: Text(
+                    ),
+                    SizedBox(height: 0.5.h),
+                    Text(
                       'Sign in to your Smart Branch account',
                       style: GoogleFonts.inter(
-                        fontSize: 14.sp,
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w400,
                         color: theme.brightness == Brightness.light
                             ? const Color(0xFF6B7280)
                             : const Color(0xFF9CA3AF),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 4.h),
-                  SmartBranchSecurityBadgeWidget(),
-                  SizedBox(height: 4.h),
-                  AnimatedBuilder(
-                    animation: _shakeAnimation,
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(_shakeAnimation.value, 0),
-                        child: child,
-                      );
-                    },
-                    child: SmartBranchLoginFormWidget(
-                      formKey: _formKey,
-                      userIdController: _userIdController,
-                      passwordController: _passwordController,
-                      isPasswordVisible: _isPasswordVisible,
-                      isLoading: _isLoading,
-                      onPasswordVisibilityToggle: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
+                    SizedBox(height: 2.h),
+                    SmartBranchSecurityBadgeWidget(),
+                    SizedBox(height: 3.h),
+                    AnimatedBuilder(
+                      animation: _shakeAnimation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(_shakeAnimation.value, 0),
+                          child: child,
+                        );
                       },
-                      onLogin: _handleLogin,
+                      child: SmartBranchLoginFormWidget(
+                        formKey: _formKey,
+                        userIdController: _userIdController,
+                        passwordController: _passwordController,
+                        isPasswordVisible: _isPasswordVisible,
+                        isLoading: _isLoading,
+                        onPasswordVisibilityToggle: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                        onLogin: _handleLogin,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 3.h),
-                  if (_biometricAvailable)
-                    SmartBranchBiometricSectionWidget(
-                      onBiometricLogin: _handleBiometricLogin,
-                    ),
-                ],
+                    SizedBox(height: 2.h),
+                    if (_biometricAvailable)
+                      SmartBranchBiometricSectionWidget(
+                        onBiometricLogin: _handleBiometricLogin,
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

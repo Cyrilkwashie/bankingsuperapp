@@ -24,7 +24,7 @@ class MerchantSecurityBadgeWidget extends StatelessWidget {
           CustomIconWidget(
             iconName: 'verified_user',
             color: theme.colorScheme.primary,
-            size: 24,
+            size: 20,
           ),
           SizedBox(width: 3.w),
           Expanded(
@@ -34,7 +34,7 @@ class MerchantSecurityBadgeWidget extends StatelessWidget {
                 Text(
                   'Secure Merchant Access',
                   style: GoogleFonts.inter(
-                    fontSize: 13.sp,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: theme.brightness == Brightness.light
                         ? const Color(0xFF1A1D23)
@@ -45,7 +45,7 @@ class MerchantSecurityBadgeWidget extends StatelessWidget {
                 Text(
                   'Protected by bank-grade encryption',
                   style: GoogleFonts.inter(
-                    fontSize: 11.sp,
+                    fontSize: 9.sp,
                     color: theme.brightness == Brightness.light
                         ? const Color(0xFF6B7280)
                         : const Color(0xFF9CA3AF),

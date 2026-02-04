@@ -25,7 +25,7 @@ class AgencyBiometricSectionWidget extends StatelessWidget {
               child: Text(
                 'Or continue with',
                 style: GoogleFonts.inter(
-                  fontSize: 12.sp,
+                  fontSize: 10.sp,
                   color: theme.brightness == Brightness.light
                       ? const Color(0xFF6B7280)
                       : const Color(0xFF9CA3AF),
@@ -39,7 +39,7 @@ class AgencyBiometricSectionWidget extends StatelessWidget {
         OutlinedButton(
           onPressed: onBiometricLogin,
           style: OutlinedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 1.8.h),
+            padding: EdgeInsets.symmetric(vertical: 1.0.h),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -51,13 +51,13 @@ class AgencyBiometricSectionWidget extends StatelessWidget {
               CustomIconWidget(
                 iconName: 'fingerprint',
                 color: theme.colorScheme.primary,
-                size: 24,
+                size: 20,
               ),
               SizedBox(width: 2.w),
               Text(
                 'Use Biometric',
                 style: GoogleFonts.inter(
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
                   color: theme.colorScheme.primary,
                 ),

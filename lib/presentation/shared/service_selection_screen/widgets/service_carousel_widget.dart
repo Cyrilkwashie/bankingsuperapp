@@ -26,7 +26,7 @@ class ServiceCarouselWidget extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 50.h,
+          height: 33.h,
           child: PageView.builder(
             controller: pageController,
             onPageChanged: onPageChanged,

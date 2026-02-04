@@ -300,7 +300,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
         body: SafeArea(
           child: Padding(
             padding: EdgeInsets.only(
-              top: 6.h,
+              top: 1.h,
               bottom: 2.h,
               left: 4.w,
               right: 4.w,
@@ -335,72 +335,58 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   }
 
   Widget _buildHeader(ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.secondary,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: CustomIconWidget(
-                  iconName: 'account_balance',
-                  color: theme.colorScheme.onPrimary,
-                  size: 24,
-                ),
-              ),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            SizedBox(width: 3.w),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'BankingSuperApp',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  'One App. Three Solutions',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.primary.withValues(alpha: 0.25),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Center(
+            child: CustomIconWidget(
+              iconName: 'account_balance',
+              color: Colors.white,
+              size: 22,
             ),
-          ],
+          ),
         ),
-        Row(
+        SizedBox(width: 3.w),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconButton(
-              icon: CustomIconWidget(
-                iconName: 'settings',
-                color: theme.colorScheme.onSurface,
-                size: 24,
+            Text(
+              'BankingSuperApp',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark
+                    ? const Color(0xFFFAFBFC)
+                    : const Color(0xFF1A1D23),
+                letterSpacing: 0.2,
               ),
-              onPressed: _showSettingsDrawer,
-              tooltip: 'Settings',
             ),
-            SizedBox(width: 2.w),
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-              child: CustomIconWidget(
-                iconName: 'person',
+            SizedBox(height: 0.2.h),
+            Text(
+              'One App • Three Solutions',
+              style: GoogleFonts.inter(
+                fontSize: 8.sp,
+                fontWeight: FontWeight.w500,
                 color: theme.colorScheme.primary,
-                size: 24,
               ),
             ),
           ],
@@ -415,19 +401,43 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 2.w),
-          child: Text(
-            'Select Banking Service',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                height: 20,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      theme.colorScheme.primary,
+                      theme.colorScheme.secondary,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              SizedBox(width: 2.w),
+              Text(
+                'Select Banking Service',
+                style: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: theme.brightness == Brightness.dark
+                      ? const Color(0xFFFAFBFC)
+                      : const Color(0xFF1A1D23),
+                ),
+              ),
+            ],
           ),
         ),
-        SizedBox(height: 2.h),
+        SizedBox(height: 1.5.h),
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _serviceCards.length,
-          separatorBuilder: (context, index) => SizedBox(height: 2.h),
+          separatorBuilder: (context, index) => SizedBox(height: 1.5.h),
           itemBuilder: (context, index) {
             return ServiceCardWidget(
               service: _serviceCards[index],

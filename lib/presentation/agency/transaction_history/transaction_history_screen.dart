@@ -114,7 +114,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       backgroundColor: const Color(0xFFFAFBFC),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(top: 6.h),
+          padding: EdgeInsets.only(top: 1.h),
           child: Column(
             children: [
               _buildHeader(),

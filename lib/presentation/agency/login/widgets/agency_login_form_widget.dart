@@ -56,7 +56,7 @@ class AgencyLoginFormWidget extends StatelessWidget {
               return null;
             },
           ),
-          SizedBox(height: 2.h),
+          SizedBox(height: 1.5.h),
           TextFormField(
             controller: passwordController,
             obscureText: !isPasswordVisible,
@@ -90,7 +90,7 @@ class AgencyLoginFormWidget extends StatelessWidget {
               return null;
             },
           ),
-          SizedBox(height: 3.h),
+          SizedBox(height: 2.h),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -98,7 +98,7 @@ class AgencyLoginFormWidget extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E8B8B),
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 1.8.h),
+                padding: EdgeInsets.symmetric(vertical: 0.6.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -115,7 +115,7 @@ class AgencyLoginFormWidget extends StatelessWidget {
                   : Text(
                       'Sign In',
                       style: GoogleFonts.inter(
-                        fontSize: 14.sp,
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
