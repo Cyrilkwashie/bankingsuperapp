@@ -175,6 +175,7 @@ class _MerchantTransactionsScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return PopScope(
       canPop: false,
@@ -235,7 +236,8 @@ class _MerchantTransactionsScreenState
                         'Today\'s Revenue',
                         'GH₵ 2,847',
                         Icons.trending_up,
-                        Colors.green,
+                        const Color(0xFF059669),
+                        isDark,
                       ),
                     ),
                     SizedBox(width: 2.w),
@@ -244,7 +246,8 @@ class _MerchantTransactionsScreenState
                         'Transactions',
                         '89',
                         Icons.receipt_long,
-                        Colors.blue,
+                        const Color(0xFF059669),
+                        isDark,
                       ),
                     ),
                   ],
@@ -278,26 +281,27 @@ class _MerchantTransactionsScreenState
     String title,
     String value,
     IconData icon,
-    Color color,
+    Color brandColor,
+    bool isDark,
   ) {
     return Container(
       padding: EdgeInsets.all(1.w),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: brandColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+        border: Border.all(color: brandColor.withValues(alpha: 0.2), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 12),
+          Icon(icon, color: brandColor, size: 12),
           SizedBox(height: 0.3.h),
           Text(
             title,
             style: GoogleFonts.inter(
               fontSize: 6.sp,
               fontWeight: FontWeight.w500,
-              color: color,
+              color: brandColor,
             ),
           ),
           SizedBox(height: 0.1.h),
@@ -306,7 +310,7 @@ class _MerchantTransactionsScreenState
             style: GoogleFonts.inter(
               fontSize: 8.sp,
               fontWeight: FontWeight.w700,
-              color: color,
+              color: brandColor,
             ),
           ),
         ],
@@ -319,6 +323,9 @@ class _MerchantTransactionsScreenState
     final isPending = transaction['settlementStatus'] == 'Pending';
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final iconColor = isDark
+        ? const Color(0xFF9CA3AF)
+        : const Color(0xFF6B7280);
 
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
@@ -336,14 +343,14 @@ class _MerchantTransactionsScreenState
                 Container(
                   padding: EdgeInsets.all(1.5.w),
                   decoration: BoxDecoration(
-                    color: _getTransactionColor(
-                      transaction['type'],
-                    ).withValues(alpha: 0.1),
+                    color: isDark
+                        ? const Color(0xFF374151)
+                        : const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Icon(
                     _getTransactionIcon(transaction['type']),
-                    color: _getTransactionColor(transaction['type']),
+                    color: iconColor,
                     size: 14,
                   ),
                 ),
@@ -384,7 +391,7 @@ class _MerchantTransactionsScreenState
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
                         fontWeight: FontWeight.w700,
-                        color: Colors.green,
+                        color: isDark ? Colors.white : const Color(0xFF1A1D23),
                       ),
                     ),
                     SizedBox(height: 0.2.h),
@@ -395,10 +402,10 @@ class _MerchantTransactionsScreenState
                       ),
                       decoration: BoxDecoration(
                         color: isSettled
-                            ? Colors.green.withValues(alpha: 0.1)
+                            ? const Color(0xFF10B981).withValues(alpha: 0.1)
                             : isPending
-                            ? Colors.orange.withValues(alpha: 0.1)
-                            : Colors.blue.withValues(alpha: 0.1),
+                            ? const Color(0xFFF59E0B).withValues(alpha: 0.1)
+                            : const Color(0xFF6366F1).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -408,10 +415,10 @@ class _MerchantTransactionsScreenState
                           fontSize: 6.sp,
                           fontWeight: FontWeight.w600,
                           color: isSettled
-                              ? Colors.green
+                              ? const Color(0xFF10B981)
                               : isPending
-                              ? Colors.orange
-                              : Colors.blue,
+                              ? const Color(0xFFF59E0B)
+                              : const Color(0xFF6366F1),
                         ),
                       ),
                     ),
@@ -428,17 +435,6 @@ class _MerchantTransactionsScreenState
         ],
       ),
     );
-  }
-
-  Color _getTransactionColor(String? type) {
-    switch (type) {
-      case 'card_payment':
-        return Colors.blue;
-      case 'qr_transaction':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
   }
 
   IconData _getTransactionIcon(String? type) {

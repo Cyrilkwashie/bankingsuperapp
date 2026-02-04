@@ -177,6 +177,7 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return PopScope(
       canPop: false,
@@ -237,7 +238,8 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
                         'Today\'s Volume',
                         'GH₵ 89,200',
                         Icons.trending_up,
-                        Colors.green,
+                        const Color(0xFF2E8B8B),
+                        isDark,
                       ),
                     ),
                     SizedBox(width: 3.w),
@@ -246,7 +248,8 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
                         'Transactions',
                         '156',
                         Icons.receipt_long,
-                        Colors.blue,
+                        const Color(0xFF2E8B8B),
+                        isDark,
                       ),
                     ),
                   ],
@@ -280,26 +283,27 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
     String title,
     String value,
     IconData icon,
-    Color color,
+    Color brandColor,
+    bool isDark,
   ) {
     return Container(
       padding: EdgeInsets.all(1.5.w),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: brandColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+        border: Border.all(color: brandColor.withValues(alpha: 0.2), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 16),
+          Icon(icon, color: brandColor, size: 16),
           SizedBox(height: 0.5.h),
           Text(
             title,
             style: GoogleFonts.inter(
               fontSize: 8.sp,
               fontWeight: FontWeight.w500,
-              color: color,
+              color: brandColor,
             ),
           ),
           SizedBox(height: 0.2.h),
@@ -308,7 +312,7 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
             style: GoogleFonts.inter(
               fontSize: 10.sp,
               fontWeight: FontWeight.w700,
-              color: color,
+              color: brandColor,
             ),
           ),
         ],
@@ -321,6 +325,9 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
     final isPending = transaction['status'] == 'pending';
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final iconColor = isDark
+        ? const Color(0xFF9CA3AF)
+        : const Color(0xFF6B7280);
 
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
@@ -338,14 +345,14 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
                 Container(
                   padding: EdgeInsets.all(1.5.w),
                   decoration: BoxDecoration(
-                    color: _getTransactionColor(
-                      transaction['type'],
-                    ).withValues(alpha: 0.1),
+                    color: isDark
+                        ? const Color(0xFF374151)
+                        : const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Icon(
                     _getTransactionIcon(transaction['type']),
-                    color: _getTransactionColor(transaction['type']),
+                    color: iconColor,
                     size: 14,
                   ),
                 ),
@@ -386,9 +393,7 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
                         fontWeight: FontWeight.w700,
-                        color: transaction['type'] == 'deposit'
-                            ? Colors.green
-                            : Colors.red,
+                        color: isDark ? Colors.white : const Color(0xFF1A1D23),
                       ),
                     ),
                     SizedBox(height: 0.2.h),
@@ -399,10 +404,10 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: isSuccess
-                            ? Colors.green.withValues(alpha: 0.1)
+                            ? const Color(0xFF10B981).withValues(alpha: 0.1)
                             : isPending
-                            ? Colors.orange.withValues(alpha: 0.1)
-                            : Colors.red.withValues(alpha: 0.1),
+                            ? const Color(0xFFF59E0B).withValues(alpha: 0.1)
+                            : const Color(0xFFEF4444).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -412,10 +417,10 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
                           fontSize: 6.sp,
                           fontWeight: FontWeight.w600,
                           color: isSuccess
-                              ? Colors.green
+                              ? const Color(0xFF10B981)
                               : isPending
-                              ? Colors.orange
-                              : Colors.red,
+                              ? const Color(0xFFF59E0B)
+                              : const Color(0xFFEF4444),
                         ),
                       ),
                     ),
@@ -432,19 +437,6 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
         ],
       ),
     );
-  }
-
-  Color _getTransactionColor(String? type) {
-    switch (type) {
-      case 'deposit':
-        return Colors.green;
-      case 'withdrawal':
-        return Colors.red;
-      case 'transfer':
-        return Colors.blue;
-      default:
-        return Colors.grey;
-    }
   }
 
   IconData _getTransactionIcon(String? type) {
