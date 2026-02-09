@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../routes/app_routes.dart';
-import '../../../../widgets/banking_bottom_navigation.dart';
+import '../../../routes/app_routes.dart';
+import '../../../widgets/banking_bottom_navigation.dart';
 import './widgets/merchant_header_card.dart';
-import './widgets/merchant_quick_stats_row.dart';
-import './widgets/merchant_categorized_services_widget.dart';
+import './widgets/merchant_quick_actions_grid.dart';
+import './widgets/merchant_recent_transactions_widget.dart';
+import './merchant_all_services_screen.dart';
 
-/// Merchant Banking Dashboard - Main workspace for merchant banking operations
 class MerchantBankingDashboardScreen extends StatefulWidget {
   const MerchantBankingDashboardScreen({super.key});
 
@@ -22,40 +22,30 @@ class _MerchantBankingDashboardScreenState
 
   void _onNavigationTap(int index) {
     if (index == _currentIndex) return;
-
-    // Navigate to different screens based on index
     switch (index) {
-      case 0: // Dashboard (current)
-        // Already here
+      case 0:
         break;
-      case 1: // Transactions
-        Navigator.of(
-          context,
-        ).pushReplacementNamed(AppRoutes.merchantTransactions);
+      case 1:
+        Navigator.of(context)
+            .pushReplacementNamed(AppRoutes.merchantTransactions);
         break;
-      case 2: // Settings
-        Navigator.of(context).pushReplacementNamed(AppRoutes.merchantSettings);
+      case 2:
+        Navigator.of(context)
+            .pushReplacementNamed(AppRoutes.merchantSettings);
         break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: isDark
-            ? const Color(0xFF0F1419)
-            : const Color(0xFFFAFBFC),
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(top: 1.h),
-            child: _buildDashboardContent(isDark),
-          ),
-        ),
+        backgroundColor:
+            isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        body: SafeArea(child: _buildBody(isDark)),
         bottomNavigationBar: BankingBottomNavigation(
           currentIndex: _currentIndex,
           onTap: _onNavigationTap,
@@ -65,26 +55,34 @@ class _MerchantBankingDashboardScreenState
     );
   }
 
-  Widget _buildDashboardContent(bool isDark) {
+  Widget _buildBody(bool isDark) {
     return RefreshIndicator(
+      color: const Color(0xFF059669),
       onRefresh: () async {
         await Future.delayed(const Duration(seconds: 1));
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MerchantHeaderCard(isDark: isDark),
-              SizedBox(height: 2.h),
-              MerchantQuickStatsRow(isDark: isDark),
-              SizedBox(height: 1.5.h),
-              MerchantCategorizedServicesWidget(isDark: isDark),
-              SizedBox(height: 2.h),
-            ],
-          ),
+        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.5.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MerchantHeaderCard(isDark: isDark),
+            SizedBox(height: 2.5.h),
+            MerchantQuickActionsGrid(
+              isDark: isDark,
+              onViewAll: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const MerchantAllServicesScreen(),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 2.5.h),
+            MerchantRecentTransactionsWidget(isDark: isDark),
+            SizedBox(height: 2.h),
+          ],
         ),
       ),
     );
