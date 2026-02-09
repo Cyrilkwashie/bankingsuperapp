@@ -4,27 +4,53 @@ import 'package:sizer/sizer.dart';
 import '../../../../core/app_export.dart';
 
 class SmartBranchSecurityBadgeWidget extends StatelessWidget {
-  const SmartBranchSecurityBadgeWidget({super.key});
+  final AnimationController pulseController;
+
+  const SmartBranchSecurityBadgeWidget({
+    super.key,
+    required this.pulseController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    const accent = Color(0xFF1B365D);
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: isLight
+              ? [const Color(0xFFEFF6FF), const Color(0xFFEBF5FF)]
+              : [const Color(0xFF0D1526), const Color(0xFF0F1A2A)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+          color: accent.withValues(alpha: isLight ? 0.12 : 0.2),
         ),
       ),
       child: Row(
         children: [
-          CustomIconWidget(
-            iconName: 'verified_user',
-            color: theme.colorScheme.primary,
-            size: 20,
+          AnimatedBuilder(
+            animation: pulseController,
+            builder: (context, child) {
+              final scale = 1.0 + (pulseController.value * 0.08);
+              return Transform.scale(scale: scale, child: child);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.verified_user_rounded,
+                color: accent,
+                size: 20,
+              ),
+            ),
           ),
           SizedBox(width: 3.w),
           Expanded(
@@ -34,25 +60,32 @@ class SmartBranchSecurityBadgeWidget extends StatelessWidget {
                 Text(
                   'Secure Branch Access',
                   style: GoogleFonts.inter(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: theme.brightness == Brightness.light
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isLight
                         ? const Color(0xFF1A1D23)
-                        : const Color(0xFFFAFBFC),
+                        : const Color(0xFFF9FAFB),
+                    letterSpacing: -0.1,
                   ),
                 ),
-                SizedBox(height: 0.3.h),
+                SizedBox(height: 0.2.h),
                 Text(
-                  'Protected by bank-grade encryption',
+                  'Bank-grade encryption • Multi-factor auth',
                   style: GoogleFonts.inter(
-                    fontSize: 9.sp,
-                    color: theme.brightness == Brightness.light
+                    fontSize: 8.sp,
+                    fontWeight: FontWeight.w400,
+                    color: isLight
                         ? const Color(0xFF6B7280)
                         : const Color(0xFF9CA3AF),
                   ),
                 ),
               ],
             ),
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: isLight ? const Color(0xFFD1D5DB) : const Color(0xFF4B5563),
+            size: 20,
           ),
         ],
       ),

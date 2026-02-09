@@ -4,27 +4,50 @@ import 'package:sizer/sizer.dart';
 import '../../../../core/app_export.dart';
 
 class MerchantSecurityBadgeWidget extends StatelessWidget {
-  const MerchantSecurityBadgeWidget({super.key});
+  final AnimationController pulseController;
+
+  const MerchantSecurityBadgeWidget({super.key, required this.pulseController});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    const accent = Color(0xFF059669);
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: isLight
+              ? [const Color(0xFFF0FDF4), const Color(0xFFECFDF5)]
+              : [const Color(0xFF0D261A), const Color(0xFF0F2A1E)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+          color: accent.withValues(alpha: isLight ? 0.15 : 0.2),
         ),
       ),
       child: Row(
         children: [
-          CustomIconWidget(
-            iconName: 'verified_user',
-            color: theme.colorScheme.primary,
-            size: 20,
+          AnimatedBuilder(
+            animation: pulseController,
+            builder: (context, child) {
+              final scale = 1.0 + (pulseController.value * 0.08);
+              return Transform.scale(scale: scale, child: child);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.verified_user_rounded,
+                color: accent,
+                size: 20,
+              ),
+            ),
           ),
           SizedBox(width: 3.w),
           Expanded(
@@ -34,25 +57,32 @@ class MerchantSecurityBadgeWidget extends StatelessWidget {
                 Text(
                   'Secure Merchant Access',
                   style: GoogleFonts.inter(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: theme.brightness == Brightness.light
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isLight
                         ? const Color(0xFF1A1D23)
-                        : const Color(0xFFFAFBFC),
+                        : const Color(0xFFF9FAFB),
+                    letterSpacing: -0.1,
                   ),
                 ),
-                SizedBox(height: 0.3.h),
+                SizedBox(height: 0.2.h),
                 Text(
-                  'Protected by bank-grade encryption',
+                  'Bank-grade encryption • PCI DSS compliant',
                   style: GoogleFonts.inter(
-                    fontSize: 9.sp,
-                    color: theme.brightness == Brightness.light
+                    fontSize: 8.sp,
+                    fontWeight: FontWeight.w400,
+                    color: isLight
                         ? const Color(0xFF6B7280)
                         : const Color(0xFF9CA3AF),
                   ),
                 ),
               ],
             ),
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: isLight ? const Color(0xFFD1D5DB) : const Color(0xFF4B5563),
+            size: 20,
           ),
         ],
       ),
