@@ -17,6 +17,7 @@ class _SmartBranchAllServicesScreenState
   late AnimationController _animController;
   late Animation<double> _fadeIn;
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   String _searchQuery = '';
 
   static const Color _navy = Color(0xFF1B365D);
@@ -90,6 +91,7 @@ class _SmartBranchAllServicesScreenState
   void dispose() {
     _animController.dispose();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -121,6 +123,18 @@ class _SmartBranchAllServicesScreenState
     final scaffoldBg =
         isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC);
 
+    final gridWidth = 100.w - 8.w;
+    final cellWidth = gridWidth / 4;
+    final cellHeight = cellWidth / 0.78;
+    final headerH = 7.2.h;
+    List<double> offsets = [];
+    double cumulative = 0;
+    for (final cat in categories) {
+      offsets.add(cumulative);
+      final rows = (cat.services.length / 4).ceil();
+      cumulative += headerH + rows * cellHeight;
+    }
+
     return Scaffold(
       backgroundColor: scaffoldBg,
       body: FadeTransition(
@@ -130,6 +144,7 @@ class _SmartBranchAllServicesScreenState
             _buildHeader(isDark),
             Expanded(
               child: CustomScrollView(
+                controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 slivers: [
             // ── Empty State ──
@@ -138,7 +153,10 @@ class _SmartBranchAllServicesScreenState
 
             // ── Sticky Category Sections ──
             if (categories.isNotEmpty)
-              ...categories.expand((cat) => [
+              ...categories.asMap().entries.expand((entry) {
+                final i = entry.key;
+                final cat = entry.value;
+                return [
                     SliverPersistentHeader(
                       pinned: true,
                       delegate: _CategoryHeaderDelegate(
@@ -150,6 +168,15 @@ class _SmartBranchAllServicesScreenState
                         scaffoldBg: scaffoldBg,
                         expandedHeight: 7.2.h,
                         collapsedHeight: 5.4.h,
+                        onTap: () {
+                          final collapsedH = 5.4.h;
+                          final target = (offsets[i] - i * collapsedH).clamp(0.0, _scrollController.position.maxScrollExtent);
+                          _scrollController.animateTo(
+                            target,
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.easeOutCubic,
+                          );
+                        },
                       ),
                     ),
                     SliverPadding(
@@ -174,7 +201,8 @@ class _SmartBranchAllServicesScreenState
                         ),
                       ),
                     ),
-                  ]),
+                  ];
+                }),
 
             SliverToBoxAdapter(child: SizedBox(height: 60.h)),
                 ],
@@ -471,6 +499,7 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Color scaffoldBg;
   final double expandedHeight;
   final double collapsedHeight;
+  final VoidCallback? onTap;
 
   _CategoryHeaderDelegate({
     required this.title,
@@ -481,6 +510,7 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.scaffoldBg,
     required this.expandedHeight,
     required this.collapsedHeight,
+    this.onTap,
   });
 
   @override
@@ -500,7 +530,9 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
         Color.lerp(scaffoldBg, accentColor, 0.018 * progress) ??
             scaffoldBg;
 
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       decoration: BoxDecoration(
         color: bgColor,
         boxShadow: isPinned
@@ -595,6 +627,7 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
             ),
           ],
         ),
+      ),
       ),
     );
   }
