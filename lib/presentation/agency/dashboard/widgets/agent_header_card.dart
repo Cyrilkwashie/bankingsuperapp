@@ -41,9 +41,9 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            boxShadow: [
+              boxShadow: [
               BoxShadow(
-                color: const Color(0xFF2E8B8B).withValues(alpha: 0.3),
+                color: AppTheme.secondaryTealLight.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -52,12 +52,12 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
           child: Container(
             width: 46,
             height: 46,
-            decoration: BoxDecoration(
+              decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF2E8B8B), Color(0xFF1B6B6B)],
+                colors: [AppTheme.secondaryTealLight, AppTheme.secondaryTealDark],
               ),
             ),
             child: Center(
@@ -201,7 +201,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1B365D).withValues(alpha: 0.35),
+            color: AppTheme.secondaryTealLight.withValues(alpha: 0.28),
             blurRadius: 28,
             offset: const Offset(0, 10),
             spreadRadius: -4,
@@ -216,14 +216,14 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
             Container(
               width: double.infinity,
               padding: EdgeInsets.all(4.5.w),
-              decoration: const BoxDecoration(
+                decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF1B365D),
-                    Color(0xFF1E3F72),
-                    Color(0xFF264A85),
+                    AppTheme.secondaryTealLight,
+                    Color(0xFF1B6B6B),
+                    AppTheme.secondaryTealDark,
                   ],
                   stops: [0.0, 0.5, 1.0],
                 ),
@@ -241,7 +241,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
                             width: 4,
                             height: 16,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2E8B8B),
+                              color: AppTheme.secondaryTealLight,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
