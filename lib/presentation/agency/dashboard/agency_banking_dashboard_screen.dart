@@ -48,8 +48,8 @@ class _AgencyBankingDashboardScreenState
       canPop: false,
       child: Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
-        body: SafeArea(child: _buildBody(isDark)),
+            isDark ? const Color(0xFF0D1117) : const Color(0xFFF5F6FA),
+        body: _buildBody(isDark),
         bottomNavigationBar: BankingBottomNavigation(
           currentIndex: _currentIndex,
           onTap: _onNavigationTap,
@@ -61,31 +61,40 @@ class _AgencyBankingDashboardScreenState
 
   Widget _buildBody(bool isDark) {
     return RefreshIndicator(
-      color: const Color(0xFF2E8B8B),
+      color: Colors.white,
       onRefresh: () async {
         await Future.delayed(const Duration(seconds: 1));
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.5.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Gradient header area (no SafeArea — gradient bleeds to status bar)
             AgentHeaderCard(isDark: isDark),
-            SizedBox(height: 2.5.h),
-            QuickActionsGrid(
-              isDark: isDark,
-              onViewAll: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AgencyAllServicesScreen(),
+            // White content area
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 2.5.h),
+                  QuickActionsGrid(
+                    isDark: isDark,
+                    onViewAll: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AgencyAllServicesScreen(),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                  SizedBox(height: 2.5.h),
+                  RecentTransactionsWidget(isDark: isDark),
+                  SizedBox(height: 2.h),
+                ],
+              ),
             ),
-            SizedBox(height: 2.5.h),
-            RecentTransactionsWidget(isDark: isDark),
-            SizedBox(height: 2.h),
           ],
         ),
       ),
