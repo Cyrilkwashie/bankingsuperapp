@@ -174,7 +174,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                             SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 4,
                           childAspectRatio: 0.78,
-                          mainAxisSpacing: 0.5.h,
+                          mainAxisSpacing: 0,
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (context, index) => _buildServiceItem(
