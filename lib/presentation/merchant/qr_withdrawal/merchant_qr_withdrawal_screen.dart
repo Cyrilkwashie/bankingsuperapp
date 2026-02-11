@@ -1388,7 +1388,7 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
 // MERCHANT QR WITHDRAWAL RECEIPT SCREEN
 // ════════════════════════════════════════════════════════════════════════════
 
-class _MerchantQrWithdrawalReceiptScreen extends StatefulWidget {
+class _MerchantQrWithdrawalReceiptScreen extends StatelessWidget {
   final String accountNo;
   final String accountName;
   final String amount;
@@ -1409,55 +1409,13 @@ class _MerchantQrWithdrawalReceiptScreen extends StatefulWidget {
     required this.gradientColors,
   });
 
-  @override
-  State<_MerchantQrWithdrawalReceiptScreen> createState() =>
-      _MerchantQrWithdrawalReceiptScreenState();
-}
+  double get _amountValue => double.tryParse(amount) ?? 0;
+  double get _charges => _amountValue * 0.01;
+  double get _totalAmount => _amountValue + _charges;
 
-class _MerchantQrWithdrawalReceiptScreenState extends State<_MerchantQrWithdrawalReceiptScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  late Animation<double> _fadeIn;
-  late Animation<double> _scaleIn;
-
-  bool _isProcessing = false;
-  bool _isComplete = false;
-  String _transactionId = '';
-  String _transactionDate = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _fadeIn = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    _scaleIn = Tween<double>(begin: 0.9, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.elasticOut),
-    );
-    _animController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _processWithdrawal() async {
-    setState(() => _isProcessing = true);
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    final now = DateTime.now();
-    setState(() {
-      _isProcessing = false;
-      _isComplete = true;
-      _transactionId = 'TXN${now.millisecondsSinceEpoch.toString().substring(5)}';
-      _transactionDate =
-          '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    });
+  double get _parsedFloat {
+    final cleaned = merchantFloat.replaceAll(RegExp(r'[^0-9.]'), '');
+    return double.tryParse(cleaned) ?? 0;
   }
 
   @override
@@ -1466,149 +1424,273 @@ class _MerchantQrWithdrawalReceiptScreenState extends State<_MerchantQrWithdrawa
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
-      body: FadeTransition(
-        opacity: _fadeIn,
-        child: ScaleTransition(
-          scale: _scaleIn,
-          child: Column(
-            children: [
-              _buildHeader(isDark),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.fromLTRB(5.w, 3.h, 5.w, 4.h),
-                  child: Column(
-                    children: [
-                      if (_isComplete) _buildSuccessBanner(isDark),
-                      if (_isComplete) SizedBox(height: 2.5.h),
-                      _buildReceiptCard(isDark),
-                      SizedBox(height: 3.h),
-                      if (!_isComplete) _buildConfirmButton(isDark),
-                      if (_isComplete) _buildDoneButton(isDark),
-                    ],
-                  ),
+      body: Column(
+        children: [
+          // Header
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [const Color(0xFF162032), const Color(0xFF0D1117)]
+                    : gradientColors,
+              ),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.08),
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(Icons.arrow_back_rounded,
+                              color: Colors.white, size: 19),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 3.5.w),
+                    Text(
+                      'Confirm Withdrawal',
+                      style: GoogleFonts.inter(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(5.w, 2.5.h, 5.w, 4.h),
+              child: Column(
+                children: [
+                  _buildAmountCard(isDark),
+                  SizedBox(height: 2.h),
+                  _buildDetailsCard(isDark),
+                  SizedBox(height: 2.h),
+                  _buildChargesCard(isDark),
+                  SizedBox(height: 3.h),
+                  _buildConfirmButton(context, isDark),
+                  SizedBox(height: 1.2.h),
+                  _buildCancelButton(context, isDark),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildAmountCard(bool isDark) {
     return Container(
       width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 2.5.h),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: widget.gradientColors,
+          colors: isDark
+              ? [const Color(0xFF162032), const Color(0xFF0D1117)]
+              : [
+                  accentColor.withValues(alpha: 0.06),
+                  accentColor.withValues(alpha: 0.02),
+                ],
         ),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
-        boxShadow: [
-          BoxShadow(
-            color: widget.accentColor.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: accentColor.withValues(alpha: isDark ? 0.15 : 0.12),
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Withdrawal Amount',
+            style: GoogleFonts.inter(
+              fontSize: 8.sp,
+              fontWeight: FontWeight.w400,
+              color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+            ),
+          ),
+          SizedBox(height: 0.5.h),
+          Text(
+            'GH₵ $amount',
+            style: GoogleFonts.inter(
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF1A1D23),
+              letterSpacing: -0.5,
+            ),
+          ),
+          SizedBox(height: 0.5.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.3.h),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              'From: $accountName',
+              style: GoogleFonts.inter(
+                fontSize: 8.sp,
+                fontWeight: FontWeight.w600,
+                color: accentColor,
+              ),
+            ),
           ),
         ],
       ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(4.w, 1.5.h, 4.w, 2.5.h),
-          child: Row(
-            children: [
-              _buildBackButton(),
-              SizedBox(width: 3.w),
-              Expanded(
-                child: Text(
-                  _isComplete ? 'Withdrawal Successful' : 'Confirm Withdrawal',
-                  style: GoogleFonts.inter(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
-  Widget _buildBackButton() {
-    return Material(
-      color: Colors.white.withValues(alpha: 0.15),
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).pop(),
-        child: Container(
-          width: 10.w,
-          height: 10.w,
-          alignment: Alignment.center,
-          child: const CustomIconWidget(
-            iconName: 'arrow_back_ios_new',
-            color: Colors.white,
-            size: 18,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSuccessBanner(bool isDark) {
+  Widget _buildDetailsCard(bool isDark) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(4.w),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            widget.accentColor.withValues(alpha: 0.15),
-            const Color(0xFF10B981).withValues(alpha: 0.08),
-          ],
-        ),
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: widget.accentColor.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
+        ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.all(3.w),
-            decoration: BoxDecoration(
-              color: widget.accentColor.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: CustomIconWidget(
-              iconName: 'check_circle',
-              color: widget.accentColor,
-              size: 28,
+          Text(
+            'Transaction Details',
+            style: GoogleFonts.inter(
+              fontSize: 9.5.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF111827),
             ),
           ),
-          SizedBox(width: 4.w),
+          SizedBox(height: 1.5.h),
+          _detailRow('Account Number', accountNo, isDark),
+          _divider(isDark),
+          _detailRow('Account Name', accountName, isDark),
+          if (narration.isNotEmpty) ...[
+            _divider(isDark),
+            _detailRow('Narration', narration, isDark),
+          ],
+          _divider(isDark),
+          _detailRow('System Ref', fixedNarration, isDark, valueSize: 7.5.sp),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value, bool isDark, {double? valueSize}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.6.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 30.w,
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 8.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+              ),
+            ),
+          ),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: valueSize ?? 9.sp,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white : const Color(0xFF1A1D23),
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _divider(bool isDark) {
+    return Divider(
+      height: 1,
+      color: isDark
+          ? Colors.white.withValues(alpha: 0.05)
+          : const Color(0xFFF3F4F6),
+    );
+  }
+
+  Widget _buildChargesCard(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Charges & Total',
+            style: GoogleFonts.inter(
+              fontSize: 9.5.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF111827),
+            ),
+          ),
+          SizedBox(height: 1.5.h),
+          _detailRow('Amount', 'GH₵ ${_amountValue.toStringAsFixed(2)}', isDark),
+          _divider(isDark),
+          _detailRow('Charges (1%)', 'GH₵ ${_charges.toStringAsFixed(2)}', isDark),
+          _divider(isDark),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 0.8.h),
+            child: Row(
               children: [
                 Text(
-                  'Withdrawal Successful!',
+                  'Total',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF111827),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'GH₵ ${_totalAmount.toStringAsFixed(2)}',
                   style: GoogleFonts.inter(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
-                    color: widget.accentColor,
-                  ),
-                ),
-                SizedBox(height: 0.5.h),
-                Text(
-                  'Transaction ID: $_transactionId',
-                  style: GoogleFonts.inter(
-                    fontSize: 8.5.sp,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                    color: accentColor,
                   ),
                 ),
               ],
@@ -1619,255 +1701,298 @@ class _MerchantQrWithdrawalReceiptScreenState extends State<_MerchantQrWithdrawa
     );
   }
 
-  Widget _buildReceiptCard(bool isDark) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(5.w),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Amount header
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 2.5.h),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  widget.accentColor.withValues(alpha: 0.1),
-                  widget.accentColor.withValues(alpha: 0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(14),
+  Widget _buildConfirmButton(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        if (_parsedFloat < _totalAmount) {
+          showDialog(
+            context: context,
+            builder: (_) => _InsufficientFundsDialog(
+              balance: merchantFloat,
+              required: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+              balanceLabel: 'Merchant Float',
+              accentColor: accentColor,
             ),
-            child: Column(
-              children: [
-                Text(
-                  'Withdrawal Amount',
-                  style: GoogleFonts.inter(
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                  ),
-                ),
-                SizedBox(height: 0.8.h),
-                Text(
-                  'GH₵ ${widget.amount}',
-                  style: GoogleFonts.inter(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w800,
-                    color: widget.accentColor,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ],
-            ),
+          );
+          return;
+        }
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => _SuccessDialog(
+            amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+            accountName: accountName,
+            accentColor: accentColor,
           ),
-          SizedBox(height: 2.5.h),
-
-          // Details
-          _buildDetailRow('Account Number', widget.accountNo, isDark),
-          _buildDetailRow('Account Name', widget.accountName, isDark),
-          if (widget.narration.isNotEmpty)
-            _buildDetailRow('Narration', widget.narration, isDark),
-          _buildDetailRow('System Narration', widget.fixedNarration, isDark,
-              isLast: !_isComplete),
-
-          if (_isComplete) ...[
-            _buildDetailRow('Transaction ID', _transactionId, isDark),
-            _buildDetailRow('Date & Time', _transactionDate, isDark, isLast: true),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 1.7.h),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [accentColor, accentColor.withValues(alpha: 0.85)],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: accentColor.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value, bool isDark,
-      {bool isLast = false}) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 1.5.h),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 2,
-                child: Text(
-                  label,
-                  style: GoogleFonts.inter(
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(
-                  value,
-                  textAlign: TextAlign.right,
-                  style: GoogleFonts.inter(
-                    fontSize: 9.5.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
-        if (!isLast)
-          Divider(
-            height: 1,
-            color: isDark ? const Color(0xFF30363D) : const Color(0xFFE2E8F0),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildConfirmButton(bool isDark) {
-    return Container(
-      width: double.infinity,
-      height: 6.5.h,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: widget.gradientColors),
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: widget.accentColor.withValues(alpha: 0.4),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: _isProcessing ? null : _processWithdrawal,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        ),
-        child: _isProcessing
-            ? SizedBox(
-                width: 6.w,
-                height: 6.w,
-                child: const CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CustomIconWidget(
-                    iconName: 'check_circle',
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                  SizedBox(width: 2.w),
-                  Text(
-                    'Confirm Withdrawal',
-                    style: GoogleFonts.inter(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.check_circle_outline_rounded,
+                color: Colors.white, size: 20),
+            SizedBox(width: 2.w),
+            Text(
+              'Confirm & Withdraw',
+              style: GoogleFonts.inter(
+                fontSize: 10.5.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-      ),
-    );
-  }
-
-  Widget _buildDoneButton(bool isDark) {
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          height: 6.5.h,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: widget.gradientColors),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: widget.accentColor.withValues(alpha: 0.4),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const CustomIconWidget(
-                  iconName: 'store',
-                  color: Colors.white,
-                  size: 22,
-                ),
-                SizedBox(width: 2.w),
-                Text(
-                  'Back to Dashboard',
-                  style: GoogleFonts.inter(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ],
-            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCancelButton(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 1.5.h),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF161B22) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE5E7EB),
           ),
         ),
-        SizedBox(height: 2.h),
-        TextButton.icon(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Receipt saved to gallery',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w500),
-                ),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: widget.accentColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            );
-          },
-          icon: CustomIconWidget(
-            iconName: 'download',
-            color: widget.accentColor,
-            size: 20,
-          ),
-          label: Text(
-            'Download Receipt',
+        child: Center(
+          child: Text(
+            'Go Back',
             style: GoogleFonts.inter(
               fontSize: 10.sp,
-              fontWeight: FontWeight.w600,
-              color: widget.accentColor,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white54 : const Color(0xFF6B7280),
             ),
           ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+// ── Success Dialog ──
+class _SuccessDialog extends StatelessWidget {
+  final String amount;
+  final String accountName;
+  final Color accentColor;
+
+  const _SuccessDialog({
+    required this.amount,
+    required this.accountName,
+    required this.accentColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Dialog(
+      backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.check_rounded,
+                  color: accentColor,
+                  size: 36,
+                ),
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              'Withdrawal Successful',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
+            SizedBox(height: 0.8.h),
+            Text(
+              '$amount withdrawn from $accountName',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+              ),
+            ),
+            SizedBox(height: 2.5.h),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [accentColor, accentColor.withValues(alpha: 0.85)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    'Done',
+                    style: GoogleFonts.inter(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 1.h),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 0.8.h),
+                child: Text(
+                  'New Transaction',
+                  style: GoogleFonts.inter(
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w500,
+                    color: accentColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Insufficient Funds Dialog ──
+class _InsufficientFundsDialog extends StatelessWidget {
+  final String balance;
+  final String required;
+  final String balanceLabel;
+  final Color accentColor;
+
+  const _InsufficientFundsDialog({
+    required this.balance,
+    required this.required,
+    this.balanceLabel = 'Available Balance',
+    required this.accentColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Dialog(
+      backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: const Color(0xFFDC2626).withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Color(0xFFDC2626),
+                  size: 32,
+                ),
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              'Insufficient Float',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
+            SizedBox(height: 0.8.h),
+            Text(
+              'Your merchant float does not have enough funds to process this withdrawal.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 8.5.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+                height: 1.4,
+              ),
+            ),
+            SizedBox(height: 2.5.h),
+            GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF1E2328)
+                      : const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    'Go Back',
+                    style: GoogleFonts.inter(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : const Color(0xFF374151),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
