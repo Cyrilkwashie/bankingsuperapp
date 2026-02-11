@@ -464,6 +464,14 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
             Navigator.of(context).pushNamed(AppRoutes.agencyOtherBankTransfer);
             return;
           }
+          if (service.label == 'QR Deposit') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyQrDeposit);
+            return;
+          }
+          if (service.label == 'QR Withdraw') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyQrWithdrawal);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(

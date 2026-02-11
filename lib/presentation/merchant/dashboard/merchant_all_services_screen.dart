@@ -466,6 +466,9 @@ class _MerchantAllServicesScreenState extends State<MerchantAllServicesScreen>
           if (service.label == 'Cash Withdrawal') {
             Navigator.of(context)
                 .pushNamed(AppRoutes.merchantCashWithdrawal);
+          } else if (service.label == 'QR Withdraw') {
+            Navigator.of(context)
+                .pushNamed(AppRoutes.merchantQrWithdrawal);
           } else if (service.route == 'merchantTransactionHistory') {
             Navigator.of(context)
                 .pushNamed(AppRoutes.merchantTransactionHistory);
