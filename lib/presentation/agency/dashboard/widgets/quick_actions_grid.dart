@@ -109,6 +109,14 @@ class QuickActionsGrid extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () {
+          if (label == 'Deposit') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyCashDeposit);
+            return;
+          }
+          if (label == 'Withdraw') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyCashWithdrawal);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('$label — Coming Soon'),

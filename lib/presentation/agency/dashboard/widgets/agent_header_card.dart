@@ -95,7 +95,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
           ),
           child: Center(
             child: Text(
-              'JD',
+              'Ck',
               style: GoogleFonts.inter(
                 color: Colors.white,
                 fontSize: 15,
@@ -119,7 +119,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
                 ),
               ),
               Text(
-                'John Doe',
+                'Cyril Kwashie',
                 style: GoogleFonts.inter(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,

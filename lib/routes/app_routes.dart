@@ -15,7 +15,10 @@ import '../presentation/smart_branch/dashboard/smart_branch_dashboard_screen.dar
 import '../presentation/smart_branch/login/smart_branch_login_screen.dart';
 import '../presentation/smart_branch/settings/smart_branch_settings_screen.dart';
 import '../presentation/agency/transactions/agency_transactions_screen.dart';
+import '../presentation/agency/cash_deposit/agency_cash_deposit_screen.dart';
+import '../presentation/agency/cash_withdrawal/agency_cash_withdrawal_screen.dart';
 import '../presentation/merchant/transactions/merchant_transactions_screen.dart';
+import '../presentation/merchant/cash_withdrawal/merchant_cash_withdrawal_screen.dart';
 import '../presentation/smart_branch/transactions/smart_branch_transactions_screen.dart';
 
 class AppRoutes {
@@ -39,6 +42,9 @@ class AppRoutes {
   static const String agencyTransactions = '/agency-transactions';
   static const String merchantTransactions = '/merchant-transactions';
   static const String agencyLocations = '/agency-locations';
+  static const String agencyCashDeposit = '/agency-cash-deposit';
+  static const String agencyCashWithdrawal = '/agency-cash-withdrawal';
+  static const String merchantCashWithdrawal = '/merchant-cash-withdrawal';
 
   static Map<String, WidgetBuilder> routes = {
     initial: (context) => const SplashScreen(),
@@ -61,5 +67,8 @@ class AppRoutes {
     agencyTransactions: (context) => const AgencyTransactionsScreen(),
     merchantTransactions: (context) => const MerchantTransactionsScreen(),
     agencyLocations: (context) => const AgencyLocationsScreen(),
+    agencyCashDeposit: (context) => const AgencyCashDepositScreen(),
+    agencyCashWithdrawal: (context) => const AgencyCashWithdrawalScreen(),
+    merchantCashWithdrawal: (context) => const MerchantCashWithdrawalScreen(),
   };
 }

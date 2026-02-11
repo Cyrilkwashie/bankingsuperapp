@@ -463,7 +463,10 @@ class _MerchantAllServicesScreenState extends State<MerchantAllServicesScreen>
       },
       child: GestureDetector(
         onTap: () {
-          if (service.route == 'merchantTransactionHistory') {
+          if (service.label == 'Cash Withdrawal') {
+            Navigator.of(context)
+                .pushNamed(AppRoutes.merchantCashWithdrawal);
+          } else if (service.route == 'merchantTransactionHistory') {
             Navigator.of(context)
                 .pushNamed(AppRoutes.merchantTransactionHistory);
           } else {

@@ -448,6 +448,14 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
       },
       child: GestureDetector(
         onTap: () {
+          if (service.label == 'Cash Deposit') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyCashDeposit);
+            return;
+          }
+          if (service.label == 'Cash Withdrawal') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyCashWithdrawal);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
