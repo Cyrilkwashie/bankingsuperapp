@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
+import '../../transactions/smart_branch_transaction_detail_screen.dart';
 
 /// Recent transactions — flat list, no card wrapper
 class BranchRecentTransactionsWidget extends StatelessWidget {
@@ -95,13 +96,13 @@ class BranchRecentTransactionsWidget extends StatelessWidget {
         ),
         SizedBox(height: 1.2.h),
         ...List.generate(_transactions.length, (index) {
-          return _buildTransactionCard(_transactions[index]);
+          return _buildTransactionCard(context, _transactions[index]);
         }),
       ],
     );
   }
 
-  Widget _buildTransactionCard(Map<String, dynamic> txn) {
+  Widget _buildTransactionCard(BuildContext context, Map<String, dynamic> txn) {
     final type = txn['type'] as String;
     final isDebit = type == 'withdrawal';
     final isSuccess = txn['status'] == 'success';
@@ -110,7 +111,13 @@ class BranchRecentTransactionsWidget extends StatelessWidget {
     final iconColor =
         isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280);
 
-    return Column(
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => SmartBranchTransactionDetailScreen(transaction: txn),
+        ),
+      ),
+      child: Column(
       children: [
         Padding(
           padding: EdgeInsets.symmetric(vertical: 1.h),
@@ -205,6 +212,7 @@ class BranchRecentTransactionsWidget extends StatelessWidget {
           color: isDark ? const Color(0xFF262C33) : const Color(0xFFE5E7EB),
         ),
       ],
+      ),
     );
   }
 
