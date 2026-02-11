@@ -23,6 +23,7 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
 
   bool _isScanning = false;
   bool _accountVerified = false;
+  bool _floatVisible = false;
   String _scannedAccountNo = '';
   String _accountName = '';
   String _accountStatus = '';
@@ -382,30 +383,39 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
               ),
               SizedBox(height: 1.5.h),
               // Merchant float
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.h),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CustomIconWidget(
-                      iconName: 'store',
-                      color: Colors.white70,
-                      size: 18,
-                    ),
-                    SizedBox(width: 2.w),
-                    Text(
-                      'Float: GH₵ 150,000.00',
-                      style: GoogleFonts.inter(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+              GestureDetector(
+                onTap: () => setState(() => _floatVisible = !_floatVisible),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CustomIconWidget(
+                        iconName: 'store',
+                        color: Colors.white70,
+                        size: 18,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 2.w),
+                      Text(
+                        _floatVisible ? 'Float: GH₵ 150,000.00' : 'Float: ••••••••',
+                        style: GoogleFonts.inter(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(width: 2.w),
+                      CustomIconWidget(
+                        iconName: _floatVisible ? 'visibility' : 'visibility_off',
+                        color: Colors.white70,
+                        size: 16,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
