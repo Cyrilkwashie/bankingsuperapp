@@ -456,6 +456,14 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
             Navigator.of(context).pushNamed(AppRoutes.agencyCashWithdrawal);
             return;
           }
+          if (service.label == 'Same Bank') {
+            Navigator.of(context).pushNamed(AppRoutes.agencySameBankTransfer);
+            return;
+          }
+          if (service.label == 'Other Bank') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyOtherBankTransfer);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(

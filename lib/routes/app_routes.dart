@@ -17,6 +17,8 @@ import '../presentation/smart_branch/settings/smart_branch_settings_screen.dart'
 import '../presentation/agency/transactions/agency_transactions_screen.dart';
 import '../presentation/agency/cash_deposit/agency_cash_deposit_screen.dart';
 import '../presentation/agency/cash_withdrawal/agency_cash_withdrawal_screen.dart';
+import '../presentation/agency/same_bank_transfer/agency_same_bank_transfer_screen.dart';
+import '../presentation/agency/other_bank_transfer/agency_other_bank_transfer_screen.dart';
 import '../presentation/merchant/transactions/merchant_transactions_screen.dart';
 import '../presentation/merchant/cash_withdrawal/merchant_cash_withdrawal_screen.dart';
 import '../presentation/smart_branch/transactions/smart_branch_transactions_screen.dart';
@@ -44,6 +46,8 @@ class AppRoutes {
   static const String agencyLocations = '/agency-locations';
   static const String agencyCashDeposit = '/agency-cash-deposit';
   static const String agencyCashWithdrawal = '/agency-cash-withdrawal';
+  static const String agencySameBankTransfer = '/agency-same-bank-transfer';
+  static const String agencyOtherBankTransfer = '/agency-other-bank-transfer';
   static const String merchantCashWithdrawal = '/merchant-cash-withdrawal';
 
   static Map<String, WidgetBuilder> routes = {
@@ -69,6 +73,8 @@ class AppRoutes {
     agencyLocations: (context) => const AgencyLocationsScreen(),
     agencyCashDeposit: (context) => const AgencyCashDepositScreen(),
     agencyCashWithdrawal: (context) => const AgencyCashWithdrawalScreen(),
+    agencySameBankTransfer: (context) => const AgencySameBankTransferScreen(),
+    agencyOtherBankTransfer: (context) => const AgencyOtherBankTransferScreen(),
     merchantCashWithdrawal: (context) => const MerchantCashWithdrawalScreen(),
   };
 }
