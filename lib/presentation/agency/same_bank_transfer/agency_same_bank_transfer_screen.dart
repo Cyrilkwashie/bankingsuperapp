@@ -30,6 +30,7 @@ class _AgencySameBankTransferScreenState
   bool _isLookingUpSender = false;
   bool _senderVerified = false;
   bool _senderNotFound = false;
+  bool _senderBalanceVisible = false;
   String _senderName = '';
   String _senderStatus = '';
   String _senderBalance = '';
@@ -392,7 +393,11 @@ class _AgencySameBankTransferScreenState
                           isDark,
                           _senderName,
                           _senderStatus,
+                          _resolvedSenderAccountNo,
                           showBalance: true,
+                          balance: _senderBalance,
+                          balanceVisible: _senderBalanceVisible,
+                          onToggleBalance: () => setState(() => _senderBalanceVisible = !_senderBalanceVisible),
                         ),
                       if (_senderNotFound)
                         _buildNotFoundCard(isDark, _senderLookupType == 'phone'),
@@ -430,6 +435,7 @@ class _AgencySameBankTransferScreenState
                           isDark,
                           _beneficiaryName,
                           _beneficiaryStatus,
+                          _resolvedBeneficiaryAccountNo,
                           showBalance: false,
                         ),
                       if (_beneficiaryNotFound)
@@ -945,84 +951,143 @@ class _AgencySameBankTransferScreenState
   Widget _buildAccountInfoCard(
     bool isDark,
     String name,
-    String status, {
+    String status,
+    String accountNo, {
     bool showBalance = false,
+    String balance = '',
+    bool balanceVisible = false,
+    VoidCallback? onToggleBalance,
   }) {
     final isActive = status == 'Active';
+    const accentColor = Color(0xFF2E8B8B);
 
     return Padding(
       padding: EdgeInsets.only(top: 1.2.h),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(3.5.w),
+        padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF0D2818) : const Color(0xFFF0FDF4),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isActive
+                ? [
+                    accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+                    const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+                  ]
+                : [
+                    const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
+                    const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
+                  ],
+          ),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: const Color(0xFF059669).withValues(alpha: 0.2),
+            color: isActive
+                ? accentColor.withValues(alpha: 0.3)
+                : const Color(0xFFF59E0B).withValues(alpha: 0.3),
           ),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFF059669).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Center(
-                child: Icon(Icons.person_rounded,
-                    color: Color(0xFF059669), size: 20),
-              ),
-            ),
-            SizedBox(width: 3.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: GoogleFonts.inter(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                    ),
+            Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(2.w),
+                  decoration: BoxDecoration(
+                    color: (isActive ? accentColor : const Color(0xFFF59E0B))
+                        .withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  SizedBox(height: 0.3.h),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 2.w, vertical: 0.2.h),
-                    decoration: BoxDecoration(
-                      color: (isActive
-                              ? const Color(0xFF059669)
-                              : const Color(0xFFD97706))
-                          .withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      status,
-                      style: GoogleFonts.inter(
-                        fontSize: 7.sp,
-                        fontWeight: FontWeight.w600,
-                        color: isActive
-                            ? const Color(0xFF059669)
-                            : const Color(0xFFD97706),
+                  child: CustomIconWidget(
+                    iconName: 'person',
+                    color: isActive ? accentColor : const Color(0xFFF59E0B),
+                    size: 20,
+                  ),
+                ),
+                SizedBox(width: 3.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: GoogleFonts.inter(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                        ),
                       ),
+                      SizedBox(height: 0.3.h),
+                      Text(
+                        'A/C: $accountNo',
+                        style: GoogleFonts.inter(
+                          fontSize: 8.5.sp,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                  decoration: BoxDecoration(
+                    color: isActive ? accentColor : const Color(0xFFF59E0B),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    status,
+                    style: GoogleFonts.inter(
+                      fontSize: 7.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            if (showBalance)
-              Text(
-                'XXXXXX',
-                style: GoogleFonts.inter(
-                  fontSize: 9.sp,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+            if (showBalance) ...[
+              SizedBox(height: 1.5.h),
+              GestureDetector(
+                onTap: onToggleBalance,
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                  decoration: BoxDecoration(
+                    color: (isActive ? accentColor : const Color(0xFFF59E0B))
+                        .withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Balance: ',
+                        style: GoogleFonts.inter(
+                          fontSize: 8.5.sp,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                        ),
+                      ),
+                      Text(
+                        balanceVisible ? balance : '••••••••',
+                        style: GoogleFonts.inter(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w700,
+                          color: isActive ? accentColor : const Color(0xFFF59E0B),
+                        ),
+                      ),
+                      const Spacer(),
+                      CustomIconWidget(
+                        iconName: balanceVisible ? 'visibility' : 'visibility_off',
+                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                        size: 16,
+                      ),
+                    ],
+                  ),
                 ),
               ),
+            ],
           ],
         ),
       ),
