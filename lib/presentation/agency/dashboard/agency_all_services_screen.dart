@@ -82,10 +82,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
       color: Color(0xFF64748B),
       icon: 'build',
       services: [
-        _ServiceItem(icon: 'history', label: 'Daily Txns'),
         _ServiceItem(icon: 'undo', label: 'Reverse Txn'),
-        _ServiceItem(icon: 'location_on', label: 'Locations'),
-        _ServiceItem(icon: 'settings', label: 'Settings'),
       ],
     ),
   ];
