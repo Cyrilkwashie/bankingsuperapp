@@ -23,6 +23,9 @@ import '../presentation/agency/qr_deposit/agency_qr_deposit_screen.dart';
 import '../presentation/agency/qr_withdrawal/agency_qr_withdrawal_screen.dart';
 import '../presentation/agency/full_statement/agency_full_statement_screen.dart';
 import '../presentation/agency/atm_card/agency_atm_card_screen.dart';
+import '../presentation/agency/cheque_book/agency_cheque_book_screen.dart';
+import '../presentation/agency/block_card/agency_block_card_screen.dart';
+import '../presentation/agency/stop_cheque/agency_stop_cheque_screen.dart';
 import '../presentation/merchant/transactions/merchant_transactions_screen.dart';
 import '../presentation/merchant/cash_withdrawal/merchant_cash_withdrawal_screen.dart';
 import '../presentation/merchant/qr_withdrawal/merchant_qr_withdrawal_screen.dart';
@@ -57,6 +60,9 @@ class AppRoutes {
   static const String agencyQrWithdrawal = '/agency-qr-withdrawal';
   static const String agencyFullStatement = '/agency-full-statement';
   static const String agencyAtmCard = '/agency-atm-card';
+  static const String agencyChequeBook = '/agency-cheque-book';
+  static const String agencyBlockCard = '/agency-block-card';
+  static const String agencyStopCheque = '/agency-stop-cheque';
   static const String merchantCashWithdrawal = '/merchant-cash-withdrawal';
   static const String merchantQrWithdrawal = '/merchant-qr-withdrawal';
 
@@ -89,6 +95,9 @@ class AppRoutes {
     agencyQrWithdrawal: (context) => const AgencyQrWithdrawalScreen(),
     agencyFullStatement: (context) => const AgencyFullStatementScreen(),
     agencyAtmCard: (context) => const AgencyAtmCardScreen(),
+    agencyChequeBook: (context) => const AgencyChequeBookScreen(),
+    agencyBlockCard: (context) => const AgencyBlockCardScreen(),
+    agencyStopCheque: (context) => const AgencyStopChequeScreen(),
     merchantCashWithdrawal: (context) => const MerchantCashWithdrawalScreen(),
     merchantQrWithdrawal: (context) => const MerchantQrWithdrawalScreen(),
   };

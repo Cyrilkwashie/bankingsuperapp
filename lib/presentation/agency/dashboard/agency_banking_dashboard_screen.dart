@@ -18,7 +18,7 @@ class AgencyBankingDashboardScreen extends StatefulWidget {
 
 class _AgencyBankingDashboardScreenState
     extends State<AgencyBankingDashboardScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
 
   void _onNavigationTap(int index) {
     if (index == _currentIndex) return;

@@ -15,7 +15,7 @@ class AgencyTransactionsScreen extends StatefulWidget {
 }
 
 class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
-  int _currentIndex = 1; // Transactions tab is selected
+  final int _currentIndex = 1; // Transactions tab is selected
 
   final List<Map<String, dynamic>> _transactions = [
     {

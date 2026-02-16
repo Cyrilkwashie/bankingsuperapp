@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import '../../../widgets/custom_icon_widget.dart';
 import './widgets/service_card_widget.dart';
 import './widgets/service_carousel_widget.dart';
 import './widgets/service_info_bottom_sheet.dart';

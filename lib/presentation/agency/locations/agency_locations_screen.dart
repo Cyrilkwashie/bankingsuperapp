@@ -14,7 +14,7 @@ class AgencyLocationsScreen extends StatefulWidget {
 
 class _AgencyLocationsScreenState extends State<AgencyLocationsScreen>
     with SingleTickerProviderStateMixin {
-  int _currentIndex = 2; // Locations tab is selected
+  final int _currentIndex = 2; // Locations tab is selected
   late TabController _tabController;
   String _selectedFilter = 'All';
 

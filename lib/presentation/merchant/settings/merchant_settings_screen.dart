@@ -14,7 +14,7 @@ class MerchantSettingsScreen extends StatefulWidget {
 }
 
 class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
-  int _currentIndex = 2; // Settings tab is selected (Merchant has 3 items)
+  final int _currentIndex = 2; // Settings tab is selected (Merchant has 3 items)
 
   // Merchant brand color - Green
   static const Color _brandColor = Color(0xFF059669);
@@ -86,7 +86,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                       trailing: Switch(
                         value: true,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -133,7 +133,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                       trailing: Switch(
                         value: true,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -146,7 +146,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                       trailing: Switch(
                         value: false,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -163,7 +163,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                         onChanged: (value) {
                           themeProvider.toggleTheme(value);
                         },
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),

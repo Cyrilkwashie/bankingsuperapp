@@ -5,68 +5,54 @@ import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
 
-class AgencyOtherBankTransferScreen extends StatefulWidget {
-  const AgencyOtherBankTransferScreen({super.key});
+class AgencyChequeBookScreen extends StatefulWidget {
+  const AgencyChequeBookScreen({super.key});
 
   @override
-  State<AgencyOtherBankTransferScreen> createState() =>
-      _AgencyOtherBankTransferScreenState();
+  State<AgencyChequeBookScreen> createState() => _AgencyChequeBookScreenState();
 }
 
-class _AgencyOtherBankTransferScreenState
-    extends State<AgencyOtherBankTransferScreen>
+class _AgencyChequeBookScreenState extends State<AgencyChequeBookScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _senderController = TextEditingController();
-  final _beneficiaryController = TextEditingController();
-  final _amountController = TextEditingController();
-  final _transferredByController = TextEditingController();
-  final _narrationController = TextEditingController();
-
-  // Bank selection
-  String? _selectedBank;
-  static const List<Map<String, String>> _banks = [
-    {'code': 'GCB', 'name': 'GCB Bank'},
-    {'code': 'ECOBANK', 'name': 'Ecobank Ghana'},
-    {'code': 'STANBIC', 'name': 'Stanbic Bank'},
-    {'code': 'ABSA', 'name': 'Absa Ghana'},
-    {'code': 'CAL', 'name': 'CAL Bank'},
-    {'code': 'FIDELITY', 'name': 'Fidelity Bank'},
-    {'code': 'ACCESS', 'name': 'Access Bank'},
-    {'code': 'ZENITH', 'name': 'Zenith Bank'},
-    {'code': 'UBA', 'name': 'UBA Ghana'},
-    {'code': 'REPUBLIC', 'name': 'Republic Bank'},
-    {'code': 'SOCIETE', 'name': 'Societe Generale'},
-    {'code': 'PRUDENTIAL', 'name': 'Prudential Bank'},
-  ];
+  final _accountController = TextEditingController();
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
 
-  // Sender lookup
-  bool _isLookingUpSender = false;
-  bool _senderVerified = false;
-  bool _senderNotFound = false;
-  bool _senderBalanceVisible = false;
-  String _senderName = '';
-  String _senderStatus = '';
-  String _senderBalance = '';
-  String _resolvedSenderAccountNo = '';
-  String _senderPhone = '';
-  Timer? _senderDebounce;
-  String _senderLookupType = 'account';
+  bool _isLookingUp = false;
+  bool _accountVerified = false;
+  bool _accountNotFound = false;
+  bool _balanceVisible = false;
+  String _accountName = '';
+  String _accountStatus = '';
+  String _accountBalance = '';
+  String _resolvedAccountNo = '';
+  String _customerPhone = '';
+  Timer? _debounce;
 
-  // Beneficiary lookup
-  bool _isLookingUpBeneficiary = false;
-  bool _beneficiaryVerified = false;
-  bool _beneficiaryNotFound = false;
-  String _beneficiaryName = '';
-  String _beneficiaryStatus = '';
-  String _resolvedBeneficiaryAccountNo = '';
-  Timer? _beneficiaryDebounce;
-  String _beneficiaryLookupType = 'account';
+  // Lookup type
+  String _lookupType = 'account';
 
-  // Mock accounts
+  // Form selections
+  String? _selectedLeaves;
+  String? _selectedBranch;
+
+  static const _leaveOptions = ['25 Leaves', '50 Leaves'];
+
+  static const _mockBranches = [
+    'Main Branch - Accra',
+    'Kumasi Branch',
+    'Tamale Branch',
+    'Takoradi Branch',
+    'Cape Coast Branch',
+    'Ho Branch',
+    'Sunyani Branch',
+    'Koforidua Branch',
+    'Osu Branch - Accra',
+    'Airport City Branch',
+  ];
+
   static const _mockAccounts = {
     '0012345678': {
       'name': 'Kwame Asante',
@@ -135,37 +121,33 @@ class _AgencyOtherBankTransferScreenState
   @override
   void dispose() {
     _animController.dispose();
-    _senderController.dispose();
-    _beneficiaryController.dispose();
-    _amountController.dispose();
-    _transferredByController.dispose();
-    _narrationController.dispose();
-    _senderDebounce?.cancel();
-    _beneficiaryDebounce?.cancel();
+    _accountController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
-  // ── Sender Lookup ──
-  void _onSenderChanged(String value) {
-    _senderDebounce?.cancel();
-    final minLength = _senderLookupType == 'account' ? 10 : 12;
+  // ── Account Lookup ──
+
+  void _onAccountChanged(String value) {
+    _debounce?.cancel();
+    final minLength = _lookupType == 'account' ? 10 : 12;
     if (value.length < minLength) {
       setState(() {
-        _senderVerified = false;
-        _senderNotFound = false;
+        _accountVerified = false;
+        _accountNotFound = false;
       });
       return;
     }
-    _senderDebounce = Timer(const Duration(milliseconds: 600), () {
-      _lookupSender(value);
+    _debounce = Timer(const Duration(milliseconds: 600), () {
+      _lookupAccount(value);
     });
   }
 
-  Future<void> _lookupSender(String input) async {
+  Future<void> _lookupAccount(String input) async {
     setState(() {
-      _isLookingUpSender = true;
-      _senderVerified = false;
-      _senderNotFound = false;
+      _isLookingUp = true;
+      _accountVerified = false;
+      _accountNotFound = false;
     });
 
     await Future.delayed(const Duration(milliseconds: 900));
@@ -174,7 +156,7 @@ class _AgencyOtherBankTransferScreenState
     String accountNo = input;
     String customerPhone = '';
 
-    if (_senderLookupType == 'phone') {
+    if (_lookupType == 'phone') {
       final phoneAccount = _mockPhoneAccounts[input];
       if (phoneAccount != null) {
         account = {
@@ -198,177 +180,76 @@ class _AgencyOtherBankTransferScreenState
     }
 
     setState(() {
-      _isLookingUpSender = false;
+      _isLookingUp = false;
       if (account != null) {
-        _senderVerified = true;
-        _senderName = account['name']!;
-        _senderStatus = account['status']!;
-        _senderBalance = account['balance']!;
-        _resolvedSenderAccountNo = accountNo;
-        _senderPhone = customerPhone;
-        if (_transferredByController.text.trim().isEmpty) {
-          _transferredByController.text = _senderName;
-        }
+        _accountVerified = true;
+        _accountName = account['name']!;
+        _accountStatus = account['status']!;
+        _accountBalance = account['balance']!;
+        _resolvedAccountNo = accountNo;
+        _customerPhone = customerPhone;
       } else {
-        _senderNotFound = true;
+        _accountNotFound = true;
       }
     });
   }
 
-  void _onSenderLookupTypeChanged(String type) {
+  void _onLookupTypeChanged(String type) {
     setState(() {
-      _senderLookupType = type;
-      _senderController.clear();
-      _senderVerified = false;
-      _senderNotFound = false;
-      _resolvedSenderAccountNo = '';
-      _senderPhone = '';
+      _lookupType = type;
+      _accountController.clear();
+      _accountVerified = false;
+      _accountNotFound = false;
+      _resolvedAccountNo = '';
+      _customerPhone = '';
     });
   }
 
-  // ── Beneficiary Lookup ──
-  void _onBeneficiaryChanged(String value) {
-    _beneficiaryDebounce?.cancel();
-    final minLength = _beneficiaryLookupType == 'account' ? 10 : 12;
-    if (value.length < minLength) {
-      setState(() {
-        _beneficiaryVerified = false;
-        _beneficiaryNotFound = false;
-      });
-      return;
-    }
-    _beneficiaryDebounce = Timer(const Duration(milliseconds: 600), () {
-      _lookupBeneficiary(value);
-    });
-  }
+  // ── Validation ──
 
-  Future<void> _lookupBeneficiary(String input) async {
-    setState(() {
-      _isLookingUpBeneficiary = true;
-      _beneficiaryVerified = false;
-      _beneficiaryNotFound = false;
-    });
-
-    await Future.delayed(const Duration(milliseconds: 900));
-
-    Map<String, String>? account;
-    String accountNo = input;
-
-    if (_beneficiaryLookupType == 'phone') {
-      final phoneAccount = _mockPhoneAccounts[input];
-      if (phoneAccount != null) {
-        account = {
-          'name': phoneAccount['name']!,
-          'status': phoneAccount['status']!,
-        };
-        accountNo = phoneAccount['accountNo']!;
-      }
-    } else {
-      final mockAccount = _mockAccounts[input];
-      if (mockAccount != null) {
-        account = {
-          'name': mockAccount['name']!,
-          'status': mockAccount['status']!,
-        };
-      }
-    }
-
-    setState(() {
-      _isLookingUpBeneficiary = false;
-      if (account != null) {
-        _beneficiaryVerified = true;
-        _beneficiaryName = account['name']!;
-        _beneficiaryStatus = account['status']!;
-        _resolvedBeneficiaryAccountNo = accountNo;
-      } else {
-        _beneficiaryNotFound = true;
-      }
-    });
-  }
-
-  void _onBeneficiaryLookupTypeChanged(String type) {
-    setState(() {
-      _beneficiaryLookupType = type;
-      _beneficiaryController.clear();
-      _beneficiaryVerified = false;
-      _beneficiaryNotFound = false;
-      _resolvedBeneficiaryAccountNo = '';
-    });
-  }
-
-  String get _fixedNarration {
-    final name = _transferredByController.text.trim();
-    if (name.isEmpty) return '';
-    return 'XPRESS FUNDS TRANSFER BY ${name.toUpperCase()}';
-  }
+  bool get _canSubmit =>
+      _accountVerified && _selectedLeaves != null && _selectedBranch != null;
 
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
-    if (!_senderVerified) {
+    if (!_canSubmit) {
+      String msg = 'Please complete all fields';
+      if (!_accountVerified) {
+        msg = _lookupType == 'phone'
+            ? 'Please enter a valid phone number'
+            : 'Please enter a valid account number';
+      } else if (_selectedLeaves == null) {
+        msg = 'Please select the number of leaves';
+      } else if (_selectedBranch == null) {
+        msg = 'Please select a pickup branch';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please enter a valid sender account/phone',
+            msg,
             style: GoogleFonts.inter(fontWeight: FontWeight.w500),
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      return;
-    }
-    if (!_beneficiaryVerified) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please enter a valid beneficiary account/phone',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      return;
-    }
-    if (_selectedBank == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please select a destination bank',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
       return;
     }
 
-    // Get bank name from code
-    final bankName = _banks.firstWhere((b) => b['code'] == _selectedBank)['name']!;
-
-    // Navigate to OTP verification
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => _TransferOtpScreen(
-          customerPhone: _senderPhone,
-          senderAccountNo: _senderLookupType == 'phone'
-              ? _resolvedSenderAccountNo
-              : _senderController.text.trim(),
-          senderName: _senderName,
-          senderBalance: _senderBalance,
-          beneficiaryAccountNo: _beneficiaryLookupType == 'phone'
-              ? _resolvedBeneficiaryAccountNo
-              : _beneficiaryController.text.trim(),
-          beneficiaryName: _beneficiaryName,
-          beneficiaryBank: bankName,
-          amount: _amountController.text.trim(),
-          transferredBy: _transferredByController.text.trim(),
-          narration: _narrationController.text.trim(),
-          fixedNarration: _fixedNarration,
+        builder: (_) => _ChequeBookOtpScreen(
+          customerPhone: _customerPhone,
+          accountNo: _lookupType == 'phone'
+              ? _resolvedAccountNo
+              : _accountController.text.trim(),
+          accountName: _accountName,
+          numberOfLeaves: _selectedLeaves!,
+          pickupBranch: _selectedBranch!,
           accentColor: const Color(0xFF2E8B8B),
           gradientColors: const [Color(0xFF1B365D), Color(0xFF2E8B8B)],
         ),
@@ -376,13 +257,16 @@ class _AgencyOtherBankTransferScreenState
     );
   }
 
+  // ── Build ──
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
@@ -397,194 +281,36 @@ class _AgencyOtherBankTransferScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Sender Section
-                      _buildSectionHeader('Sender Details', isDark),
-                      SizedBox(height: 1.5.h),
-                      _buildLookupTypeToggle(
-                        isDark,
-                        _senderLookupType,
-                        _onSenderLookupTypeChanged,
-                      ),
-                      SizedBox(height: 1.5.h),
-                      _buildFieldLabel(
-                        _senderLookupType == 'account'
-                            ? "Sender's Account Number"
-                            : "Sender's Phone Number",
-                        isDark,
-                      ),
-                      SizedBox(height: 0.8.h),
-                      _buildAccountField(
-                        controller: _senderController,
-                        onChanged: _onSenderChanged,
-                        isPhone: _senderLookupType == 'phone',
-                        isVerified: _senderVerified,
-                        isNotFound: _senderNotFound,
-                        isLoading: _isLookingUpSender,
-                        isDark: isDark,
-                      ),
-                      if (_isLookingUpSender) _buildLookupLoader(isDark),
-                      if (_senderVerified)
-                        _buildAccountInfoCard(
-                          isDark,
-                          _senderName,
-                          _senderStatus,
-                          _resolvedSenderAccountNo,
-                          showBalance: true,
-                          balance: _senderBalance,
-                          balanceVisible: _senderBalanceVisible,
-                          onToggleBalance: () => setState(() => _senderBalanceVisible = !_senderBalanceVisible),
-                        ),
-                      if (_senderNotFound)
-                        _buildNotFoundCard(isDark, _senderLookupType == 'phone'),
-
-                      SizedBox(height: 2.5.h),
-
-                      // Bank Selection (before beneficiary)
-                      _buildSectionHeader('Destination Bank', isDark),
-                      SizedBox(height: 1.5.h),
-                      _buildBankSelector(isDark),
-
-                      SizedBox(height: 2.5.h),
-
-                      // Beneficiary Section
-                      _buildSectionHeader('Beneficiary Details', isDark),
-                      SizedBox(height: 1.5.h),
-                      _buildLookupTypeToggle(
-                        isDark,
-                        _beneficiaryLookupType,
-                        _onBeneficiaryLookupTypeChanged,
-                      ),
-                      SizedBox(height: 1.5.h),
-                      _buildFieldLabel(
-                        _beneficiaryLookupType == 'account'
-                            ? "Beneficiary's Account Number"
-                            : "Beneficiary's Phone Number",
-                        isDark,
-                      ),
-                      SizedBox(height: 0.8.h),
-                      _buildAccountField(
-                        controller: _beneficiaryController,
-                        onChanged: _onBeneficiaryChanged,
-                        isPhone: _beneficiaryLookupType == 'phone',
-                        isVerified: _beneficiaryVerified,
-                        isNotFound: _beneficiaryNotFound,
-                        isLoading: _isLookingUpBeneficiary,
-                        isDark: isDark,
-                      ),
-                      if (_isLookingUpBeneficiary) _buildLookupLoader(isDark),
-                      if (_beneficiaryVerified)
-                        _buildAccountInfoCard(
-                          isDark,
-                          _beneficiaryName,
-                          _beneficiaryStatus,
-                          _beneficiaryController.text,
-                          showBalance: false,
-                        ),
-                      if (_beneficiaryNotFound)
-                        _buildNotFoundCard(
-                            isDark, _beneficiaryLookupType == 'phone'),
-
-                      SizedBox(height: 2.5.h),
-
-                      SizedBox(height: 2.5.h),
-
-                      // Transfer Details
-                      _buildSectionHeader('Transfer Details', isDark),
-                      SizedBox(height: 1.5.h),
-
-                      _buildFieldLabel('Amount (GH₵)', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _amountController,
-                        hint: '0.00',
-                        isDark: isDark,
-                        keyboardType:
-                            const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}')),
-                        ],
-                        prefixText: 'GH₵  ',
-                        validator: (v) {
-                          if (v == null || v.isEmpty) return 'Enter amount';
-                          final amount = double.tryParse(v);
-                          if (amount == null || amount <= 0) {
-                            return 'Enter a valid amount';
-                          }
-                          return null;
-                        },
-                      ),
+                      // Lookup type toggle
+                      _buildLookupTypeToggle(isDark),
                       SizedBox(height: 2.h),
 
-                      _buildFieldLabel('Funds Transferred By', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _transferredByController,
-                        hint: 'Name of sender',
-                        isDark: isDark,
-                        textCapitalization: TextCapitalization.words,
-                        onChanged: (_) => setState(() {}),
-                        validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Enter sender name'
-                            : null,
+                      _buildFieldLabel(
+                        _lookupType == 'account'
+                            ? 'Account Number'
+                            : 'Phone Number',
+                        isDark,
                       ),
-                      SizedBox(height: 2.h),
-
-                      _buildFieldLabel('Narration', isDark),
                       SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _narrationController,
-                        hint: 'Optional narration',
-                        isDark: isDark,
-                        maxLines: 2,
-                      ),
-                      SizedBox(height: 1.2.h),
+                      _buildAccountField(isDark),
 
-                      // System narration
-                      if (_fixedNarration.isNotEmpty) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 4.w, vertical: 1.2.h),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: isDark ? 0.08 : 0.05),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFF2E8B8B)
-                                  .withValues(alpha: 0.15),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Transaction Description',
-                                style: GoogleFonts.inter(
-                                  fontSize: 7.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF2E8B8B),
-                                ),
-                              ),
-                              SizedBox(height: 0.3.h),
-                              Text(
-                                _fixedNarration,
-                                style: GoogleFonts.inter(
-                                  fontSize: 8.5.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark
-                                      ? Colors.white70
-                                      : const Color(0xFF1A1D23),
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 3.h),
-                      ],
+                      if (_isLookingUp) _buildLookupLoader(isDark),
+                      if (_accountVerified) _buildAccountInfoCard(isDark),
+                      if (_accountNotFound) _buildNotFoundCard(isDark),
 
-                      if (_fixedNarration.isEmpty) SizedBox(height: 2.h),
+                      SizedBox(height: 2.5.h),
+
+                      // Number of Leaves
+                      _buildFieldLabel('Number of Leaves', isDark),
+                      SizedBox(height: 0.8.h),
+                      _buildLeavesDropdown(isDark),
+                      SizedBox(height: 2.5.h),
+
+                      // Pickup Branch
+                      _buildFieldLabel('Pickup Branch', isDark),
+                      SizedBox(height: 0.8.h),
+                      _buildBranchDropdown(isDark),
+                      SizedBox(height: 3.h),
 
                       _buildSubmitButton(isDark),
                       SizedBox(height: 2.h),
@@ -599,6 +325,7 @@ class _AgencyOtherBankTransferScreenState
     );
   }
 
+  // ── Header ──
   Widget _buildHeader(bool isDark) {
     return Container(
       decoration: BoxDecoration(
@@ -629,8 +356,11 @@ class _AgencyOtherBankTransferScreenState
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
                   ),
                 ),
               ),
@@ -640,7 +370,7 @@ class _AgencyOtherBankTransferScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Other Bank Transfer',
+                      'Cheque Book Request',
                       style: GoogleFonts.inter(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
@@ -661,8 +391,7 @@ class _AgencyOtherBankTransferScreenState
                 ),
               ),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -700,30 +429,6 @@ class _AgencyOtherBankTransferScreenState
     );
   }
 
-  Widget _buildSectionHeader(String title, bool isDark) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 16,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2E8B8B),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        SizedBox(width: 2.w),
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            fontSize: 10.sp,
-            fontWeight: FontWeight.w700,
-            color: isDark ? Colors.white : const Color(0xFF111827),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildFieldLabel(String label, bool isDark) {
     return Text(
       label,
@@ -735,254 +440,9 @@ class _AgencyOtherBankTransferScreenState
     );
   }
 
-  Widget _buildBankSelector(bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: _selectedBank != null
-              ? const Color(0xFF059669).withValues(alpha: 0.5)
-              : isDark
-                  ? Colors.white.withValues(alpha: 0.08)
-                  : const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: DropdownButtonFormField<String>(
-        initialValue: _selectedBank,
-        hint: Row(
-          children: [
-            Icon(
-              Icons.account_balance_rounded,
-              color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-              size: 20,
-            ),
-            SizedBox(width: 3.w),
-            Text(
-              'Select destination bank',
-              style: GoogleFonts.inter(
-                fontSize: 10.sp,
-                color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
-              ),
-            ),
-          ],
-        ),
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(
-              color: Color(0xFF2E8B8B),
-              width: 1.5,
-            ),
-          ),
-        ),
-        dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        isExpanded: true,
-        icon: Icon(
-          Icons.keyboard_arrow_down_rounded,
-          color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-        ),
-        style: GoogleFonts.inter(
-          fontSize: 10.sp,
-          fontWeight: FontWeight.w500,
-          color: isDark ? Colors.white : const Color(0xFF1A1D23),
-        ),
-        validator: (v) => v == null ? 'Select a bank' : null,
-        onChanged: (value) {
-          setState(() {
-            _selectedBank = value;
-          });
-        },
-        items: _banks.map((bank) {
-          return DropdownMenuItem<String>(
-            value: bank['code'],
-            child: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2E8B8B).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      bank['code']!.substring(0, 2),
-                      style: GoogleFonts.inter(
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF2E8B8B),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 3.w),
-                Expanded(
-                  child: Text(
-                    bank['name']!,
-                    style: GoogleFonts.inter(
-                      fontSize: 9.5.sp,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildLookupTypeToggle(
-    bool isDark,
-    String currentType,
-    ValueChanged<String> onChanged,
-  ) {
-    return Container(
-      padding: EdgeInsets.all(0.5.w),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged('account'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: currentType == 'account'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: currentType == 'account'
-                      ? [
-                          BoxShadow(
-                            color:
-                                const Color(0xFF2E8B8B).withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.account_balance_rounded,
-                      size: 16,
-                      color: currentType == 'account'
-                          ? Colors.white
-                          : (isDark
-                              ? Colors.white38
-                              : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Account No.',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: currentType == 'account'
-                            ? Colors.white
-                            : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged('phone'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: currentType == 'phone'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: currentType == 'phone'
-                      ? [
-                          BoxShadow(
-                            color:
-                                const Color(0xFF2E8B8B).withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.phone_rounded,
-                      size: 16,
-                      color: currentType == 'phone'
-                          ? Colors.white
-                          : (isDark
-                              ? Colors.white38
-                              : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Phone No.',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: currentType == 'phone'
-                            ? Colors.white
-                            : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAccountField({
-    required TextEditingController controller,
-    required ValueChanged<String> onChanged,
-    required bool isPhone,
-    required bool isVerified,
-    required bool isNotFound,
-    required bool isLoading,
-    required bool isDark,
-  }) {
+  // ── Account Input ──
+  Widget _buildAccountField(bool isDark) {
+    final isPhone = _lookupType == 'phone';
     final maxLength = isPhone ? 12 : 10;
     final hintText = isPhone ? '232XXXXXXXXX' : '00 XXXX XXXX';
     final validationMsg = isPhone
@@ -990,8 +450,8 @@ class _AgencyOtherBankTransferScreenState
         : 'Enter 10-digit account number';
 
     return TextFormField(
-      controller: controller,
-      onChanged: onChanged,
+      controller: _accountController,
+      onChanged: _onAccountChanged,
       keyboardType: TextInputType.number,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
@@ -1033,21 +493,18 @@ class _AgencyOtherBankTransferScreenState
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
-            color: isVerified
+            color: _accountVerified
                 ? const Color(0xFF059669).withValues(alpha: 0.5)
-                : isNotFound
-                    ? const Color(0xFFDC2626).withValues(alpha: 0.5)
-                    : isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE5E7EB),
+                : _accountNotFound
+                ? const Color(0xFFDC2626).withValues(alpha: 0.5)
+                : isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE5E7EB),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFF2E8B8B),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -1057,7 +514,7 @@ class _AgencyOtherBankTransferScreenState
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
         ),
-        suffixIcon: isLoading
+        suffixIcon: _isLookingUp
             ? Padding(
                 padding: const EdgeInsets.all(12),
                 child: SizedBox(
@@ -1069,10 +526,135 @@ class _AgencyOtherBankTransferScreenState
                   ),
                 ),
               )
-            : isVerified
-                ? const Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF059669), size: 22)
-                : null,
+            : _accountVerified
+            ? const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF059669),
+                size: 22,
+              )
+            : null,
+      ),
+    );
+  }
+
+  // ── Lookup Type Toggle ──
+  Widget _buildLookupTypeToggle(bool isDark) {
+    return Container(
+      padding: EdgeInsets.all(0.5.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : const Color(0xFFE5E7EB),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _onLookupTypeChanged('account'),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(vertical: 1.2.h),
+                decoration: BoxDecoration(
+                  color: _lookupType == 'account'
+                      ? const Color(0xFF2E8B8B)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: _lookupType == 'account'
+                      ? [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.account_balance_rounded,
+                      size: 16,
+                      color: _lookupType == 'account'
+                          ? Colors.white
+                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                    ),
+                    SizedBox(width: 1.5.w),
+                    Text(
+                      'Account No.',
+                      style: GoogleFonts.inter(
+                        fontSize: 8.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: _lookupType == 'account'
+                            ? Colors.white
+                            : (isDark
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _onLookupTypeChanged('phone'),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(vertical: 1.2.h),
+                decoration: BoxDecoration(
+                  color: _lookupType == 'phone'
+                      ? const Color(0xFF2E8B8B)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: _lookupType == 'phone'
+                      ? [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.phone_rounded,
+                      size: 16,
+                      color: _lookupType == 'phone'
+                          ? Colors.white
+                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                    ),
+                    SizedBox(width: 1.5.w),
+                    Text(
+                      'Phone No.',
+                      style: GoogleFonts.inter(
+                        fontSize: 8.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: _lookupType == 'phone'
+                            ? Colors.white
+                            : (isDark
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1104,17 +686,8 @@ class _AgencyOtherBankTransferScreenState
     );
   }
 
-  Widget _buildAccountInfoCard(
-    bool isDark,
-    String name,
-    String status,
-    String accountNo, {
-    bool showBalance = false,
-    String balance = '',
-    bool balanceVisible = false,
-    VoidCallback? onToggleBalance,
-  }) {
-    final isActive = status == 'Active';
+  Widget _buildAccountInfoCard(bool isDark) {
+    final isActive = _accountStatus == 'Active';
     const accentColor = Color(0xFF2E8B8B);
 
     return Padding(
@@ -1129,11 +702,17 @@ class _AgencyOtherBankTransferScreenState
             colors: isActive
                 ? [
                     accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFF10B981,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ]
                 : [
-                    const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFFF59E0B,
+                    ).withValues(alpha: isDark ? 0.15 : 0.08),
+                    const Color(
+                      0xFFFBBF24,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ],
           ),
           borderRadius: BorderRadius.circular(14),
@@ -1167,33 +746,40 @@ class _AgencyOtherBankTransferScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
+                        _accountName,
                         style: GoogleFonts.inter(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1A1D23),
                         ),
                       ),
                       SizedBox(height: 0.3.h),
                       Text(
-                        'A/C: $accountNo',
+                        'A/C: $_resolvedAccountNo',
                         style: GoogleFonts.inter(
                           fontSize: 8.5.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                          color: isDark
+                              ? Colors.white60
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 2.5.w,
+                    vertical: 0.5.h,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive ? accentColor : const Color(0xFFF59E0B),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    status,
+                    _accountStatus,
                     style: GoogleFonts.inter(
                       fontSize: 7.sp,
                       fontWeight: FontWeight.w600,
@@ -1203,54 +789,57 @@ class _AgencyOtherBankTransferScreenState
                 ),
               ],
             ),
-            if (showBalance) ...[
-              SizedBox(height: 1.5.h),
-              GestureDetector(
-                onTap: onToggleBalance,
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-                  decoration: BoxDecoration(
-                    color: (isActive ? accentColor : const Color(0xFFF59E0B))
-                        .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Balance: ',
-                        style: GoogleFonts.inter(
-                          fontSize: 8.5.sp,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                        ),
+            SizedBox(height: 1.5.h),
+            GestureDetector(
+              onTap: () => setState(() => _balanceVisible = !_balanceVisible),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                decoration: BoxDecoration(
+                  color: (isActive ? accentColor : const Color(0xFFF59E0B))
+                      .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'Balance: ',
+                      style: GoogleFonts.inter(
+                        fontSize: 8.5.sp,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white54
+                            : const Color(0xFF64748B),
                       ),
-                      Text(
-                        balanceVisible ? balance : '••••••••',
-                        style: GoogleFonts.inter(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isActive ? accentColor : const Color(0xFFF59E0B),
-                        ),
+                    ),
+                    Text(
+                      _balanceVisible ? _accountBalance : '••••••••',
+                      style: GoogleFonts.inter(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w700,
+                        color: isActive ? accentColor : const Color(0xFFF59E0B),
                       ),
-                      const Spacer(),
-                      CustomIconWidget(
-                        iconName: balanceVisible ? 'visibility' : 'visibility_off',
-                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                        size: 16,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const Spacer(),
+                    CustomIconWidget(
+                      iconName: _balanceVisible
+                          ? 'visibility'
+                          : 'visibility_off',
+                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                      size: 16,
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNotFoundCard(bool isDark, bool isPhone) {
+  Widget _buildNotFoundCard(bool isDark) {
+    final isPhone = _lookupType == 'phone';
     return Padding(
       padding: EdgeInsets.only(top: 1.2.h),
       child: Container(
@@ -1273,8 +862,11 @@ class _AgencyOtherBankTransferScreenState
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Center(
-                child: Icon(Icons.person_off_rounded,
-                    color: Color(0xFFDC2626), size: 18),
+                child: Icon(
+                  Icons.person_off_rounded,
+                  color: Color(0xFFDC2626),
+                  size: 18,
+                ),
               ),
             ),
             SizedBox(width: 3.w),
@@ -1293,8 +885,8 @@ class _AgencyOtherBankTransferScreenState
                   SizedBox(height: 0.15.h),
                   Text(
                     isPhone
-                        ? 'No account linked to this phone number.'
-                        : 'No account matches this number.',
+                        ? 'No account linked to this phone number. Please verify and try again.'
+                        : 'No account matches this number. Please verify and try again.',
                     style: GoogleFonts.inter(
                       fontSize: 7.5.sp,
                       fontWeight: FontWeight.w400,
@@ -1310,83 +902,149 @@ class _AgencyOtherBankTransferScreenState
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    required bool isDark,
-    TextInputType? keyboardType,
-    List<TextInputFormatter>? inputFormatters,
-    String? prefixText,
-    int? maxLines,
-    TextCapitalization textCapitalization = TextCapitalization.none,
-    String? Function(String?)? validator,
-    ValueChanged<String>? onChanged,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      inputFormatters: inputFormatters,
-      textCapitalization: textCapitalization,
-      maxLines: maxLines ?? 1,
-      onChanged: onChanged,
-      validator: validator,
-      style: GoogleFonts.inter(
-        fontSize: 10.sp,
-        fontWeight: FontWeight.w500,
-        color: isDark ? Colors.white : const Color(0xFF1A1D23),
+  // ── Number of Leaves Dropdown ──
+  Widget _buildLeavesDropdown(bool isDark) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _selectedLeaves != null
+              ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+              : isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : const Color(0xFFE5E7EB),
+        ),
       ),
-      decoration: InputDecoration(
-        hintText: hint,
-        prefixText: prefixText,
-        prefixStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
-          fontWeight: FontWeight.w600,
-          color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-        ),
-        hintStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
-          color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
-        ),
-        filled: true,
-        fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : const Color(0xFFE5E7EB),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedLeaves,
+          isExpanded: true,
+          hint: Text(
+            'Select number of leaves',
+            style: GoogleFonts.inter(
+              fontSize: 10.sp,
+              color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
+            ),
           ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
-                : const Color(0xFFE5E7EB),
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: _selectedLeaves != null
+                ? const Color(0xFF2E8B8B)
+                : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
+          dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFF2E8B8B),
-            width: 1.5,
+          style: GoogleFonts.inter(
+            fontSize: 10.sp,
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.white : const Color(0xFF1A1D23),
           ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFDC2626)),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+          items: _leaveOptions.map((option) {
+            return DropdownMenuItem<String>(
+              value: option,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.menu_book_rounded,
+                    size: 16,
+                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                  ),
+                  SizedBox(width: 2.w),
+                  Text(
+                    option,
+                    style: GoogleFonts.inter(
+                      fontSize: 9.5.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() => _selectedLeaves = value);
+          },
         ),
       ),
     );
   }
 
+  // ── Branch Dropdown ──
+  Widget _buildBranchDropdown(bool isDark) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _selectedBranch != null
+              ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+              : isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : const Color(0xFFE5E7EB),
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedBranch,
+          isExpanded: true,
+          hint: Text(
+            'Select pickup branch',
+            style: GoogleFonts.inter(
+              fontSize: 10.sp,
+              color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
+            ),
+          ),
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: _selectedBranch != null
+                ? const Color(0xFF2E8B8B)
+                : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+          ),
+          dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          style: GoogleFonts.inter(
+            fontSize: 10.sp,
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.white : const Color(0xFF1A1D23),
+          ),
+          items: _mockBranches.map((branch) {
+            return DropdownMenuItem<String>(
+              value: branch,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.location_on_rounded,
+                    size: 16,
+                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                  ),
+                  SizedBox(width: 2.w),
+                  Expanded(
+                    child: Text(
+                      branch,
+                      style: GoogleFonts.inter(
+                        fontSize: 9.5.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() => _selectedBranch = value);
+          },
+        ),
+      ),
+    );
+  }
+
+  // ── Submit Button ──
   Widget _buildSubmitButton(bool isDark) {
-    final enabled = _senderVerified && _beneficiaryVerified;
+    final enabled = _canSubmit;
 
     return GestureDetector(
       onTap: enabled ? _onSubmit : null,
@@ -1435,44 +1093,34 @@ class _AgencyOtherBankTransferScreenState
 // ── OTP Verification Screen ──
 // ══════════════════════════════════════════════════════════════
 
-class _TransferOtpScreen extends StatefulWidget {
+class _ChequeBookOtpScreen extends StatefulWidget {
   final String customerPhone;
-  final String senderAccountNo;
-  final String senderName;
-  final String senderBalance;
-  final String beneficiaryAccountNo;
-  final String beneficiaryName;
-  final String beneficiaryBank;
-  final String amount;
-  final String transferredBy;
-  final String narration;
-  final String fixedNarration;
+  final String accountNo;
+  final String accountName;
+  final String numberOfLeaves;
+  final String pickupBranch;
   final Color accentColor;
   final List<Color> gradientColors;
 
-  const _TransferOtpScreen({
+  const _ChequeBookOtpScreen({
     required this.customerPhone,
-    required this.senderAccountNo,
-    required this.senderName,
-    required this.senderBalance,
-    required this.beneficiaryAccountNo,
-    required this.beneficiaryName,
-    required this.beneficiaryBank,
-    required this.amount,
-    required this.transferredBy,
-    required this.narration,
-    required this.fixedNarration,
+    required this.accountNo,
+    required this.accountName,
+    required this.numberOfLeaves,
+    required this.pickupBranch,
     required this.accentColor,
     required this.gradientColors,
   });
 
   @override
-  State<_TransferOtpScreen> createState() => _TransferOtpScreenState();
+  State<_ChequeBookOtpScreen> createState() => _ChequeBookOtpScreenState();
 }
 
-class _TransferOtpScreenState extends State<_TransferOtpScreen> {
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
+class _ChequeBookOtpScreenState extends State<_ChequeBookOtpScreen> {
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isVerifying = false;
@@ -1577,17 +1225,11 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => _TransferReceiptScreen(
-              senderAccountNo: widget.senderAccountNo,
-              senderName: widget.senderName,
-              senderBalance: widget.senderBalance,
-              beneficiaryAccountNo: widget.beneficiaryAccountNo,
-              beneficiaryName: widget.beneficiaryName,
-              beneficiaryBank: widget.beneficiaryBank,
-              amount: widget.amount,
-              transferredBy: widget.transferredBy,
-              narration: widget.narration,
-              fixedNarration: widget.fixedNarration,
+            builder: (_) => _ChequeBookConfirmationScreen(
+              accountNo: widget.accountNo,
+              accountName: widget.accountName,
+              numberOfLeaves: widget.numberOfLeaves,
+              pickupBranch: widget.pickupBranch,
               accentColor: widget.accentColor,
               gradientColors: widget.gradientColors,
             ),
@@ -1611,8 +1253,9 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           _buildHeader(isDark),
@@ -1702,17 +1345,17 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                               fillColor: isDark
                                   ? const Color(0xFF161B22)
                                   : Colors.white,
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 3.w),
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 3.w,
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
                                   color: _otpError
                                       ? const Color(0xFFDC2626)
                                       : isDark
-                                          ? Colors.white
-                                              .withValues(alpha: 0.08)
-                                          : const Color(0xFFE5E7EB),
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : const Color(0xFFE5E7EB),
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
@@ -1721,9 +1364,8 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                                   color: _otpError
                                       ? const Color(0xFFDC2626)
                                       : isDark
-                                          ? Colors.white
-                                              .withValues(alpha: 0.08)
-                                          : const Color(0xFFE5E7EB),
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : const Color(0xFFE5E7EB),
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
@@ -1747,8 +1389,11 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline_rounded,
-                            color: Color(0xFFDC2626), size: 16),
+                        const Icon(
+                          Icons.error_outline_rounded,
+                          color: Color(0xFFDC2626),
+                          size: 16,
+                        ),
                         SizedBox(width: 1.w),
                         Text(
                           'Invalid OTP. Please try again.',
@@ -1770,8 +1415,9 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 8.5.sp,
                         fontWeight: FontWeight.w400,
-                        color:
-                            isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                        color: isDark
+                            ? Colors.white38
+                            : const Color(0xFF9CA3AF),
                       ),
                     )
                   else
@@ -1789,6 +1435,7 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
 
                   SizedBox(height: 4.h),
 
+                  // Verify Button
                   GestureDetector(
                     onTap: _isVerifying ? null : _verifyOtp,
                     child: Container(
@@ -1799,21 +1446,22 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                             ? LinearGradient(
                                 colors: [
                                   widget.accentColor,
-                                  widget.accentColor.withValues(alpha: 0.85)
+                                  widget.accentColor.withValues(alpha: 0.85),
                                 ],
                               )
                             : null,
                         color: _enteredOtp.length == 6 && !_isVerifying
                             ? null
                             : (isDark
-                                ? const Color(0xFF1E2328)
-                                : const Color(0xFFE5E7EB)),
+                                  ? const Color(0xFF1E2328)
+                                  : const Color(0xFFE5E7EB)),
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: _enteredOtp.length == 6 && !_isVerifying
                             ? [
                                 BoxShadow(
-                                  color: widget.accentColor
-                                      .withValues(alpha: 0.3),
+                                  color: widget.accentColor.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -1838,8 +1486,8 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                                   color: _enteredOtp.length == 6
                                       ? Colors.white
                                       : (isDark
-                                          ? Colors.white24
-                                          : const Color(0xFF9CA3AF)),
+                                            ? Colors.white24
+                                            : const Color(0xFF9CA3AF)),
                                 ),
                               ),
                       ),
@@ -1848,6 +1496,7 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
 
                   SizedBox(height: 1.5.h),
 
+                  // Cancel Button
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
@@ -1868,8 +1517,9 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
-                            color:
-                                isDark ? Colors.white54 : const Color(0xFF6B7280),
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xFF6B7280),
                           ),
                         ),
                       ),
@@ -1878,6 +1528,7 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
 
                   SizedBox(height: 3.h),
 
+                  // Security note
                   Container(
                     padding: EdgeInsets.all(3.5.w),
                     decoration: BoxDecoration(
@@ -1897,7 +1548,7 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                         SizedBox(width: 3.w),
                         Expanded(
                           child: Text(
-                            'This OTP verification protects against unauthorized transfers.',
+                            'This OTP verification protects the account from unauthorized cheque book requests.',
                             style: GoogleFonts.inter(
                               fontSize: 7.5.sp,
                               fontWeight: FontWeight.w400,
@@ -1949,8 +1600,11 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
                   ),
                 ),
               ),
@@ -1970,7 +1624,7 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                     ),
                     SizedBox(height: 0.2.h),
                     Text(
-                      'Transfer Security',
+                      'Cheque Book Security',
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
                         fontWeight: FontWeight.w400,
@@ -1981,8 +1635,7 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                 ),
               ),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -2019,45 +1672,29 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── Transfer Receipt / Confirmation Screen ──
+// ── Confirmation Screen ──
 // ══════════════════════════════════════════════════════════════
 
-class _TransferReceiptScreen extends StatelessWidget {
-  final String senderAccountNo;
-  final String senderName;
-  final String senderBalance;
-  final String beneficiaryAccountNo;
-  final String beneficiaryName;
-  final String beneficiaryBank;
-  final String amount;
-  final String transferredBy;
-  final String narration;
-  final String fixedNarration;
+class _ChequeBookConfirmationScreen extends StatelessWidget {
+  final String accountNo;
+  final String accountName;
+  final String numberOfLeaves;
+  final String pickupBranch;
   final Color accentColor;
   final List<Color> gradientColors;
 
-  const _TransferReceiptScreen({
-    required this.senderAccountNo,
-    required this.senderName,
-    required this.senderBalance,
-    required this.beneficiaryAccountNo,
-    required this.beneficiaryName,
-    required this.beneficiaryBank,
-    required this.amount,
-    required this.transferredBy,
-    required this.narration,
-    required this.fixedNarration,
+  const _ChequeBookConfirmationScreen({
+    required this.accountNo,
+    required this.accountName,
+    required this.numberOfLeaves,
+    required this.pickupBranch,
     required this.accentColor,
     required this.gradientColors,
   });
 
-  double get _amountValue => double.tryParse(amount) ?? 0;
-  double get _charges => _amountValue * 0.01;
-  double get _totalAmount => _amountValue + _charges;
-
-  double get _parsedBalance {
-    final cleaned = senderBalance.replaceAll(RegExp(r'[^0-9.]'), '');
-    return double.tryParse(cleaned) ?? 0;
+  double get _charges {
+    if (numberOfLeaves.contains('50')) return 30.00;
+    return 20.00;
   }
 
   @override
@@ -2065,10 +1702,12 @@ class _TransferReceiptScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
+          // Header
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -2098,14 +1737,17 @@ class _TransferReceiptScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Center(
-                          child: Icon(Icons.arrow_back_rounded,
-                              color: Colors.white, size: 19),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 19,
+                          ),
                         ),
                       ),
                     ),
                     SizedBox(width: 3.5.w),
                     Text(
-                      'Confirm Transfer',
+                      'Confirm Request',
                       style: GoogleFonts.inter(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
@@ -2124,14 +1766,19 @@ class _TransferReceiptScreen extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(5.w, 2.5.h, 5.w, 4.h),
               child: Column(
                 children: [
-                  _buildAmountCard(isDark),
-                  SizedBox(height: 2.h),
-                  _buildTransferFlow(isDark),
-                  SizedBox(height: 2.h),
+                  // Cheque book illustration
+                  _buildChequeBookIllustration(isDark),
+                  SizedBox(height: 2.5.h),
+
+                  // Details card
                   _buildDetailsCard(isDark),
                   SizedBox(height: 2.h),
+
+                  // Charges card
                   _buildChargesCard(isDark),
                   SizedBox(height: 3.h),
+
+                  // Confirm button
                   _buildConfirmButton(context, isDark),
                   SizedBox(height: 1.2.h),
                   _buildCancelButton(context, isDark),
@@ -2144,150 +1791,62 @@ class _TransferReceiptScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAmountCard(bool isDark) {
+  Widget _buildChequeBookIllustration(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 2.5.h),
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 3.h),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: isDark
-              ? [const Color(0xFF162032), const Color(0xFF0D1117)]
-              : [
-                  accentColor.withValues(alpha: 0.06),
-                  accentColor.withValues(alpha: 0.02),
-                ],
+          colors: [
+            accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+            const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+          ],
         ),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: accentColor.withValues(alpha: isDark ? 0.15 : 0.12),
-        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: accentColor.withValues(alpha: 0.15)),
       ),
       child: Column(
         children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(
+                Icons.menu_book_rounded,
+                color: accentColor,
+                size: 34,
+              ),
+            ),
+          ),
+          SizedBox(height: 1.5.h),
           Text(
-            'Transfer Amount',
+            'Cheque Book',
             style: GoogleFonts.inter(
-              fontSize: 8.sp,
-              fontWeight: FontWeight.w400,
-              color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF111827),
             ),
           ),
           SizedBox(height: 0.5.h),
-          Text(
-            'GH₵ $amount',
-            style: GoogleFonts.inter(
-              fontSize: 22.sp,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : const Color(0xFF1A1D23),
-              letterSpacing: -0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransferFlow(bool isDark) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDC2626).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.arrow_upward_rounded,
-                        color: Color(0xFFDC2626), size: 22),
-                  ),
-                ),
-                SizedBox(height: 1.h),
-                Text(
-                  'From',
-                  style: GoogleFonts.inter(
-                    fontSize: 7.sp,
-                    fontWeight: FontWeight.w400,
-                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                  ),
-                ),
-                SizedBox(height: 0.3.h),
-                Text(
-                  senderName,
-                  style: GoogleFonts.inter(
-                    fontSize: 8.5.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 3.w),
-            child: Icon(
-              Icons.arrow_forward_rounded,
-              color: accentColor,
-              size: 24,
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.6.h),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
             ),
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF059669).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.arrow_downward_rounded,
-                        color: Color(0xFF059669), size: 22),
-                  ),
-                ),
-                SizedBox(height: 1.h),
-                Text(
-                  'To',
-                  style: GoogleFonts.inter(
-                    fontSize: 7.sp,
-                    fontWeight: FontWeight.w400,
-                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                  ),
-                ),
-                SizedBox(height: 0.3.h),
-                Text(
-                  beneficiaryName,
-                  style: GoogleFonts.inter(
-                    fontSize: 8.5.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            child: Text(
+              numberOfLeaves,
+              style: GoogleFonts.inter(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w600,
+                color: accentColor,
+              ),
             ),
           ),
         ],
@@ -2312,7 +1871,7 @@ class _TransferReceiptScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Transaction Details',
+            'Request Details',
             style: GoogleFonts.inter(
               fontSize: 9.5.sp,
               fontWeight: FontWeight.w700,
@@ -2320,34 +1879,26 @@ class _TransferReceiptScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 1.5.h),
-          _detailRow('Sender Account', senderAccountNo, isDark),
+          _detailRow('Account Number', accountNo, isDark),
           _divider(isDark),
-          _detailRow('Beneficiary Account', beneficiaryAccountNo, isDark),
+          _detailRow('Account Name', accountName, isDark),
           _divider(isDark),
-          _detailRow('Beneficiary Bank', beneficiaryBank, isDark),
+          _detailRow('Number of Leaves', numberOfLeaves, isDark),
           _divider(isDark),
-          _detailRow('Transferred By', transferredBy, isDark),
-          if (narration.isNotEmpty) ...[
-            _divider(isDark),
-            _detailRow('Narration', narration, isDark),
-          ],
-          _divider(isDark),
-          _detailRow('Trans. Description', fixedNarration, isDark,
-              valueSize: 7.5.sp),
+          _detailRow('Pickup Branch', pickupBranch, isDark),
         ],
       ),
     );
   }
 
-  Widget _detailRow(String label, String value, bool isDark,
-      {double? valueSize}) {
+  Widget _detailRow(String label, String value, bool isDark) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.6.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 32.w,
+            width: 30.w,
             child: Text(
               label,
               style: GoogleFonts.inter(
@@ -2361,7 +1912,7 @@ class _TransferReceiptScreen extends StatelessWidget {
             child: Text(
               value,
               style: GoogleFonts.inter(
-                fontSize: valueSize ?? 9.sp,
+                fontSize: 9.sp,
                 fontWeight: FontWeight.w500,
                 color: isDark ? Colors.white : const Color(0xFF1A1D23),
               ),
@@ -2399,7 +1950,7 @@ class _TransferReceiptScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Charges & Total',
+            'Charges',
             style: GoogleFonts.inter(
               fontSize: 9.5.sp,
               fontWeight: FontWeight.w700,
@@ -2407,17 +1958,18 @@ class _TransferReceiptScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 1.5.h),
-          _detailRow('Amount', 'GH₵ ${_amountValue.toStringAsFixed(2)}', isDark),
-          _divider(isDark),
           _detailRow(
-              'Charges (1%)', 'GH₵ ${_charges.toStringAsFixed(2)}', isDark),
+            'Cheque Book Fee',
+            'GH₵ ${_charges.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 0.8.h),
             child: Row(
               children: [
                 Text(
-                  'Total Debit',
+                  'Total',
                   style: GoogleFonts.inter(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
@@ -2426,7 +1978,7 @@ class _TransferReceiptScreen extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+                  'GH₵ ${_charges.toStringAsFixed(2)}',
                   style: GoogleFonts.inter(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
@@ -2444,23 +1996,13 @@ class _TransferReceiptScreen extends StatelessWidget {
   Widget _buildConfirmButton(BuildContext context, bool isDark) {
     return GestureDetector(
       onTap: () {
-        if (_parsedBalance < _totalAmount) {
-          showDialog(
-            context: context,
-            builder: (_) => _InsufficientFundsDialog(
-              balance: senderBalance,
-              required: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
-              accentColor: accentColor,
-            ),
-          );
-          return;
-        }
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (_) => _SuccessDialog(
-            amount: 'GH₵ ${_amountValue.toStringAsFixed(2)}',
-            beneficiaryName: beneficiaryName,
+          builder: (_) => _ChequeBookSuccessDialog(
+            numberOfLeaves: numberOfLeaves,
+            accountName: accountName,
+            pickupBranch: pickupBranch,
             accentColor: accentColor,
           ),
         );
@@ -2484,10 +2026,14 @@ class _TransferReceiptScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             SizedBox(width: 2.w),
             Text(
-              'Confirm & Transfer',
+              'Confirm & Request',
               style: GoogleFonts.inter(
                 fontSize: 10.5.sp,
                 fontWeight: FontWeight.w600,
@@ -2530,15 +2076,20 @@ class _TransferReceiptScreen extends StatelessWidget {
   }
 }
 
+// ══════════════════════════════════════════════════════════════
 // ── Success Dialog ──
-class _SuccessDialog extends StatelessWidget {
-  final String amount;
-  final String beneficiaryName;
+// ══════════════════════════════════════════════════════════════
+
+class _ChequeBookSuccessDialog extends StatelessWidget {
+  final String numberOfLeaves;
+  final String accountName;
+  final String pickupBranch;
   final Color accentColor;
 
-  const _SuccessDialog({
-    required this.amount,
-    required this.beneficiaryName,
+  const _ChequeBookSuccessDialog({
+    required this.numberOfLeaves,
+    required this.accountName,
+    required this.pickupBranch,
     required this.accentColor,
   });
 
@@ -2563,13 +2114,16 @@ class _SuccessDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.check_rounded,
-                    color: Color(0xFF059669), size: 36),
+                child: Icon(
+                  Icons.check_rounded,
+                  color: Color(0xFF059669),
+                  size: 36,
+                ),
               ),
             ),
             SizedBox(height: 2.h),
             Text(
-              'Transfer Successful',
+              'Request Submitted',
               style: GoogleFonts.inter(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w700,
@@ -2578,7 +2132,7 @@ class _SuccessDialog extends StatelessWidget {
             ),
             SizedBox(height: 0.8.h),
             Text(
-              '$amount transferred to $beneficiaryName',
+              'Cheque book ($numberOfLeaves) request for $accountName has been submitted successfully.',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 9.sp,
@@ -2586,12 +2140,62 @@ class _SuccessDialog extends StatelessWidget {
                 color: isDark ? Colors.white54 : const Color(0xFF6B7280),
               ),
             ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.location_on_rounded, color: accentColor, size: 14),
+                  SizedBox(width: 1.w),
+                  Text(
+                    'Pickup: $pickupBranch',
+                    style: GoogleFonts.inter(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: accentColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.schedule_rounded,
+                    color: Color(0xFFF59E0B),
+                    size: 14,
+                  ),
+                  SizedBox(width: 1.w),
+                  Text(
+                    'Processing: 3–5 working days',
+                    style: GoogleFonts.inter(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 2.5.h),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // dialog
+                Navigator.of(context).pop(); // confirmation
+                Navigator.of(context).pop(); // form
               },
               child: Container(
                 width: double.infinity,
@@ -2617,104 +2221,17 @@ class _SuccessDialog extends StatelessWidget {
             SizedBox(height: 1.h),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // dialog
+                Navigator.of(context).pop(); // confirmation
               },
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 0.8.h),
                 child: Text(
-                  'New Transfer',
+                  'New Request',
                   style: GoogleFonts.inter(
                     fontSize: 9.sp,
                     fontWeight: FontWeight.w500,
                     color: accentColor,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Insufficient Funds Dialog ──
-class _InsufficientFundsDialog extends StatelessWidget {
-  final String balance;
-  final String required;
-  final Color accentColor;
-
-  const _InsufficientFundsDialog({
-    required this.balance,
-    required this.required,
-    required this.accentColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Dialog(
-      backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: const Color(0xFFDC2626).withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(Icons.account_balance_wallet_outlined,
-                    color: Color(0xFFDC2626), size: 32),
-              ),
-            ),
-            SizedBox(height: 2.h),
-            Text(
-              'Insufficient Balance',
-              style: GoogleFonts.inter(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF111827),
-              ),
-            ),
-            SizedBox(height: 0.8.h),
-            Text(
-              "The sender's account does not have sufficient funds for this transfer.",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 8.5.sp,
-                fontWeight: FontWeight.w400,
-                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                height: 1.4,
-              ),
-            ),
-            SizedBox(height: 2.5.h),
-            GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                decoration: BoxDecoration(
-                  color:
-                      isDark ? const Color(0xFF1E2328) : const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    'Go Back',
-                    style: GoogleFonts.inter(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white70 : const Color(0xFF374151),
-                    ),
                   ),
                 ),
               ),

@@ -16,7 +16,7 @@ class MerchantTransactionsScreen extends StatefulWidget {
 
 class _MerchantTransactionsScreenState
     extends State<MerchantTransactionsScreen> {
-  int _currentIndex = 1; // Transactions tab is selected
+  final int _currentIndex = 1; // Transactions tab is selected
 
   final List<Map<String, dynamic>> _transactions = [
     {

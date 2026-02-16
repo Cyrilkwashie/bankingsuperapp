@@ -472,6 +472,18 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
             Navigator.of(context).pushNamed(AppRoutes.agencyAtmCard);
             return;
           }
+          if (service.label == 'Cheque Book') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyChequeBook);
+            return;
+          }
+          if (service.label == 'Block Card') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyBlockCard);
+            return;
+          }
+          if (service.label == 'Stop Cheque') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyStopCheque);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(

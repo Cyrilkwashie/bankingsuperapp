@@ -18,7 +18,7 @@ class SmartBranchDashboardScreen extends StatefulWidget {
 
 class _SmartBranchDashboardScreenState
     extends State<SmartBranchDashboardScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
 
   void _onNavigationTap(int index) {
     if (index == _currentIndex) return;

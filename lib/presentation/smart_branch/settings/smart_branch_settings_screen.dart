@@ -15,7 +15,7 @@ class SmartBranchSettingsScreen extends StatefulWidget {
 }
 
 class _SmartBranchSettingsScreenState extends State<SmartBranchSettingsScreen> {
-  int _currentIndex = 2; // Settings tab is selected
+  final int _currentIndex = 2; // Settings tab is selected
 
   // Smart Branch brand color - Navy
   static const Color _brandColor = Color(0xFF1B365D);
@@ -87,7 +87,7 @@ class _SmartBranchSettingsScreenState extends State<SmartBranchSettingsScreen> {
                       trailing: Switch(
                         value: true,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -134,7 +134,7 @@ class _SmartBranchSettingsScreenState extends State<SmartBranchSettingsScreen> {
                       trailing: Switch(
                         value: true,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -147,7 +147,7 @@ class _SmartBranchSettingsScreenState extends State<SmartBranchSettingsScreen> {
                       trailing: Switch(
                         value: false,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -164,7 +164,7 @@ class _SmartBranchSettingsScreenState extends State<SmartBranchSettingsScreen> {
                         onChanged: (value) {
                           themeProvider.toggleTheme(value);
                         },
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),

@@ -14,7 +14,7 @@ class AgencySettingsScreen extends StatefulWidget {
 }
 
 class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
-  int _currentIndex = 3; // Settings tab is selected (Agency has 4 items)
+  final int _currentIndex = 3; // Settings tab is selected (Agency has 4 items)
 
   // Agency brand color - Teal
   static const Color _brandColor = Color(0xFF2E8B8B);
@@ -89,7 +89,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                       trailing: Switch(
                         value: true,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -136,7 +136,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                       trailing: Switch(
                         value: true,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -149,7 +149,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                       trailing: Switch(
                         value: false,
                         onChanged: (value) {},
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
@@ -166,7 +166,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                         onChanged: (value) {
                           themeProvider.toggleTheme(value);
                         },
-                        activeColor: _brandColor,
+                        activeThumbColor: _brandColor,
                       ),
                       isDark: isDark,
                     ),
