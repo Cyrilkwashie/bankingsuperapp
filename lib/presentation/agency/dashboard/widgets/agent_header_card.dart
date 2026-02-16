@@ -95,7 +95,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
           ),
           child: Center(
             child: Text(
-              'Ck',
+              'KC',
               style: GoogleFonts.inter(
                 color: Colors.white,
                 fontSize: 15,
@@ -119,7 +119,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
                 ),
               ),
               Text(
-                'Cyril Kwashie',
+                'KWASHIE CYRIL',
                 style: GoogleFonts.inter(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
@@ -140,9 +140,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.12),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
             ),
             child: Stack(
               children: [
@@ -193,8 +191,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
             ),
             SizedBox(width: 2.w),
             GestureDetector(
-              onTap: () =>
-                  setState(() => _balanceVisible = !_balanceVisible),
+              onTap: () => setState(() => _balanceVisible = !_balanceVisible),
               child: Icon(
                 _balanceVisible
                     ? Icons.visibility_outlined
@@ -209,7 +206,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           child: Text(
-            _balanceVisible ? 'GH₵ 250,000.00' : 'GH₵ ••••••',
+            _balanceVisible ? 'GH₵ 1,440,840.36' : 'GH₵ ••••••',
             key: ValueKey(_balanceVisible),
             style: GoogleFonts.inter(
               fontSize: 24.sp,
@@ -285,18 +282,12 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.north_east_rounded,
-                    color: Colors.white,
-                    size: 17,
-                  ),
+                  Icon(Icons.north_east_rounded, color: Colors.white, size: 17),
                   SizedBox(width: 2.w),
                   Text(
                     'Cash Out',

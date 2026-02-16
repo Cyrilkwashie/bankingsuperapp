@@ -81,9 +81,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
       subtitle: 'Operational utilities',
       color: Color(0xFF64748B),
       icon: 'build',
-      services: [
-        _ServiceItem(icon: 'undo', label: 'Reverse Txn'),
-      ],
+      services: [_ServiceItem(icon: 'undo', label: 'Reverse Txn')],
     ),
   ];
 
@@ -111,8 +109,10 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     return _categories
         .map((cat) {
           final filtered = cat.services
-              .where((s) =>
-                  s.label.toLowerCase().contains(_searchQuery.toLowerCase()))
+              .where(
+                (s) =>
+                    s.label.toLowerCase().contains(_searchQuery.toLowerCase()),
+              )
               .toList();
           if (filtered.isEmpty) return null;
           return _ServiceCategory(
@@ -131,8 +131,9 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final categories = _filteredCategories;
-    final scaffoldBg =
-        isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC);
+    final scaffoldBg = isDark
+        ? const Color(0xFF0D1117)
+        : const Color(0xFFF8FAFC);
 
     // Compute scroll offsets for tap-to-scroll
     final gridWidth = 100.w - 8.w;
@@ -159,64 +160,67 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                 controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-            // ── Empty State ──
-            if (categories.isEmpty)
-              SliverToBoxAdapter(child: _buildEmptyState(isDark)),
+                  // ── Empty State ──
+                  if (categories.isEmpty)
+                    SliverToBoxAdapter(child: _buildEmptyState(isDark)),
 
-            // ── Sticky Category Sections ──
-            if (categories.isNotEmpty)
-              ...categories.asMap().entries.expand((entry) {
-                final i = entry.key;
-                final cat = entry.value;
-                return [
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _CategoryHeaderDelegate(
-                        title: cat.title,
-                        subtitle: cat.subtitle,
-                        accentColor: cat.color,
-                        categoryIcon: cat.icon,
-                        isDark: isDark,
-                        scaffoldBg: scaffoldBg,
-                        expandedHeight: 7.2.h,
-                        collapsedHeight: 5.4.h,
-                        onTap: () {
-                          final collapsedH = 5.4.h;
-                          final target = (offsets[i] - i * collapsedH).clamp(0.0, _scrollController.position.maxScrollExtent);
-                          _scrollController.animateTo(
-                            target,
-                            duration: const Duration(milliseconds: 350),
-                            curve: Curves.easeOutCubic,
-                          );
-                        },
-                      ),
-                    ),
-                    SliverPadding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 4.w),
-                      sliver: SliverGrid(
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          childAspectRatio: 0.78,
-                          mainAxisSpacing: 0,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) => _buildServiceItem(
-                            context,
-                            cat.services[index],
-                            cat.color,
-                            isDark,
-                            index,
+                  // ── Sticky Category Sections ──
+                  if (categories.isNotEmpty)
+                    ...categories.asMap().entries.expand((entry) {
+                      final i = entry.key;
+                      final cat = entry.value;
+                      return [
+                        SliverPersistentHeader(
+                          pinned: true,
+                          delegate: _CategoryHeaderDelegate(
+                            title: cat.title,
+                            subtitle: cat.subtitle,
+                            accentColor: cat.color,
+                            categoryIcon: cat.icon,
+                            isDark: isDark,
+                            scaffoldBg: scaffoldBg,
+                            expandedHeight: 7.2.h,
+                            collapsedHeight: 5.4.h,
+                            onTap: () {
+                              final collapsedH = 5.4.h;
+                              final target = (offsets[i] - i * collapsedH)
+                                  .clamp(
+                                    0.0,
+                                    _scrollController.position.maxScrollExtent,
+                                  );
+                              _scrollController.animateTo(
+                                target,
+                                duration: const Duration(milliseconds: 350),
+                                curve: Curves.easeOutCubic,
+                              );
+                            },
                           ),
-                          childCount: cat.services.length,
                         ),
-                      ),
-                    ),
-                  ];
-                }),
+                        SliverPadding(
+                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                          sliver: SliverGrid(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  childAspectRatio: 0.78,
+                                  mainAxisSpacing: 0,
+                                ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) => _buildServiceItem(
+                                context,
+                                cat.services[index],
+                                cat.color,
+                                isDark,
+                                index,
+                              ),
+                              childCount: cat.services.length,
+                            ),
+                          ),
+                        ),
+                      ];
+                    }),
 
-            SliverToBoxAdapter(child: SizedBox(height: 60.h)),
+                  SliverToBoxAdapter(child: SizedBox(height: 60.h)),
                 ],
               ),
             ),
@@ -243,8 +247,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
         child: Column(
           children: [
             Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.5.h),
+              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.5.h),
               child: Row(
                 children: [
                   _buildBackButton(),
@@ -300,14 +303,14 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
               padding: EdgeInsets.only(left: 5.w, right: 5.w, bottom: 2.h),
               child: Container(
                 padding: EdgeInsets.symmetric(
-                    horizontal: 3.5.w, vertical: 0.2.h),
+                  horizontal: 3.5.w,
+                  vertical: 0.2.h,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white
-                      .withValues(alpha: isDark ? 0.12 : 0.18),
+                  color: Colors.white.withValues(alpha: isDark ? 0.12 : 0.18),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: Colors.white
-                        .withValues(alpha: isDark ? 0.08 : 0.15),
+                    color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.15),
                   ),
                 ),
                 child: Row(
@@ -321,8 +324,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                     Expanded(
                       child: Theme(
                         data: ThemeData(
-                          textSelectionTheme:
-                              const TextSelectionThemeData(
+                          textSelectionTheme: const TextSelectionThemeData(
                             cursorColor: Colors.white,
                             selectionColor: Color(0x55FFFFFF),
                             selectionHandleColor: Colors.white70,
@@ -330,8 +332,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                         ),
                         child: TextField(
                           controller: _searchController,
-                          onChanged: (v) =>
-                              setState(() => _searchQuery = v),
+                          onChanged: (v) => setState(() => _searchQuery = v),
                           cursorColor: Colors.white,
                           style: GoogleFonts.inter(
                             fontSize: 10.sp,
@@ -341,13 +342,11 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                             hintText: 'Search services...',
                             hintStyle: GoogleFonts.inter(
                               fontSize: 10.sp,
-                              color: Colors.white
-                                  .withValues(alpha: 0.4),
+                              color: Colors.white.withValues(alpha: 0.4),
                             ),
                             border: InputBorder.none,
                             isDense: true,
-                            contentPadding:
-                                EdgeInsets.symmetric(vertical: 1.h),
+                            contentPadding: EdgeInsets.symmetric(vertical: 1.h),
                           ),
                         ),
                       ),
@@ -360,8 +359,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                         },
                         child: Icon(
                           Icons.close_rounded,
-                          color:
-                              Colors.white.withValues(alpha: 0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           size: 18,
                         ),
                       ),
@@ -384,13 +382,10 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.08),
-          ),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
         child: const Center(
-          child: Icon(Icons.arrow_back_rounded,
-              color: Colors.white, size: 19),
+          child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 19),
         ),
       ),
     );
@@ -402,18 +397,18 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.search_off_rounded,
-                size: 48,
-                color:
-                    isDark ? Colors.white24 : const Color(0xFFD1D5DB)),
+            Icon(
+              Icons.search_off_rounded,
+              size: 48,
+              color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
+            ),
             SizedBox(height: 1.5.h),
             Text(
               'No services found',
               style: GoogleFonts.inter(
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w500,
-                color:
-                    isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
               ),
             ),
           ],
@@ -469,6 +464,14 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
             Navigator.of(context).pushNamed(AppRoutes.agencyQrWithdrawal);
             return;
           }
+          if (service.label == 'Full Statement') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyFullStatement);
+            return;
+          }
+          if (service.label == 'ATM Card') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyAtmCard);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -480,7 +483,8 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                   ? const Color(0xFF1E2328)
                   : const Color(0xFF1F2937),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
               duration: const Duration(seconds: 1),
             ),
           );
@@ -492,8 +496,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color:
-                    color.withValues(alpha: isDark ? 0.12 : 0.08),
+                color: color.withValues(alpha: isDark ? 0.12 : 0.08),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Center(
@@ -510,9 +513,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
               style: GoogleFonts.inter(
                 fontSize: 7.5.sp,
                 fontWeight: FontWeight.w500,
-                color: isDark
-                    ? Colors.white70
-                    : const Color(0xFF374151),
+                color: isDark ? Colors.white70 : const Color(0xFF374151),
                 height: 1.2,
               ),
               textAlign: TextAlign.center,
@@ -558,15 +559,16 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final progress =
-        (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
     final isPinned = overlapsContent || progress > 0.05;
 
     // Subtle tint of accent color when pinned
     final bgColor =
-        Color.lerp(scaffoldBg, accentColor, 0.018 * progress) ??
-            scaffoldBg;
+        Color.lerp(scaffoldBg, accentColor, 0.018 * progress) ?? scaffoldBg;
 
     return GestureDetector(
       onTap: onTap,
@@ -576,8 +578,7 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
           boxShadow: isPinned
               ? [
                   BoxShadow(
-                    color: accentColor
-                        .withValues(alpha: isDark ? 0.08 : 0.06),
+                    color: accentColor.withValues(alpha: isDark ? 0.08 : 0.06),
                     blurRadius: 8 * progress,
                     offset: Offset(0, 2 * progress),
                   ),
@@ -585,89 +586,81 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
               : null,
           border: Border(
             bottom: BorderSide(
-              color: accentColor
-                  .withValues(alpha: 0.08 + 0.10 * progress),
+              color: accentColor.withValues(alpha: 0.08 + 0.10 * progress),
               width: 0.5 + progress,
             ),
           ),
         ),
         child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5.w),
-        child: Row(
-          children: [
-            // Animated accent bar
-            Container(
-              width: 3.5,
-              height: 28 - 8 * progress,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    accentColor,
-                    accentColor.withValues(alpha: 0.5),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            SizedBox(width: 3.w),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: (10.5 - 0.5 * progress).sp,
-                      fontWeight: FontWeight.w700,
-                      color: isDark
-                          ? Colors.white
-                          : const Color(0xFF111827),
-                      letterSpacing: -0.2,
-                    ),
+          padding: EdgeInsets.symmetric(horizontal: 5.w),
+          child: Row(
+            children: [
+              // Animated accent bar
+              Container(
+                width: 3.5,
+                height: 28 - 8 * progress,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [accentColor, accentColor.withValues(alpha: 0.5)],
                   ),
-                  if (progress < 0.7) ...[
-                    SizedBox(height: 0.15.h),
-                    Opacity(
-                      opacity:
-                          (1 - progress * 1.5).clamp(0.0, 1.0),
-                      child: Text(
-                        subtitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 7.5.sp,
-                          fontWeight: FontWeight.w400,
-                          color: isDark
-                              ? Colors.white38
-                              : const Color(0xFF9CA3AF),
-                        ),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              SizedBox(width: 3.w),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: (10.5 - 0.5 * progress).sp,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF111827),
+                        letterSpacing: -0.2,
                       ),
                     ),
+                    if (progress < 0.7) ...[
+                      SizedBox(height: 0.15.h),
+                      Opacity(
+                        opacity: (1 - progress * 1.5).clamp(0.0, 1.0),
+                        child: Text(
+                          subtitle,
+                          style: GoogleFonts.inter(
+                            fontSize: 7.5.sp,
+                            fontWeight: FontWeight.w400,
+                            color: isDark
+                                ? Colors.white38
+                                : const Color(0xFF9CA3AF),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
-              ),
-            ),
-            // Small icon badge
-            Container(
-              width: 28 - 4 * progress,
-              height: 28 - 4 * progress,
-              decoration: BoxDecoration(
-                color: accentColor
-                    .withValues(alpha: isDark ? 0.12 : 0.08),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: CustomIconWidget(
-                  iconName: categoryIcon,
-                  color: accentColor,
-                  size: 15 - 2 * progress,
                 ),
               ),
-            ),
-          ],
+              // Small icon badge
+              Container(
+                width: 28 - 4 * progress,
+                height: 28 - 4 * progress,
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: isDark ? 0.12 : 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: CustomIconWidget(
+                    iconName: categoryIcon,
+                    color: accentColor,
+                    size: 15 - 2 * progress,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

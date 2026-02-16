@@ -21,6 +21,8 @@ import '../presentation/agency/same_bank_transfer/agency_same_bank_transfer_scre
 import '../presentation/agency/other_bank_transfer/agency_other_bank_transfer_screen.dart';
 import '../presentation/agency/qr_deposit/agency_qr_deposit_screen.dart';
 import '../presentation/agency/qr_withdrawal/agency_qr_withdrawal_screen.dart';
+import '../presentation/agency/full_statement/agency_full_statement_screen.dart';
+import '../presentation/agency/atm_card/agency_atm_card_screen.dart';
 import '../presentation/merchant/transactions/merchant_transactions_screen.dart';
 import '../presentation/merchant/cash_withdrawal/merchant_cash_withdrawal_screen.dart';
 import '../presentation/merchant/qr_withdrawal/merchant_qr_withdrawal_screen.dart';
@@ -53,10 +55,12 @@ class AppRoutes {
   static const String agencyOtherBankTransfer = '/agency-other-bank-transfer';
   static const String agencyQrDeposit = '/agency-qr-deposit';
   static const String agencyQrWithdrawal = '/agency-qr-withdrawal';
+  static const String agencyFullStatement = '/agency-full-statement';
+  static const String agencyAtmCard = '/agency-atm-card';
   static const String merchantCashWithdrawal = '/merchant-cash-withdrawal';
   static const String merchantQrWithdrawal = '/merchant-qr-withdrawal';
 
-  static Map<String, WidgetBuilder> routes = {
+  static Map<String, WidgetBuilder> get routes => {
     initial: (context) => const SplashScreen(),
     splash: (context) => const SplashScreen(),
     serviceSelection: (context) => const ServiceSelectionScreen(),
@@ -83,6 +87,8 @@ class AppRoutes {
     agencyOtherBankTransfer: (context) => const AgencyOtherBankTransferScreen(),
     agencyQrDeposit: (context) => const AgencyQrDepositScreen(),
     agencyQrWithdrawal: (context) => const AgencyQrWithdrawalScreen(),
+    agencyFullStatement: (context) => const AgencyFullStatementScreen(),
+    agencyAtmCard: (context) => const AgencyAtmCardScreen(),
     merchantCashWithdrawal: (context) => const MerchantCashWithdrawalScreen(),
     merchantQrWithdrawal: (context) => const MerchantQrWithdrawalScreen(),
   };
