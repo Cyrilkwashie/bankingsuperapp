@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../shared/qr_scanner/qr_code_scanner_screen.dart';
 
 class AgencyQrWithdrawalScreen extends StatefulWidget {
   const AgencyQrWithdrawalScreen({super.key});
@@ -91,14 +92,33 @@ class _AgencyQrWithdrawalScreenState extends State<AgencyQrWithdrawalScreen>
       _accountVerified = false;
     });
 
-    // Simulate QR scanning delay
-    await Future.delayed(const Duration(milliseconds: 1500));
+    final scannedQr = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => const QrCodeScannerScreen(title: 'Scan Withdrawal QR'),
+      ),
+    );
 
-    // Simulate a random QR code scan (for demo purposes)
-    final qrCodes = _mockQrCodes.keys.toList();
-    final randomIndex = DateTime.now().millisecond % qrCodes.length;
-    final scannedQr = qrCodes[randomIndex];
-    final accountNo = _mockQrCodes[scannedQr]!;
+    if (!mounted) return;
+
+    final accountNo = scannedQr == null ? null : _resolveAccountNo(scannedQr);
+
+    if (accountNo == null) {
+      setState(() {
+        _isScanning = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Invalid or unsupported QR code',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFFDC2626),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+      return;
+    }
 
     final account = _mockAccounts[accountNo];
 
@@ -127,6 +147,27 @@ class _AgencyQrWithdrawalScreenState extends State<AgencyQrWithdrawalScreen>
         ),
       );
     }
+  }
+
+  String? _resolveAccountNo(String scannedQr) {
+    final normalized = scannedQr.trim();
+
+    if (_mockQrCodes.containsKey(normalized)) {
+      return _mockQrCodes[normalized];
+    }
+
+    if (_mockAccounts.containsKey(normalized)) {
+      return normalized;
+    }
+
+    final digits = RegExp(r'\d{10,}').firstMatch(normalized)?.group(0);
+    if (digits == null) return null;
+
+    final accountNo = digits.length > 10
+        ? digits.substring(digits.length - 10)
+        : digits;
+
+    return _mockAccounts.containsKey(accountNo) ? accountNo : null;
   }
 
   void _clearScan() {
