@@ -401,15 +401,15 @@ class _BlockCardConfirmationScreen extends StatelessWidget {
           accentColor: accentColor,
           title: 'Authorize Card Block',
           onAuthenticated: () {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => _BlockCardSuccessDialog(
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => _BlockCardSuccessDialog(
                 cardType: cardType,
                 maskedCardNumber: _maskedCardNumber,
                 accountName: accountName,
                 reason: reason,
                 accentColor: accentColor,
+              ),
               ),
             );
           },

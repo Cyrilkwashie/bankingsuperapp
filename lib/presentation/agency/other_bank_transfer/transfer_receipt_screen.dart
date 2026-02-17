@@ -462,13 +462,13 @@ class _TransferReceiptScreen extends StatelessWidget {
           context: context,
           accentColor: accentColor,
           onAuthenticated: () {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => _SuccessDialog(
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => _SuccessDialog(
                 amount: 'GH₵ ${_amountValue.toStringAsFixed(2)}',
                 beneficiaryName: beneficiaryName,
                 accentColor: accentColor,
+              ),
               ),
             );
           },

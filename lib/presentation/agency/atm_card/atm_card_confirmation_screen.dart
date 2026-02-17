@@ -397,14 +397,14 @@ class _AtmCardConfirmationScreen extends StatelessWidget {
           context: context,
           accentColor: accentColor,
           onAuthenticated: () {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => _AtmCardSuccessDialog(
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => _AtmCardSuccessDialog(
                 cardType: cardType,
                 accountName: accountName,
                 pickupBranch: pickupBranch,
                 accentColor: accentColor,
+              ),
               ),
             );
           },

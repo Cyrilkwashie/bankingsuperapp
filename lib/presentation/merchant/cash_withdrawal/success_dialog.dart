@@ -15,12 +15,11 @@ class _SuccessDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Dialog(
-      backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      insetPadding: EdgeInsets.symmetric(horizontal: 8.w),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      body: SafeArea(child: Center(child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(6.w, 4.h, 6.w, 4.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -117,7 +116,6 @@ class _SuccessDialog extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
-                Navigator.of(context).pop();
               },
               child: Container(
                 width: double.infinity,
@@ -144,7 +142,6 @@ class _SuccessDialog extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).pop();
               },
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 0.8.h),
@@ -160,7 +157,7 @@ class _SuccessDialog extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      ))),
     );
   }
 }

@@ -325,14 +325,14 @@ class _ChequeBookConfirmationScreen extends StatelessWidget {
           context: context,
           accentColor: accentColor,
           onAuthenticated: () {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => _ChequeBookSuccessDialog(
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => _ChequeBookSuccessDialog(
                 numberOfLeaves: numberOfLeaves,
                 accountName: accountName,
                 pickupBranch: pickupBranch,
                 accentColor: accentColor,
+              ),
               ),
             );
           },

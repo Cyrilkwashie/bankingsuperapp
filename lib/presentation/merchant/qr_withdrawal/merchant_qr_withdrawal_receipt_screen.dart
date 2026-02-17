@@ -350,13 +350,13 @@ class _MerchantQrWithdrawalReceiptScreen extends StatelessWidget {
           context: context,
           accentColor: accentColor,
           onAuthenticated: () {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => _SuccessDialog(
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => _SuccessDialog(
                 amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
                 accountName: accountName,
                 accentColor: accentColor,
+              ),
               ),
             );
           },

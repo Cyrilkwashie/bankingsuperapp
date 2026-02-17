@@ -650,10 +650,9 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
           context: context,
           accentColor: accentColor,
           onAuthenticated: () {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => _StopChequeSuccessDialog(
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => _StopChequeSuccessDialog(
                 fromChequeNo: fromChequeNo,
                 toChequeNo: toChequeNo,
                 beneficiaryName: beneficiaryName,
@@ -661,6 +660,7 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                 totalFee: _totalFee,
                 chequeCount: _chequeCount,
                 accentColor: accentColor,
+              ),
               ),
             );
           },
