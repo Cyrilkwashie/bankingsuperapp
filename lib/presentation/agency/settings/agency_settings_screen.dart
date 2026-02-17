@@ -300,7 +300,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Jane Smith',
+                  'Cyril Tetteh Kwashie',
                   style: GoogleFonts.inter(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
@@ -322,7 +322,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                 ),
                 SizedBox(height: 0.3.h),
                 Text(
-                  'jane.smith@agency.com',
+                  'cyril.kwashie@agency.com',
                   style: GoogleFonts.inter(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w400,
