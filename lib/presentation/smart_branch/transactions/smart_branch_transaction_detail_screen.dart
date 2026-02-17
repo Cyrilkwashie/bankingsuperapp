@@ -127,7 +127,7 @@ class SmartBranchTransactionDetailScreen extends StatelessWidget {
                     // Status Pill
                     Center(
                       child: Container(
-                        margin: EdgeInsets.only(top: 1.5.h),
+                        margin: EdgeInsets.only(top: 2.2.h),
                         padding: EdgeInsets.symmetric(
                           horizontal: 2.5.w,
                           vertical: 0.6.h,
