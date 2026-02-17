@@ -252,7 +252,6 @@ class _AgencySameBankTransferScreenState
         _senderStatus = account['status']!;
         _senderBalance = account['balance']!;
         _resolvedSenderAccountNo = accountNo;
-        _senderController.text = accountNo;
         _senderPhone = customerPhone;
         if (_transferredByController.text.trim().isEmpty) {
           _transferredByController.text = _senderName;
@@ -275,7 +274,6 @@ class _AgencySameBankTransferScreenState
         _senderStatus = acct['status']!;
         _senderBalance = acct['balance']!;
         _resolvedSenderAccountNo = acct['accountNo']!;
-        _senderController.text = acct['accountNo']!;
         _senderPhone = phoneNumber;
         if (_transferredByController.text.trim().isEmpty) {
           _transferredByController.text = _senderName;
@@ -285,7 +283,6 @@ class _AgencySameBankTransferScreenState
         _beneficiaryName = acct['name']!;
         _beneficiaryStatus = acct['status']!;
         _resolvedBeneficiaryAccountNo = acct['accountNo']!;
-        _beneficiaryController.text = acct['accountNo']!;
       }
     });
   }
@@ -497,7 +494,6 @@ class _AgencySameBankTransferScreenState
         _beneficiaryName = account['name']!;
         _beneficiaryStatus = account['status']!;
         _resolvedBeneficiaryAccountNo = accountNo;
-        _beneficiaryController.text = accountNo;
       } else {
         _beneficiaryNotFound = true;
       }

@@ -270,7 +270,6 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
         _accountStatus = account['status']!;
         _accountBalance = account['balance']!;
         _resolvedAccountNo = accountNo;
-        _accountController.text = accountNo;
         _customerPhone = customerPhone;
       } else {
         _accountNotFound = true;
@@ -285,7 +284,6 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
       _accountStatus = acct['status']!;
       _accountBalance = acct['balance']!;
       _resolvedAccountNo = acct['accountNo']!;
-      _accountController.text = acct['accountNo']!;
       _customerPhone = phoneNumber;
     });
   }

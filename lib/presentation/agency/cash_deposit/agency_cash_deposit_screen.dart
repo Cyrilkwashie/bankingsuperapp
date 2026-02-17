@@ -222,7 +222,6 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
         _accountStatus = account['status']!;
         _accountBalance = account['balance']!;
         _resolvedAccountNo = accountNo;
-        _accountController.text = accountNo;
         // Pre-fill depositor name with account holder
         if (_depositorNameController.text.trim().isEmpty) {
           _depositorNameController.text = _accountName;
@@ -240,7 +239,6 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
       _accountStatus = acct['status']!;
       _accountBalance = acct['balance']!;
       _resolvedAccountNo = acct['accountNo']!;
-      _accountController.text = acct['accountNo']!;
       if (_depositorNameController.text.trim().isEmpty) {
         _depositorNameController.text = _accountName;
       }

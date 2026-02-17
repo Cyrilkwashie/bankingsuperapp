@@ -254,7 +254,6 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
         _accountStatus = account['status']!;
         _accountBalance = account['balance']!;
         _resolvedAccountNo = accountNo;
-        _accountController.text = accountNo;
         _customerPhone = customerPhone;
         // Auto-populate the card display name
         _displayNameController.text = _accountName.toUpperCase();
@@ -271,7 +270,6 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
       _accountStatus = acct['status']!;
       _accountBalance = acct['balance']!;
       _resolvedAccountNo = acct['accountNo']!;
-      _accountController.text = acct['accountNo']!;
       _customerPhone = phoneNumber;
     });
   }

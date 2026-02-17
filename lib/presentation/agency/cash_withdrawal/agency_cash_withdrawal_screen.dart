@@ -236,7 +236,6 @@ class _AgencyCashWithdrawalScreenState extends State<AgencyCashWithdrawalScreen>
         _accountStatus = account['status']!;
         _accountBalance = account['balance']!;
         _resolvedAccountNo = accountNo;
-        _accountController.text = accountNo;
         _customerPhone = customerPhone;
         if (_withdrawnByController.text.trim().isEmpty) {
           _withdrawnByController.text = _accountName;
@@ -254,7 +253,6 @@ class _AgencyCashWithdrawalScreenState extends State<AgencyCashWithdrawalScreen>
       _accountStatus = acct['status']!;
       _accountBalance = acct['balance']!;
       _resolvedAccountNo = acct['accountNo']!;
-      _accountController.text = acct['accountNo']!;
       _customerPhone = phoneNumber;
       if (_withdrawnByController.text.trim().isEmpty) {
         _withdrawnByController.text = _accountName;
