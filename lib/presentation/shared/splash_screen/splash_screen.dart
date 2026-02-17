@@ -346,13 +346,19 @@ class _SplashScreenState extends State<SplashScreen>
                 size: 16.w,
               ),
               SizedBox(height: 1.h),
-              Text(
-                'FS',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1B365D),
-                  letterSpacing: 1.5,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 2.w),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'FIELDSMART',
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF1B365D),
+                      letterSpacing: 0.8,
+                    ),
+                  ),
                 ),
               ),
             ],
