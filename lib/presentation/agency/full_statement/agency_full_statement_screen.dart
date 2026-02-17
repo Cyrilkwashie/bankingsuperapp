@@ -211,25 +211,19 @@ class _AgencyFullStatementScreenState extends State<AgencyFullStatementScreen>
           accountNo = pa['accountNo']!;
           customerPhone = input;
         } else {
-
           // Multiple accounts - show dropdown
 
           setState(() {
-
             _isLookingUp = false;
 
             _phoneAccountsList = phoneAccounts
-
                 .map((e) => Map<String, String>.from(e))
-
                 .toList();
 
             _phoneForAccounts = input;
-
           });
 
           return;
-
         }
       }
     } else {
@@ -295,8 +289,8 @@ class _AgencyFullStatementScreenState extends State<AgencyFullStatementScreen>
                 color: _accountVerified
                     ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
                     : isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE5E7EB),
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : const Color(0xFFE5E7EB),
               ),
             ),
             child: DropdownButtonHideUnderline(
@@ -316,8 +310,7 @@ class _AgencyFullStatementScreenState extends State<AgencyFullStatementScreen>
                       ? const Color(0xFF2E8B8B)
                       : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
                 ),
-                dropdownColor:
-                    isDark ? const Color(0xFF161B22) : Colors.white,
+                dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
                 borderRadius: BorderRadius.circular(14),
                 style: GoogleFonts.inter(
                   fontSize: 10.sp,
@@ -340,8 +333,9 @@ class _AgencyFullStatementScreenState extends State<AgencyFullStatementScreen>
                             Icon(
                               Icons.account_balance_rounded,
                               size: 16,
-                              color: const Color(0xFF2E8B8B)
-                                  .withValues(alpha: 0.6),
+                              color: const Color(
+                                0xFF2E8B8B,
+                              ).withValues(alpha: 0.6),
                             ),
                             SizedBox(width: 2.w),
                             Expanded(
@@ -638,7 +632,7 @@ class _AgencyFullStatementScreenState extends State<AgencyFullStatementScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Full Statement',
+                      'Statement',
                       style: GoogleFonts.inter(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,

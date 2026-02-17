@@ -239,10 +239,79 @@ class _StatementConfirmationScreen extends StatelessWidget {
           _detailRow('End Date', _formatDate(endDate), isDark),
           if (statementType == 'ordinary' && pickupBranch != null) ...[
             _divider(isDark),
-            _detailRow('Pickup Branch', pickupBranch!, isDark),
+            SizedBox(height: 1.h),
+            _buildPickupMessage(isDark),
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildPickupMessage(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Pickup Required',
+          style: GoogleFonts.inter(
+            fontSize: 8.8.sp,
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white : const Color(0xFF111827),
+          ),
+        ),
+        SizedBox(height: 0.8.h),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+          decoration: BoxDecoration(
+            color: accentColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.location_on_rounded, color: accentColor, size: 14),
+              SizedBox(width: 1.w),
+              Flexible(
+                child: Text(
+                  'Pickup: $pickupBranch',
+                  style: GoogleFonts.inter(
+                    fontSize: 7.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: accentColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 0.8.h),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.schedule_rounded,
+                color: Color(0xFFF59E0B),
+                size: 14,
+              ),
+              SizedBox(width: 1.w),
+              Text(
+                'Processing: 3–5 working days',
+                style: GoogleFonts.inter(
+                  fontSize: 7.5.sp,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFF59E0B),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

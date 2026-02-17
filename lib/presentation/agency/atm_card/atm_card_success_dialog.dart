@@ -83,6 +83,33 @@ class _AtmCardSuccessDialog extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.schedule_rounded,
+                    color: Color(0xFFF59E0B),
+                    size: 14,
+                  ),
+                  SizedBox(width: 1.w),
+                  Text(
+                    'Processing: 3\u20135 working days',
+                    style: GoogleFonts.inter(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 2.5.h),
             GestureDetector(
               onTap: () {

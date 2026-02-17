@@ -64,12 +64,12 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
       ],
     ),
     _ServiceCategory(
-      title: 'Account Requests',
+      title: 'Requests',
       subtitle: 'Cards, cheques & more',
       color: Color(0xFFF59E0B),
       icon: 'credit_card',
       services: [
-        _ServiceItem(icon: 'description', label: 'Full Statement'),
+        _ServiceItem(icon: 'description', label: 'Statement'),
         _ServiceItem(icon: 'credit_card', label: 'ATM Card'),
         _ServiceItem(icon: 'book', label: 'Cheque Book'),
         _ServiceItem(icon: 'block', label: 'Block Card'),
@@ -464,7 +464,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
             Navigator.of(context).pushNamed(AppRoutes.agencyQrWithdrawal);
             return;
           }
-          if (service.label == 'Full Statement') {
+          if (service.label == 'Statement') {
             Navigator.of(context).pushNamed(AppRoutes.agencyFullStatement);
             return;
           }

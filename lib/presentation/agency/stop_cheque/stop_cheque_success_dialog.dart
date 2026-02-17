@@ -41,7 +41,7 @@ class _StopChequeSuccessDialog extends StatelessWidget {
               ),
               child: const Center(
                 child: Icon(
-                  Icons.check_circle_rounded,
+                  Icons.check_rounded,
                   color: Color(0xFF059669),
                   size: 36,
                 ),
@@ -66,25 +66,84 @@ class _StopChequeSuccessDialog extends StatelessWidget {
                 color: isDark ? Colors.white54 : const Color(0xFF6B7280),
               ),
             ),
-            SizedBox(height: 1.5.h),
-
-            // Summary chips
+            SizedBox(height: 1.h),
             Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(3.w),
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
               decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.03)
-                    : const Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(12),
+                color: accentColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Column(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _summaryRow('Beneficiary', beneficiaryName, isDark),
-                  SizedBox(height: 0.5.h),
-                  _summaryRow('Cheque Amount', 'GH₵ $amount', isDark),
-                  SizedBox(height: 0.5.h),
-                  _summaryRow('Processing Fee', totalFee, isDark),
+                  Icon(Icons.person_rounded, color: accentColor, size: 14),
+                  SizedBox(width: 1.w),
+                  Flexible(
+                    child: Text(
+                      'Beneficiary: $beneficiaryName',
+                      style: GoogleFonts.inter(
+                        fontSize: 7.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: accentColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF059669).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.payments_rounded,
+                    color: Color(0xFF059669),
+                    size: 14,
+                  ),
+                  SizedBox(width: 1.w),
+                  Flexible(
+                    child: Text(
+                      'Amount: GH\u20b5 $amount',
+                      style: GoogleFonts.inter(
+                        fontSize: 7.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF059669),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.receipt_long_rounded,
+                    color: Color(0xFFF59E0B),
+                    size: 14,
+                  ),
+                  SizedBox(width: 1.w),
+                  Text(
+                    'Fee: $totalFee',
+                    style: GoogleFonts.inter(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -138,30 +197,6 @@ class _StopChequeSuccessDialog extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _summaryRow(String label, String value, bool isDark) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 8.sp,
-            fontWeight: FontWeight.w400,
-            color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-          ),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.inter(
-            fontSize: 8.5.sp,
-            fontWeight: FontWeight.w600,
-            color: isDark ? Colors.white : const Color(0xFF1A1D23),
-          ),
-        ),
-      ],
     );
   }
 }

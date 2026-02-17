@@ -28,11 +28,15 @@ class _SuccessDialog extends StatelessWidget {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.12),
+                color: const Color(0xFF059669).withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Center(
-                child: Icon(Icons.check_rounded, color: accentColor, size: 36),
+              child: const Center(
+                child: Icon(
+                  Icons.check_rounded,
+                  color: Color(0xFF059669),
+                  size: 36,
+                ),
               ),
             ),
             SizedBox(height: 2.h),
@@ -52,6 +56,60 @@ class _SuccessDialog extends StatelessWidget {
                 fontSize: 9.sp,
                 fontWeight: FontWeight.w400,
                 color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_rounded, color: accentColor, size: 14),
+                  SizedBox(width: 1.w),
+                  Flexible(
+                    child: Text(
+                      'Account: $accountName',
+                      style: GoogleFonts.inter(
+                        fontSize: 7.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: accentColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 1.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF059669).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.payments_rounded,
+                    color: Color(0xFF059669),
+                    size: 14,
+                  ),
+                  SizedBox(width: 1.w),
+                  Flexible(
+                    child: Text(
+                      'Amount: $amount',
+                      style: GoogleFonts.inter(
+                        fontSize: 7.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF059669),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 2.5.h),

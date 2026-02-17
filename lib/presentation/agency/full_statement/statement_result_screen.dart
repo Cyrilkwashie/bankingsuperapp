@@ -277,6 +277,12 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
   }
 
   Widget _buildStatementContent(bool isDark) {
+    final isElectronic = widget.statementType == 'electronic';
+
+    if (!isElectronic) {
+      return _buildOrdinarySuccessContent(isDark);
+    }
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 4.h),
@@ -304,6 +310,127 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
           SizedBox(height: 1.2.h),
           _buildNewRequestButton(isDark),
         ],
+      ),
+    );
+  }
+
+  /// Ordinary statement — matches the cheque-book "Request Submitted" dialog.
+  Widget _buildOrdinarySuccessContent(bool isDark) {
+    return Center(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(6.w, 4.h, 6.w, 4.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Green check icon ──
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: const Color(0xFF059669).withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.check_rounded,
+                  color: Color(0xFF059669),
+                  size: 36,
+                ),
+              ),
+            ),
+            SizedBox(height: 2.h),
+
+            // ── Title ──
+            Text(
+              'Request Submitted',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
+            SizedBox(height: 0.8.h),
+
+            // ── Description ──
+            Text(
+              'Ordinary statement for ${widget.accountName} has been submitted successfully.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+              ),
+            ),
+            SizedBox(height: 1.h),
+
+            // ── Pickup chip ──
+            if (widget.pickupBranch != null)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+                decoration: BoxDecoration(
+                  color: widget.accentColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      color: widget.accentColor,
+                      size: 14,
+                    ),
+                    SizedBox(width: 1.w),
+                    Flexible(
+                      child: Text(
+                        'Pickup: ${widget.pickupBranch}',
+                        style: GoogleFonts.inter(
+                          fontSize: 7.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: widget.accentColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            SizedBox(height: 1.h),
+
+            // ── Processing chip ──
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.schedule_rounded,
+                    color: Color(0xFFF59E0B),
+                    size: 14,
+                  ),
+                  SizedBox(width: 1.w),
+                  Text(
+                    'Processing: 3–5 working days',
+                    style: GoogleFonts.inter(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 2.5.h),
+
+            // ── Done button ──
+            _buildDoneButton(isDark),
+            SizedBox(height: 1.2.h),
+            _buildNewRequestButton(isDark),
+          ],
+        ),
       ),
     );
   }
@@ -845,7 +972,7 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
                     ),
                     SizedBox(height: 0.2.h),
                     Text(
-                      'Full Statement Request',
+                      'Statement Request',
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
                         fontWeight: FontWeight.w400,
