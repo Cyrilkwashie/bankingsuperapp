@@ -217,25 +217,19 @@ class _AgencySameBankTransferScreenState
           accountNo = pa['accountNo']!;
           customerPhone = input;
         } else {
-
           // Multiple accounts - show dropdown
 
           setState(() {
-
             _isLookingUpSender = false;
 
             _senderPhoneAccountsList = phoneAccounts
-
                 .map((e) => Map<String, String>.from(e))
-
                 .toList();
 
             _senderPhoneForAccounts = input;
-
           });
 
           return;
-
         }
       }
     } else {
@@ -258,6 +252,7 @@ class _AgencySameBankTransferScreenState
         _senderStatus = account['status']!;
         _senderBalance = account['balance']!;
         _resolvedSenderAccountNo = accountNo;
+        _senderController.text = accountNo;
         _senderPhone = customerPhone;
         if (_transferredByController.text.trim().isEmpty) {
           _transferredByController.text = _senderName;
@@ -268,7 +263,11 @@ class _AgencySameBankTransferScreenState
     });
   }
 
-  void _selectPhoneAccount(Map<String, String> acct, String phoneNumber, {required bool isSender}) {
+  void _selectPhoneAccount(
+    Map<String, String> acct,
+    String phoneNumber, {
+    required bool isSender,
+  }) {
     setState(() {
       if (isSender) {
         _senderVerified = true;
@@ -276,6 +275,7 @@ class _AgencySameBankTransferScreenState
         _senderStatus = acct['status']!;
         _senderBalance = acct['balance']!;
         _resolvedSenderAccountNo = acct['accountNo']!;
+        _senderController.text = acct['accountNo']!;
         _senderPhone = phoneNumber;
         if (_transferredByController.text.trim().isEmpty) {
           _transferredByController.text = _senderName;
@@ -285,16 +285,23 @@ class _AgencySameBankTransferScreenState
         _beneficiaryName = acct['name']!;
         _beneficiaryStatus = acct['status']!;
         _resolvedBeneficiaryAccountNo = acct['accountNo']!;
+        _beneficiaryController.text = acct['accountNo']!;
       }
     });
   }
 
   // ── Account Selection Dropdown (multiple phone accounts) ──
   Widget _buildAccountSelectionDropdown(bool isDark, {required bool isSender}) {
-    final accounts = isSender ? _senderPhoneAccountsList : _beneficiaryPhoneAccountsList;
-    final phoneFor = isSender ? _senderPhoneForAccounts : _beneficiaryPhoneForAccounts;
+    final accounts = isSender
+        ? _senderPhoneAccountsList
+        : _beneficiaryPhoneAccountsList;
+    final phoneFor = isSender
+        ? _senderPhoneForAccounts
+        : _beneficiaryPhoneForAccounts;
     final isVerified = isSender ? _senderVerified : _beneficiaryVerified;
-    final resolvedNo = isSender ? _resolvedSenderAccountNo : _resolvedBeneficiaryAccountNo;
+    final resolvedNo = isSender
+        ? _resolvedSenderAccountNo
+        : _resolvedBeneficiaryAccountNo;
     return Padding(
       padding: EdgeInsets.only(top: 1.2.h),
       child: Column(
@@ -318,8 +325,8 @@ class _AgencySameBankTransferScreenState
                 color: isVerified
                     ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
                     : isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE5E7EB),
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : const Color(0xFFE5E7EB),
               ),
             ),
             child: DropdownButtonHideUnderline(
@@ -339,8 +346,7 @@ class _AgencySameBankTransferScreenState
                       ? const Color(0xFF2E8B8B)
                       : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
                 ),
-                dropdownColor:
-                    isDark ? const Color(0xFF161B22) : Colors.white,
+                dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
                 borderRadius: BorderRadius.circular(14),
                 style: GoogleFonts.inter(
                   fontSize: 10.sp,
@@ -363,8 +369,9 @@ class _AgencySameBankTransferScreenState
                             Icon(
                               Icons.account_balance_rounded,
                               size: 16,
-                              color: const Color(0xFF2E8B8B)
-                                  .withValues(alpha: 0.6),
+                              color: const Color(
+                                0xFF2E8B8B,
+                              ).withValues(alpha: 0.6),
                             ),
                             SizedBox(width: 2.w),
                             Expanded(
@@ -455,31 +462,22 @@ class _AgencySameBankTransferScreenState
         if (phoneAccounts.length == 1) {
           // Single account - auto-select
           final pa = phoneAccounts.first;
-          account = {
-            'name': pa['name']!,
-            'status': pa['status']!,
-          };
+          account = {'name': pa['name']!, 'status': pa['status']!};
           accountNo = pa['accountNo']!;
         } else {
-
           // Multiple accounts - show dropdown
 
           setState(() {
-
             _isLookingUpBeneficiary = false;
 
             _beneficiaryPhoneAccountsList = phoneAccounts
-
                 .map((e) => Map<String, String>.from(e))
-
                 .toList();
 
             _beneficiaryPhoneForAccounts = input;
-
           });
 
           return;
-
         }
       }
     } else {
@@ -499,6 +497,7 @@ class _AgencySameBankTransferScreenState
         _beneficiaryName = account['name']!;
         _beneficiaryStatus = account['status']!;
         _resolvedBeneficiaryAccountNo = accountNo;
+        _beneficiaryController.text = accountNo;
       } else {
         _beneficiaryNotFound = true;
       }

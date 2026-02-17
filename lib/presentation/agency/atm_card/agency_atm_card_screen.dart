@@ -219,25 +219,19 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
           accountNo = pa['accountNo']!;
           customerPhone = input;
         } else {
-
           // Multiple accounts - show dropdown
 
           setState(() {
-
             _isLookingUp = false;
 
             _phoneAccountsList = phoneAccounts
-
                 .map((e) => Map<String, String>.from(e))
-
                 .toList();
 
             _phoneForAccounts = input;
-
           });
 
           return;
-
         }
       }
     } else {
@@ -260,6 +254,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
         _accountStatus = account['status']!;
         _accountBalance = account['balance']!;
         _resolvedAccountNo = accountNo;
+        _accountController.text = accountNo;
         _customerPhone = customerPhone;
         // Auto-populate the card display name
         _displayNameController.text = _accountName.toUpperCase();
@@ -276,6 +271,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
       _accountStatus = acct['status']!;
       _accountBalance = acct['balance']!;
       _resolvedAccountNo = acct['accountNo']!;
+      _accountController.text = acct['accountNo']!;
       _customerPhone = phoneNumber;
     });
   }
@@ -305,8 +301,8 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                 color: _accountVerified
                     ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
                     : isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE5E7EB),
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : const Color(0xFFE5E7EB),
               ),
             ),
             child: DropdownButtonHideUnderline(
@@ -326,8 +322,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                       ? const Color(0xFF2E8B8B)
                       : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
                 ),
-                dropdownColor:
-                    isDark ? const Color(0xFF161B22) : Colors.white,
+                dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
                 borderRadius: BorderRadius.circular(14),
                 style: GoogleFonts.inter(
                   fontSize: 10.sp,
@@ -350,8 +345,9 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                             Icon(
                               Icons.account_balance_rounded,
                               size: 16,
-                              color: const Color(0xFF2E8B8B)
-                                  .withValues(alpha: 0.6),
+                              color: const Color(
+                                0xFF2E8B8B,
+                              ).withValues(alpha: 0.6),
                             ),
                             SizedBox(width: 2.w),
                             Expanded(

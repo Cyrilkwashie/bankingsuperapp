@@ -274,6 +274,7 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
         _accountStatus = account['status']!;
         _accountBalance = account['balance']!;
         _resolvedAccountNo = accountNo;
+        _accountController.text = accountNo;
         _customerPhone = customerPhone;
         // Load cards associated with this account
         _associatedCards = List<String>.from(
@@ -293,6 +294,7 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
       _accountStatus = acct['status']!;
       _accountBalance = acct['balance']!;
       _resolvedAccountNo = accountNo;
+      _accountController.text = accountNo;
       _customerPhone = phoneNumber;
       _associatedCards = List<String>.from(_mockAccountCards[accountNo] ?? []);
       _selectedCard = null;
