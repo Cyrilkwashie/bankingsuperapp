@@ -233,7 +233,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('BankingSuperApp', style: theme.textTheme.titleLarge),
+        title: Text('Fieldsmart', style: theme.textTheme.titleLarge),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +246,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             ),
             SizedBox(height: 2.h),
             Text(
-              '© 2026 BankingSuperApp. All rights reserved.',
+              '© 2026 Fieldsmart. All rights reserved.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -369,7 +369,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'BankingSuperApp',
+              'Fieldsmart',
               style: GoogleFonts.inter(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w700,
@@ -381,7 +381,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             ),
             SizedBox(height: 0.2.h),
             Text(
-              'One App • Three Solutions',
+              'Banking,Anywhere,Smarter.',
               style: GoogleFonts.inter(
                 fontSize: 8.sp,
                 fontWeight: FontWeight.w500,

@@ -347,7 +347,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               SizedBox(height: 1.h),
               Text(
-                'BSA',
+                'FS',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
@@ -368,7 +368,7 @@ class _SplashScreenState extends State<SplashScreen>
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 8.w),
         child: Text(
-          'One App. Three Powerful Banking Solutions',
+          'Banking,Anywhere,Smarter.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14.sp,

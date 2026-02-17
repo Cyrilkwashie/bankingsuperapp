@@ -66,7 +66,7 @@ class _MyAppState extends State<MyApp> {
     return Sizer(
       builder: (context, orientation, screenType) {
         return MaterialApp(
-          title: 'bankingsuperapp',
+          title: 'Fieldsmart',
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeProvider.themeMode,

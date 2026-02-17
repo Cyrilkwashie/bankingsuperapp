@@ -1297,8 +1297,9 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
         LengthLimitingTextInputFormatter(16),
       ],
       validator: (v) {
-        if (v == null || v.length < 16)
+        if (v == null || v.length < 16) {
           return 'Select a card to auto-fill number';
+        }
         return null;
       },
       style: GoogleFonts.inter(
