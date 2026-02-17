@@ -26,14 +26,16 @@ class _SmartBranchSettingsScreenState extends State<SmartBranchSettingsScreen> {
     // Navigate to different screens based on index
     switch (index) {
       case 0: // Dashboard
-        Navigator.of(
+        AppRoutes.replaceWithoutTransition(
           context,
-        ).pushReplacementNamed(AppRoutes.smartBranchDashboard);
+          AppRoutes.smartBranchDashboard,
+        );
         break;
       case 1: // Transactions
-        Navigator.of(
+        AppRoutes.replaceWithoutTransition(
           context,
-        ).pushReplacementNamed(AppRoutes.smartBranchTransactions);
+          AppRoutes.smartBranchTransactions,
+        );
         break;
       case 2: // Settings (current)
         // Already here

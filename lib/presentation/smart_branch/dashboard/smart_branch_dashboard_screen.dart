@@ -26,12 +26,16 @@ class _SmartBranchDashboardScreenState
       case 0:
         break;
       case 1:
-        Navigator.of(context)
-            .pushReplacementNamed(AppRoutes.smartBranchTransactions);
+        AppRoutes.replaceWithoutTransition(
+          context,
+          AppRoutes.smartBranchTransactions,
+        );
         break;
       case 2:
-        Navigator.of(context)
-            .pushReplacementNamed(AppRoutes.smartBranchSettings);
+        AppRoutes.replaceWithoutTransition(
+          context,
+          AppRoutes.smartBranchSettings,
+        );
         break;
     }
   }

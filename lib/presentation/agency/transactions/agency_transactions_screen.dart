@@ -158,18 +158,19 @@ class _AgencyTransactionsScreenState extends State<AgencyTransactionsScreen> {
     // Navigate to different screens based on index
     switch (index) {
       case 0: // Dashboard
-        Navigator.of(
+        AppRoutes.replaceWithoutTransition(
           context,
-        ).pushReplacementNamed(AppRoutes.agencyBankingDashboard);
+          AppRoutes.agencyBankingDashboard,
+        );
         break;
       case 1: // Transactions (current)
         // Already here
         break;
       case 2: // Locations
-        Navigator.of(context).pushReplacementNamed(AppRoutes.agencyLocations);
+        AppRoutes.replaceWithoutTransition(context, AppRoutes.agencyLocations);
         break;
       case 3: // Settings
-        Navigator.of(context).pushReplacementNamed(AppRoutes.agencySettings);
+        AppRoutes.replaceWithoutTransition(context, AppRoutes.agencySettings);
         break;
     }
   }

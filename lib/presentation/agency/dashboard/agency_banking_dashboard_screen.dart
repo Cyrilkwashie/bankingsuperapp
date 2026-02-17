@@ -26,16 +26,16 @@ class _AgencyBankingDashboardScreenState
       case 0:
         break;
       case 1:
-        Navigator.of(context)
-            .pushReplacementNamed(AppRoutes.agencyTransactions);
+        AppRoutes.replaceWithoutTransition(
+          context,
+          AppRoutes.agencyTransactions,
+        );
         break;
       case 2:
-        Navigator.of(context)
-            .pushReplacementNamed(AppRoutes.agencyLocations);
+        AppRoutes.replaceWithoutTransition(context, AppRoutes.agencyLocations);
         break;
       case 3:
-        Navigator.of(context)
-            .pushReplacementNamed(AppRoutes.agencySettings);
+        AppRoutes.replaceWithoutTransition(context, AppRoutes.agencySettings);
         break;
     }
   }

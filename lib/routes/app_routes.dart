@@ -66,6 +66,28 @@ class AppRoutes {
   static const String merchantCashWithdrawal = '/merchant-cash-withdrawal';
   static const String merchantQrWithdrawal = '/merchant-qr-withdrawal';
 
+  static void replaceWithoutTransition(
+    BuildContext context,
+    String routeName,
+  ) {
+    final routeBuilder = routes[routeName];
+
+    if (routeBuilder == null) {
+      Navigator.of(context).pushReplacementNamed(routeName);
+      return;
+    }
+
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        settings: RouteSettings(name: routeName),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            routeBuilder(context),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
+  }
+
   static Map<String, WidgetBuilder> get routes => {
     initial: (context) => const SplashScreen(),
     splash: (context) => const SplashScreen(),

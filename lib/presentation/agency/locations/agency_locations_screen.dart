@@ -154,20 +154,22 @@ class _AgencyLocationsScreenState extends State<AgencyLocationsScreen>
 
     switch (index) {
       case 0: // Dashboard
-        Navigator.of(
+        AppRoutes.replaceWithoutTransition(
           context,
-        ).pushReplacementNamed(AppRoutes.agencyBankingDashboard);
+          AppRoutes.agencyBankingDashboard,
+        );
         break;
       case 1: // Transactions
-        Navigator.of(
+        AppRoutes.replaceWithoutTransition(
           context,
-        ).pushReplacementNamed(AppRoutes.agencyTransactions);
+          AppRoutes.agencyTransactions,
+        );
         break;
       case 2: // Locations (current)
         // Already here
         break;
       case 3: // Settings
-        Navigator.of(context).pushReplacementNamed(AppRoutes.agencySettings);
+        AppRoutes.replaceWithoutTransition(context, AppRoutes.agencySettings);
         break;
     }
   }

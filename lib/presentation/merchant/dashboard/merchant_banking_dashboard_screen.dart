@@ -26,12 +26,13 @@ class _MerchantBankingDashboardScreenState
       case 0:
         break;
       case 1:
-        Navigator.of(context)
-            .pushReplacementNamed(AppRoutes.merchantTransactions);
+        AppRoutes.replaceWithoutTransition(
+          context,
+          AppRoutes.merchantTransactions,
+        );
         break;
       case 2:
-        Navigator.of(context)
-            .pushReplacementNamed(AppRoutes.merchantSettings);
+        AppRoutes.replaceWithoutTransition(context, AppRoutes.merchantSettings);
         break;
     }
   }

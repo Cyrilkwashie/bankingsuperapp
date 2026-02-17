@@ -159,15 +159,16 @@ class _MerchantTransactionsScreenState
     // Navigate to different screens based on index
     switch (index) {
       case 0: // Dashboard
-        Navigator.of(
+        AppRoutes.replaceWithoutTransition(
           context,
-        ).pushReplacementNamed(AppRoutes.merchantBankingDashboard);
+          AppRoutes.merchantBankingDashboard,
+        );
         break;
       case 1: // Transactions (current)
         // Already here
         break;
       case 2: // Settings
-        Navigator.of(context).pushReplacementNamed(AppRoutes.merchantSettings);
+        AppRoutes.replaceWithoutTransition(context, AppRoutes.merchantSettings);
         break;
     }
   }
