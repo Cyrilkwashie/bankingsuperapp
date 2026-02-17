@@ -200,8 +200,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -211,7 +212,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => _DepositReceiptScreen(
-          accountNo: _lookupType == 'phone' ? _resolvedAccountNo : _accountController.text.trim(),
+          accountNo: _lookupType == 'phone'
+              ? _resolvedAccountNo
+              : _accountController.text.trim(),
           accountName: _accountName,
           amount: _amountController.text.trim(),
           depositorName: _depositorNameController.text.trim(),
@@ -231,8 +234,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
@@ -253,7 +257,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
 
                       // Account number or Phone number
                       _buildFieldLabel(
-                        _lookupType == 'account' ? 'Account Number' : 'Phone Number',
+                        _lookupType == 'account'
+                            ? 'Account Number'
+                            : 'Phone Number',
                         isDark,
                       ),
                       SizedBox(height: 0.8.h),
@@ -274,10 +280,12 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                         hint: '0.00',
                         isDark: isDark,
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}')),
+                            RegExp(r'^\d+\.?\d{0,2}'),
+                          ),
                         ],
                         prefixText: 'GH₵  ',
                         validator: (v) {
@@ -340,14 +348,18 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                         Container(
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 4.w, vertical: 1.2.h),
+                            horizontal: 4.w,
+                            vertical: 1.2.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: isDark ? 0.08 : 0.05),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: isDark ? 0.08 : 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: const Color(0xFF2E8B8B)
-                                  .withValues(alpha: 0.15),
+                              color: const Color(
+                                0xFF2E8B8B,
+                              ).withValues(alpha: 0.15),
                             ),
                           ),
                           child: Column(
@@ -427,8 +439,11 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
                   ),
                 ),
               ),
@@ -459,8 +474,7 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -546,8 +560,7 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
         ),
         filled: true,
         fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
         prefixIcon: Icon(
           isPhone ? Icons.phone_rounded : Icons.account_balance_rounded,
           color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
@@ -567,18 +580,15 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
             color: _accountVerified
                 ? const Color(0xFF059669).withValues(alpha: 0.5)
                 : _accountNotFound
-                    ? const Color(0xFFDC2626).withValues(alpha: 0.5)
-                    : isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE5E7EB),
+                ? const Color(0xFFDC2626).withValues(alpha: 0.5)
+                : isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE5E7EB),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFF2E8B8B),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -596,16 +606,17 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: isDark
-                        ? Colors.white38
-                        : const Color(0xFF2E8B8B),
+                    color: isDark ? Colors.white38 : const Color(0xFF2E8B8B),
                   ),
                 ),
               )
             : _accountVerified
-                ? const Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF059669), size: 22)
-                : null,
+            ? const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF059669),
+                size: 22,
+              )
+            : null,
       ),
     );
   }
@@ -633,13 +644,17 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                 padding: EdgeInsets.symmetric(vertical: 1.2.h),
                 decoration: BoxDecoration(
                   color: _lookupType == 'account'
-                      ? (isDark ? const Color(0xFF2E8B8B) : const Color(0xFF2E8B8B))
+                      ? (isDark
+                            ? const Color(0xFF2E8B8B)
+                            : const Color(0xFF2E8B8B))
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: _lookupType == 'account'
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF2E8B8B).withValues(alpha: 0.2),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -664,7 +679,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                         fontWeight: FontWeight.w600,
                         color: _lookupType == 'account'
                             ? Colors.white
-                            : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                            : (isDark
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
                       ),
                     ),
                   ],
@@ -680,13 +697,17 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                 padding: EdgeInsets.symmetric(vertical: 1.2.h),
                 decoration: BoxDecoration(
                   color: _lookupType == 'phone'
-                      ? (isDark ? const Color(0xFF2E8B8B) : const Color(0xFF2E8B8B))
+                      ? (isDark
+                            ? const Color(0xFF2E8B8B)
+                            : const Color(0xFF2E8B8B))
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: _lookupType == 'phone'
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF2E8B8B).withValues(alpha: 0.2),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -711,7 +732,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                         fontWeight: FontWeight.w600,
                         color: _lookupType == 'phone'
                             ? Colors.white
-                            : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                            : (isDark
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
                       ),
                     ),
                   ],
@@ -769,11 +792,17 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
             colors: isActive
                 ? [
                     accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFF10B981,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ]
                 : [
-                    const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFFF59E0B,
+                    ).withValues(alpha: isDark ? 0.15 : 0.08),
+                    const Color(
+                      0xFFFBBF24,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ],
           ),
           borderRadius: BorderRadius.circular(14),
@@ -811,7 +840,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                         style: GoogleFonts.inter(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1A1D23),
                         ),
                       ),
                       SizedBox(height: 0.3.h),
@@ -820,14 +851,19 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                         style: GoogleFonts.inter(
                           fontSize: 8.5.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                          color: isDark
+                              ? Colors.white60
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 2.5.w,
+                    vertical: 0.5.h,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive ? accentColor : const Color(0xFFF59E0B),
                     borderRadius: BorderRadius.circular(8),
@@ -861,7 +897,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                       style: GoogleFonts.inter(
                         fontSize: 8.5.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.white54
+                            : const Color(0xFF64748B),
                       ),
                     ),
                     Text(
@@ -874,7 +912,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                     ),
                     const Spacer(),
                     CustomIconWidget(
-                      iconName: _balanceVisible ? 'visibility' : 'visibility_off',
+                      iconName: _balanceVisible
+                          ? 'visibility'
+                          : 'visibility_off',
                       color: isDark ? Colors.white54 : const Color(0xFF64748B),
                       size: 16,
                     ),
@@ -914,7 +954,8 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
               style: GoogleFonts.inter(
                 fontSize: 9.5.sp,
                 fontWeight: valueBold ? FontWeight.w600 : FontWeight.w500,
-                color: valueColor ??
+                color:
+                    valueColor ??
                     (isDark ? Colors.white70 : const Color(0xFF4B5563)),
               ),
             ),
@@ -975,9 +1016,7 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                     style: GoogleFonts.inter(
                       fontSize: 7.5.sp,
                       fontWeight: FontWeight.w400,
-                      color: isDark
-                          ? Colors.white38
-                          : const Color(0xFF9CA3AF),
+                      color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                     ),
                   ),
                 ],
@@ -1029,8 +1068,7 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
         ),
         filled: true,
         fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
@@ -1049,10 +1087,7 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFF2E8B8B),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -1156,8 +1191,9 @@ class _DepositReceiptScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           // Header
@@ -1174,8 +1210,7 @@ class _DepositReceiptScreen extends StatelessWidget {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
+                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
                 child: Row(
                   children: [
                     GestureDetector(
@@ -1191,8 +1226,11 @@ class _DepositReceiptScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Center(
-                          child: Icon(Icons.arrow_back_rounded,
-                              color: Colors.white, size: 19),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 19,
+                          ),
                         ),
                       ),
                     ),
@@ -1285,8 +1323,7 @@ class _DepositReceiptScreen extends StatelessWidget {
           ),
           SizedBox(height: 0.5.h),
           Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.3.h),
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.3.h),
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
@@ -1342,15 +1379,18 @@ class _DepositReceiptScreen extends StatelessWidget {
             _detailRow('Narration', narration, isDark),
           ],
           _divider(isDark),
-          _detailRow('System Ref', fixedNarration, isDark,
-              valueSize: 7.5.sp),
+          _detailRow('System Ref', fixedNarration, isDark, valueSize: 7.5.sp),
         ],
       ),
     );
   }
 
-  Widget _detailRow(String label, String value, bool isDark,
-      {double? valueSize}) {
+  Widget _detailRow(
+    String label,
+    String value,
+    bool isDark, {
+    double? valueSize,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.6.h),
       child: Row(
@@ -1418,10 +1458,16 @@ class _DepositReceiptScreen extends StatelessWidget {
           ),
           SizedBox(height: 1.5.h),
           _detailRow(
-              'Amount', 'GH₵ ${_amountValue.toStringAsFixed(2)}', isDark),
+            'Amount',
+            'GH₵ ${_amountValue.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
-          _detailRow('Charges (1%)',
-              'GH₵ ${_charges.toStringAsFixed(2)}', isDark),
+          _detailRow(
+            'Charges (1%)',
+            'GH₵ ${_charges.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 0.8.h),
@@ -1467,14 +1513,20 @@ class _DepositReceiptScreen extends StatelessWidget {
           );
           return;
         }
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _SuccessDialog(
-            amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
-            accountName: accountName,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _SuccessDialog(
+                amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+                accountName: accountName,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(
@@ -1496,8 +1548,11 @@ class _DepositReceiptScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline_rounded,
-                color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             SizedBox(width: 2.w),
             Text(
               'Confirm & Deposit',

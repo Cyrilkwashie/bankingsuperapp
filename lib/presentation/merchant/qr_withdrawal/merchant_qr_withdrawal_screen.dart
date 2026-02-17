@@ -10,7 +10,8 @@ class MerchantQrWithdrawalScreen extends StatefulWidget {
   const MerchantQrWithdrawalScreen({super.key});
 
   @override
-  State<MerchantQrWithdrawalScreen> createState() => _MerchantQrWithdrawalScreenState();
+  State<MerchantQrWithdrawalScreen> createState() =>
+      _MerchantQrWithdrawalScreenState();
 }
 
 class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
@@ -119,7 +120,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -147,7 +150,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: _accent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -201,7 +206,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -217,7 +224,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -236,7 +245,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -264,7 +275,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
@@ -297,9 +310,13 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
                         controller: _amountController,
                         hint: '0.00',
                         isDark: isDark,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+\.?\d{0,2}'),
+                          ),
                         ],
                         prefixText: 'GH₵  ',
                         validator: (v) {
@@ -328,9 +345,14 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
                       if (_fixedNarration.isNotEmpty) ...[
                         Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.2.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 4.w,
+                            vertical: 1.2.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: _accent.withValues(alpha: isDark ? 0.08 : 0.05),
+                            color: _accent.withValues(
+                              alpha: isDark ? 0.08 : 0.05,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: _accent.withValues(alpha: 0.15),
@@ -353,7 +375,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
                                 style: GoogleFonts.inter(
                                   fontSize: 8.5.sp,
                                   fontWeight: FontWeight.w600,
-                                  color: isDark ? Colors.white70 : const Color(0xFF1A1D23),
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF1A1D23),
                                   letterSpacing: 0.2,
                                 ),
                               ),
@@ -428,7 +452,10 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
               GestureDetector(
                 onTap: () => setState(() => _floatVisible = !_floatVisible),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 3.5.w,
+                    vertical: 1.h,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
@@ -443,7 +470,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
                       ),
                       SizedBox(width: 2.w),
                       Text(
-                        _floatVisible ? 'Float: GH₵ 150,000.00' : 'Float: ••••••••',
+                        _floatVisible
+                            ? 'Float: GH₵ 150,000.00'
+                            : 'Float: ••••••••',
                         style: GoogleFonts.inter(
                           fontSize: 9.sp,
                           fontWeight: FontWeight.w600,
@@ -452,7 +481,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
                       ),
                       SizedBox(width: 2.w),
                       CustomIconWidget(
-                        iconName: _floatVisible ? 'visibility' : 'visibility_off',
+                        iconName: _floatVisible
+                            ? 'visibility'
+                            : 'visibility_off',
                         color: Colors.white70,
                         size: 16,
                       ),
@@ -500,8 +531,8 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
           color: _accountVerified
               ? _accent.withValues(alpha: 0.5)
               : isDark
-                  ? const Color(0xFF30363D)
-                  : const Color(0xFFE2E8F0),
+              ? const Color(0xFF30363D)
+              : const Color(0xFFE2E8F0),
         ),
         boxShadow: [
           BoxShadow(
@@ -540,7 +571,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CustomIconWidget(
-                        iconName: _accountVerified ? 'qr_code_2' : 'qr_code_scanner',
+                        iconName: _accountVerified
+                            ? 'qr_code_2'
+                            : 'qr_code_scanner',
                         color: _accountVerified ? _accent : _accent,
                         size: 48,
                       ),
@@ -652,11 +685,17 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
           colors: isActive
               ? [
                   _accent.withValues(alpha: isDark ? 0.15 : 0.08),
-                  const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+                  const Color(
+                    0xFF10B981,
+                  ).withValues(alpha: isDark ? 0.08 : 0.04),
                 ]
               : [
-                  const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
-                  const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
+                  const Color(
+                    0xFFF59E0B,
+                  ).withValues(alpha: isDark ? 0.15 : 0.08),
+                  const Color(
+                    0xFFFBBF24,
+                  ).withValues(alpha: isDark ? 0.08 : 0.04),
                 ],
         ),
         borderRadius: BorderRadius.circular(14),
@@ -703,14 +742,19 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
                       style: GoogleFonts.inter(
                         fontSize: 8.5.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.white60
+                            : const Color(0xFF64748B),
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 2.5.w,
+                  vertical: 0.5.h,
+                ),
                 decoration: BoxDecoration(
                   color: isActive ? _accent : const Color(0xFFF59E0B),
                   borderRadius: BorderRadius.circular(8),
@@ -859,9 +903,7 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
       width: double.infinity,
       height: 6.5.h,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [_gradientStart, _gradientEnd],
-        ),
+        gradient: const LinearGradient(colors: [_gradientStart, _gradientEnd]),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -876,7 +918,9 @@ class _MerchantQrWithdrawalScreenState extends State<MerchantQrWithdrawalScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -929,16 +973,20 @@ class _MerchantQrWithdrawalOtpScreen extends StatefulWidget {
   });
 
   @override
-  State<_MerchantQrWithdrawalOtpScreen> createState() => _MerchantQrWithdrawalOtpScreenState();
+  State<_MerchantQrWithdrawalOtpScreen> createState() =>
+      _MerchantQrWithdrawalOtpScreenState();
 }
 
-class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtpScreen>
+class _MerchantQrWithdrawalOtpScreenState
+    extends State<_MerchantQrWithdrawalOtpScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _fadeIn;
 
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isVerifying = false;
@@ -1035,7 +1083,9 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -1076,7 +1126,9 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     }
@@ -1087,7 +1139,9 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
@@ -1116,7 +1170,9 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
                       style: GoogleFonts.inter(
                         fontSize: 9.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.white60
+                            : const Color(0xFF64748B),
                       ),
                     ),
                     SizedBox(height: 3.h),
@@ -1249,13 +1305,17 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: isDark ? const Color(0xFF30363D) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF30363D)
+                        : const Color(0xFFE2E8F0),
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: isDark ? const Color(0xFF30363D) : const Color(0xFFE2E8F0),
+                    color: isDark
+                        ? const Color(0xFF30363D)
+                        : const Color(0xFFE2E8F0),
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
@@ -1330,8 +1390,12 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
             ),
           ),
           SizedBox(height: 2.h),
-          _buildSummaryRow('Amount', 'GH₵ ${widget.amount}', isDark,
-              highlight: true),
+          _buildSummaryRow(
+            'Amount',
+            'GH₵ ${widget.amount}',
+            isDark,
+            highlight: true,
+          ),
           _buildSummaryRow('Account', widget.accountNo, isDark),
           _buildSummaryRow('Name', widget.accountName, isDark),
         ],
@@ -1339,8 +1403,12 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, bool isDark,
-      {bool highlight = false}) {
+  Widget _buildSummaryRow(
+    String label,
+    String value,
+    bool isDark, {
+    bool highlight = false,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.8.h),
       child: Row(
@@ -1389,7 +1457,9 @@ class _MerchantQrWithdrawalOtpScreenState extends State<_MerchantQrWithdrawalOtp
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
         child: _isVerifying
             ? SizedBox(
@@ -1464,7 +1534,9 @@ class _MerchantQrWithdrawalReceiptScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           // Header
@@ -1497,8 +1569,11 @@ class _MerchantQrWithdrawalReceiptScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Center(
-                          child: Icon(Icons.arrow_back_rounded,
-                              color: Colors.white, size: 19),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 19,
+                          ),
                         ),
                       ),
                     ),
@@ -1642,7 +1717,12 @@ class _MerchantQrWithdrawalReceiptScreen extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value, bool isDark, {double? valueSize}) {
+  Widget _detailRow(
+    String label,
+    String value,
+    bool isDark, {
+    double? valueSize,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.6.h),
       child: Row(
@@ -1709,9 +1789,17 @@ class _MerchantQrWithdrawalReceiptScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 1.5.h),
-          _detailRow('Amount', 'GH₵ ${_amountValue.toStringAsFixed(2)}', isDark),
+          _detailRow(
+            'Amount',
+            'GH₵ ${_amountValue.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
-          _detailRow('Charges (1%)', 'GH₵ ${_charges.toStringAsFixed(2)}', isDark),
+          _detailRow(
+            'Charges (1%)',
+            'GH₵ ${_charges.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 0.8.h),
@@ -1757,14 +1845,20 @@ class _MerchantQrWithdrawalReceiptScreen extends StatelessWidget {
           );
           return;
         }
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _SuccessDialog(
-            amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
-            accountName: accountName,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _SuccessDialog(
+                amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+                accountName: accountName,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(
@@ -1786,8 +1880,11 @@ class _MerchantQrWithdrawalReceiptScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline_rounded,
-                color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             SizedBox(width: 2.w),
             Text(
               'Confirm & Withdraw',
@@ -1866,11 +1963,7 @@ class _SuccessDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Icon(
-                  Icons.check_rounded,
-                  color: accentColor,
-                  size: 36,
-                ),
+                child: Icon(Icons.check_rounded, color: accentColor, size: 36),
               ),
             ),
             SizedBox(height: 2.h),

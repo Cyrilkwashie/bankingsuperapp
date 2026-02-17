@@ -13,8 +13,7 @@ class AgencyCashWithdrawalScreen extends StatefulWidget {
       _AgencyCashWithdrawalScreenState();
 }
 
-class _AgencyCashWithdrawalScreenState
-    extends State<AgencyCashWithdrawalScreen>
+class _AgencyCashWithdrawalScreenState extends State<AgencyCashWithdrawalScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _accountController = TextEditingController();
@@ -217,8 +216,9 @@ class _AgencyCashWithdrawalScreenState
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -229,7 +229,9 @@ class _AgencyCashWithdrawalScreenState
       MaterialPageRoute(
         builder: (_) => _WithdrawalOtpScreen(
           customerPhone: _customerPhone,
-          accountNo: _lookupType == 'phone' ? _resolvedAccountNo : _accountController.text.trim(),
+          accountNo: _lookupType == 'phone'
+              ? _resolvedAccountNo
+              : _accountController.text.trim(),
           accountName: _accountName,
           accountBalance: _accountBalance,
           amount: _amountController.text.trim(),
@@ -249,8 +251,9 @@ class _AgencyCashWithdrawalScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
@@ -270,7 +273,9 @@ class _AgencyCashWithdrawalScreenState
                       SizedBox(height: 2.h),
 
                       _buildFieldLabel(
-                        _lookupType == 'account' ? 'Account Number' : 'Phone Number',
+                        _lookupType == 'account'
+                            ? 'Account Number'
+                            : 'Phone Number',
                         isDark,
                       ),
                       SizedBox(height: 0.8.h),
@@ -289,10 +294,12 @@ class _AgencyCashWithdrawalScreenState
                         hint: '0.00',
                         isDark: isDark,
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}')),
+                            RegExp(r'^\d+\.?\d{0,2}'),
+                          ),
                         ],
                         prefixText: 'GH₵  ',
                         validator: (v) {
@@ -314,9 +321,8 @@ class _AgencyCashWithdrawalScreenState
                         isDark: isDark,
                         textCapitalization: TextCapitalization.words,
                         onChanged: (_) => setState(() {}),
-                        validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Enter name'
-                            : null,
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty ? 'Enter name' : null,
                       ),
                       SizedBox(height: 2.2.h),
 
@@ -351,14 +357,18 @@ class _AgencyCashWithdrawalScreenState
                         Container(
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 4.w, vertical: 1.2.h),
+                            horizontal: 4.w,
+                            vertical: 1.2.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: isDark ? 0.08 : 0.05),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: isDark ? 0.08 : 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: const Color(0xFF2E8B8B)
-                                  .withValues(alpha: 0.15),
+                              color: const Color(
+                                0xFF2E8B8B,
+                              ).withValues(alpha: 0.15),
                             ),
                           ),
                           child: Column(
@@ -436,8 +446,11 @@ class _AgencyCashWithdrawalScreenState
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
                   ),
                 ),
               ),
@@ -468,8 +481,7 @@ class _AgencyCashWithdrawalScreenState
                 ),
               ),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -553,8 +565,7 @@ class _AgencyCashWithdrawalScreenState
         ),
         filled: true,
         fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
         prefixIcon: Icon(
           isPhone ? Icons.phone_rounded : Icons.account_balance_rounded,
           color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
@@ -574,18 +585,15 @@ class _AgencyCashWithdrawalScreenState
             color: _accountVerified
                 ? const Color(0xFF059669).withValues(alpha: 0.5)
                 : _accountNotFound
-                    ? const Color(0xFFDC2626).withValues(alpha: 0.5)
-                    : isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE5E7EB),
+                ? const Color(0xFFDC2626).withValues(alpha: 0.5)
+                : isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE5E7EB),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFF2E8B8B),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -608,9 +616,12 @@ class _AgencyCashWithdrawalScreenState
                 ),
               )
             : _accountVerified
-                ? const Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF059669), size: 22)
-                : null,
+            ? const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF059669),
+                size: 22,
+              )
+            : null,
       ),
     );
   }
@@ -644,7 +655,9 @@ class _AgencyCashWithdrawalScreenState
                   boxShadow: _lookupType == 'account'
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF2E8B8B).withValues(alpha: 0.2),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -669,7 +682,9 @@ class _AgencyCashWithdrawalScreenState
                         fontWeight: FontWeight.w600,
                         color: _lookupType == 'account'
                             ? Colors.white
-                            : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                            : (isDark
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
                       ),
                     ),
                   ],
@@ -691,7 +706,9 @@ class _AgencyCashWithdrawalScreenState
                   boxShadow: _lookupType == 'phone'
                       ? [
                           BoxShadow(
-                            color: const Color(0xFF2E8B8B).withValues(alpha: 0.2),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -716,7 +733,9 @@ class _AgencyCashWithdrawalScreenState
                         fontWeight: FontWeight.w600,
                         color: _lookupType == 'phone'
                             ? Colors.white
-                            : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                            : (isDark
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
                       ),
                     ),
                   ],
@@ -772,11 +791,17 @@ class _AgencyCashWithdrawalScreenState
             colors: isActive
                 ? [
                     accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFF10B981,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ]
                 : [
-                    const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFFF59E0B,
+                    ).withValues(alpha: isDark ? 0.15 : 0.08),
+                    const Color(
+                      0xFFFBBF24,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ],
           ),
           borderRadius: BorderRadius.circular(14),
@@ -814,7 +839,9 @@ class _AgencyCashWithdrawalScreenState
                         style: GoogleFonts.inter(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1A1D23),
                         ),
                       ),
                       SizedBox(height: 0.3.h),
@@ -823,14 +850,19 @@ class _AgencyCashWithdrawalScreenState
                         style: GoogleFonts.inter(
                           fontSize: 8.5.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                          color: isDark
+                              ? Colors.white60
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 2.5.w,
+                    vertical: 0.5.h,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive ? accentColor : const Color(0xFFF59E0B),
                     borderRadius: BorderRadius.circular(8),
@@ -864,7 +896,9 @@ class _AgencyCashWithdrawalScreenState
                       style: GoogleFonts.inter(
                         fontSize: 8.5.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.white54
+                            : const Color(0xFF64748B),
                       ),
                     ),
                     Text(
@@ -877,7 +911,9 @@ class _AgencyCashWithdrawalScreenState
                     ),
                     const Spacer(),
                     CustomIconWidget(
-                      iconName: _balanceVisible ? 'visibility' : 'visibility_off',
+                      iconName: _balanceVisible
+                          ? 'visibility'
+                          : 'visibility_off',
                       color: isDark ? Colors.white54 : const Color(0xFF64748B),
                       size: 16,
                     ),
@@ -891,26 +927,37 @@ class _AgencyCashWithdrawalScreenState
     );
   }
 
-  Widget _infoRow(String label, String value, bool isDark,
-      {Color? valueColor, bool valueBold = false, Widget? widget}) {
+  Widget _infoRow(
+    String label,
+    String value,
+    bool isDark, {
+    Color? valueColor,
+    bool valueBold = false,
+    Widget? widget,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: GoogleFonts.inter(
-              fontSize: 7.sp,
-              fontWeight: FontWeight.w400,
-              color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-            )),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 7.sp,
+            fontWeight: FontWeight.w400,
+            color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+          ),
+        ),
         SizedBox(height: 0.2.h),
         widget ??
-            Text(value,
-                style: GoogleFonts.inter(
-                  fontSize: 9.5.sp,
-                  fontWeight: valueBold ? FontWeight.w600 : FontWeight.w500,
-                  color: valueColor ??
-                      (isDark ? Colors.white70 : const Color(0xFF4B5563)),
-                )),
+            Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: 9.5.sp,
+                fontWeight: valueBold ? FontWeight.w600 : FontWeight.w500,
+                color:
+                    valueColor ??
+                    (isDark ? Colors.white70 : const Color(0xFF4B5563)),
+              ),
+            ),
       ],
     );
   }
@@ -939,8 +986,11 @@ class _AgencyCashWithdrawalScreenState
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Center(
-                child: Icon(Icons.person_off_rounded,
-                    color: Color(0xFFDC2626), size: 18),
+                child: Icon(
+                  Icons.person_off_rounded,
+                  color: Color(0xFFDC2626),
+                  size: 18,
+                ),
               ),
             ),
             SizedBox(width: 3.w),
@@ -948,23 +998,25 @@ class _AgencyCashWithdrawalScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Account Not Found',
-                      style: GoogleFonts.inter(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFDC2626),
-                      )),
+                  Text(
+                    'Account Not Found',
+                    style: GoogleFonts.inter(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFDC2626),
+                    ),
+                  ),
                   SizedBox(height: 0.15.h),
                   Text(
-                      isPhone
-                          ? 'No account linked to this phone number. Please verify and try again.'
-                          : 'No account matches this number. Please verify and try again.',
-                      style: GoogleFonts.inter(
-                        fontSize: 7.5.sp,
-                        fontWeight: FontWeight.w400,
-                        color:
-                            isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                      )),
+                    isPhone
+                        ? 'No account linked to this phone number. Please verify and try again.'
+                        : 'No account matches this number. Please verify and try again.',
+                    style: GoogleFonts.inter(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w400,
+                      color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1013,8 +1065,7 @@ class _AgencyCashWithdrawalScreenState
         ),
         filled: true,
         fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
@@ -1033,10 +1084,7 @@ class _AgencyCashWithdrawalScreenState
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFF2E8B8B),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -1072,8 +1120,7 @@ class _AgencyCashWithdrawalScreenState
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color:
-                        const Color(0xFF2E8B8B).withValues(alpha: 0.3),
+                    color: const Color(0xFF2E8B8B).withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1133,8 +1180,10 @@ class _WithdrawalOtpScreen extends StatefulWidget {
 }
 
 class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isVerifying = false;
@@ -1168,7 +1217,7 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
 
   void _sendOtp() {
     if (!mounted) return;
-    
+
     setState(() {
       _resendCountdown = 60;
     });
@@ -1205,8 +1254,7 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
     return '${phone.substring(0, 5)}****${phone.substring(phone.length - 3)}';
   }
 
-  String get _enteredOtp =>
-      _otpControllers.map((c) => c.text).join();
+  String get _enteredOtp => _otpControllers.map((c) => c.text).join();
 
   void _onOtpChanged(int index, String value) {
     setState(() => _otpError = false);
@@ -1278,8 +1326,9 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           _buildHeader(isDark),
@@ -1371,15 +1420,16 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                                   ? const Color(0xFF161B22)
                                   : Colors.white,
                               contentPadding: EdgeInsets.symmetric(
-                                  vertical: 3.w),
+                                vertical: 3.w,
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
                                   color: _otpError
                                       ? const Color(0xFFDC2626)
                                       : isDark
-                                          ? Colors.white.withValues(alpha: 0.08)
-                                          : const Color(0xFFE5E7EB),
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : const Color(0xFFE5E7EB),
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
@@ -1388,8 +1438,8 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                                   color: _otpError
                                       ? const Color(0xFFDC2626)
                                       : isDark
-                                          ? Colors.white.withValues(alpha: 0.08)
-                                          : const Color(0xFFE5E7EB),
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : const Color(0xFFE5E7EB),
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
@@ -1413,8 +1463,11 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline_rounded,
-                            color: Color(0xFFDC2626), size: 16),
+                        const Icon(
+                          Icons.error_outline_rounded,
+                          color: Color(0xFFDC2626),
+                          size: 16,
+                        ),
                         SizedBox(width: 1.w),
                         Text(
                           'Invalid OTP. Please try again.',
@@ -1437,7 +1490,9 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 8.5.sp,
                         fontWeight: FontWeight.w400,
-                        color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                        color: isDark
+                            ? Colors.white38
+                            : const Color(0xFF9CA3AF),
                       ),
                     )
                   else
@@ -1466,21 +1521,22 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                             ? LinearGradient(
                                 colors: [
                                   widget.accentColor,
-                                  widget.accentColor.withValues(alpha: 0.85)
+                                  widget.accentColor.withValues(alpha: 0.85),
                                 ],
                               )
                             : null,
                         color: _enteredOtp.length == 6 && !_isVerifying
                             ? null
                             : (isDark
-                                ? const Color(0xFF1E2328)
-                                : const Color(0xFFE5E7EB)),
+                                  ? const Color(0xFF1E2328)
+                                  : const Color(0xFFE5E7EB)),
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: _enteredOtp.length == 6 && !_isVerifying
                             ? [
                                 BoxShadow(
-                                  color: widget.accentColor
-                                      .withValues(alpha: 0.3),
+                                  color: widget.accentColor.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -1505,8 +1561,8 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                                   color: _enteredOtp.length == 6
                                       ? Colors.white
                                       : (isDark
-                                          ? Colors.white24
-                                          : const Color(0xFF9CA3AF)),
+                                            ? Colors.white24
+                                            : const Color(0xFF9CA3AF)),
                                 ),
                               ),
                       ),
@@ -1522,9 +1578,7 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(vertical: 1.5.h),
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF161B22)
-                            : Colors.white,
+                        color: isDark ? const Color(0xFF161B22) : Colors.white,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: isDark
@@ -1621,8 +1675,11 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
                   ),
                 ),
               ),
@@ -1653,8 +1710,7 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                 ),
               ),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -1665,11 +1721,7 @@ class _WithdrawalOtpScreenState extends State<_WithdrawalOtpScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.lock_rounded,
-                      size: 12,
-                      color: Colors.white70,
-                    ),
+                    Icon(Icons.lock_rounded, size: 12, color: Colors.white70),
                     SizedBox(width: 1.w),
                     Text(
                       'Secure',
@@ -1733,8 +1785,9 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           Container(
@@ -1750,8 +1803,7 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
+                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
                 child: Row(
                   children: [
                     GestureDetector(
@@ -1767,8 +1819,11 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Center(
-                          child: Icon(Icons.arrow_back_rounded,
-                              color: Colors.white, size: 19),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 19,
+                          ),
                         ),
                       ),
                     ),
@@ -1853,8 +1908,7 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
           ),
           SizedBox(height: 0.5.h),
           Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.3.h),
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.3.h),
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
@@ -1889,12 +1943,14 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Transaction Details',
-              style: GoogleFonts.inter(
-                fontSize: 9.5.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF111827),
-              )),
+          Text(
+            'Transaction Details',
+            style: GoogleFonts.inter(
+              fontSize: 9.5.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF111827),
+            ),
+          ),
           SizedBox(height: 1.5.h),
           _detailRow('Account Number', accountNo, isDark),
           _divider(isDark),
@@ -1914,8 +1970,12 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value, bool isDark,
-      {double? valueSize}) {
+  Widget _detailRow(
+    String label,
+    String value,
+    bool isDark, {
+    double? valueSize,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.6.h),
       child: Row(
@@ -1923,21 +1983,25 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
         children: [
           SizedBox(
             width: 30.w,
-            child: Text(label,
-                style: GoogleFonts.inter(
-                  fontSize: 8.sp,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                )),
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 8.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+              ),
+            ),
           ),
           Expanded(
-            child: Text(value,
-                style: GoogleFonts.inter(
-                  fontSize: valueSize ?? 9.sp,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                ),
-                textAlign: TextAlign.right),
+            child: Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: valueSize ?? 9.sp,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white : const Color(0xFF1A1D23),
+              ),
+              textAlign: TextAlign.right,
+            ),
           ),
         ],
       ),
@@ -1969,36 +2033,48 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Charges & Total',
-              style: GoogleFonts.inter(
-                fontSize: 9.5.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF111827),
-              )),
+          Text(
+            'Charges & Total',
+            style: GoogleFonts.inter(
+              fontSize: 9.5.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF111827),
+            ),
+          ),
           SizedBox(height: 1.5.h),
           _detailRow(
-              'Amount', 'GH₵ ${_amountValue.toStringAsFixed(2)}', isDark),
+            'Amount',
+            'GH₵ ${_amountValue.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
-          _detailRow('Charges (1%)',
-              'GH₵ ${_charges.toStringAsFixed(2)}', isDark),
+          _detailRow(
+            'Charges (1%)',
+            'GH₵ ${_charges.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 0.8.h),
             child: Row(
               children: [
-                Text('Total',
-                    style: GoogleFonts.inter(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : const Color(0xFF111827),
-                    )),
+                Text(
+                  'Total',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF111827),
+                  ),
+                ),
                 const Spacer(),
-                Text('GH₵ ${_totalAmount.toStringAsFixed(2)}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                      color: accentColor,
-                    )),
+                Text(
+                  'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: accentColor,
+                  ),
+                ),
               ],
             ),
           ),
@@ -2025,14 +2101,20 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
           );
           return;
         }
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _SuccessDialog(
-            amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
-            accountName: accountName,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _SuccessDialog(
+                amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+                accountName: accountName,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(
@@ -2054,15 +2136,20 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline_rounded,
-                color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             SizedBox(width: 2.w),
-            Text('Confirm & Withdraw',
-                style: GoogleFonts.inter(
-                  fontSize: 10.5.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                )),
+            Text(
+              'Confirm & Withdraw',
+              style: GoogleFonts.inter(
+                fontSize: 10.5.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
           ],
         ),
       ),
@@ -2085,12 +2172,14 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: Text('Go Back',
-              style: GoogleFonts.inter(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.w500,
-                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-              )),
+          child: Text(
+            'Go Back',
+            style: GoogleFonts.inter(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+            ),
+          ),
         ),
       ),
     );
@@ -2130,25 +2219,32 @@ class _SuccessDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child:
-                    Icon(Icons.check_rounded, color: Color(0xFF059669), size: 36),
+                child: Icon(
+                  Icons.check_rounded,
+                  color: Color(0xFF059669),
+                  size: 36,
+                ),
               ),
             ),
             SizedBox(height: 2.h),
-            Text('Withdrawal Successful',
-                style: GoogleFonts.inter(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF111827),
-                )),
+            Text(
+              'Withdrawal Successful',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
             SizedBox(height: 0.8.h),
-            Text('$amount withdrawn from $accountName',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 9.sp,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                )),
+            Text(
+              '$amount withdrawn from $accountName',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+              ),
+            ),
             SizedBox(height: 2.5.h),
             GestureDetector(
               onTap: () {
@@ -2166,12 +2262,14 @@ class _SuccessDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text('Done',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      )),
+                  child: Text(
+                    'Done',
+                    style: GoogleFonts.inter(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -2183,12 +2281,14 @@ class _SuccessDialog extends StatelessWidget {
               },
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 0.8.h),
-                child: Text('New Transaction',
-                    style: GoogleFonts.inter(
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w500,
-                      color: accentColor,
-                    )),
+                child: Text(
+                  'New Transaction',
+                  style: GoogleFonts.inter(
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w500,
+                    color: accentColor,
+                  ),
+                ),
               ),
             ),
           ],
@@ -2236,26 +2336,33 @@ class _InsufficientFundsDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.account_balance_wallet_outlined,
-                    color: Color(0xFFDC2626), size: 32),
+                child: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Color(0xFFDC2626),
+                  size: 32,
+                ),
               ),
             ),
             SizedBox(height: 2.h),
-            Text('Insufficient Balance',
-                style: GoogleFonts.inter(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF111827),
-                )),
+            Text(
+              'Insufficient Balance',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
             SizedBox(height: 0.8.h),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 8.5.sp,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                  height: 1.4,
-                )),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 8.5.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+                height: 1.4,
+              ),
+            ),
             SizedBox(height: 2.5.h),
             GestureDetector(
               onTap: () => Navigator.of(context).pop(),
@@ -2269,14 +2376,14 @@ class _InsufficientFundsDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text('Go Back',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? Colors.white70
-                            : const Color(0xFF374151),
-                      )),
+                  child: Text(
+                    'Go Back',
+                    style: GoogleFonts.inter(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : const Color(0xFF374151),
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -143,8 +143,9 @@ class _MerchantCashWithdrawalScreenState
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -173,8 +174,9 @@ class _MerchantCashWithdrawalScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
@@ -206,10 +208,12 @@ class _MerchantCashWithdrawalScreenState
                         hint: '0.00',
                         isDark: isDark,
                         keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
+                          decimal: true,
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}')),
+                            RegExp(r'^\d+\.?\d{0,2}'),
+                          ),
                         ],
                         prefixText: 'GH₵  ',
                         validator: (v) {
@@ -231,9 +235,8 @@ class _MerchantCashWithdrawalScreenState
                         isDark: isDark,
                         textCapitalization: TextCapitalization.words,
                         onChanged: (_) => setState(() {}),
-                        validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Enter name'
-                            : null,
+                        validator: (v) =>
+                            v == null || v.trim().isEmpty ? 'Enter name' : null,
                       ),
                       SizedBox(height: 2.2.h),
 
@@ -268,10 +271,13 @@ class _MerchantCashWithdrawalScreenState
                         Container(
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 4.w, vertical: 1.2.h),
+                            horizontal: 4.w,
+                            vertical: 1.2.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: _accent
-                                .withValues(alpha: isDark ? 0.08 : 0.05),
+                            color: _accent.withValues(
+                              alpha: isDark ? 0.08 : 0.05,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: _accent.withValues(alpha: 0.15),
@@ -352,8 +358,11 @@ class _MerchantCashWithdrawalScreenState
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
                   ),
                 ),
               ),
@@ -384,8 +393,7 @@ class _MerchantCashWithdrawalScreenState
                 ),
               ),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -460,8 +468,7 @@ class _MerchantCashWithdrawalScreenState
         ),
         filled: true,
         fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
@@ -476,18 +483,15 @@ class _MerchantCashWithdrawalScreenState
             color: _accountVerified
                 ? const Color(0xFF059669).withValues(alpha: 0.5)
                 : _accountNotFound
-                    ? const Color(0xFFDC2626).withValues(alpha: 0.5)
-                    : isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE5E7EB),
+                ? const Color(0xFFDC2626).withValues(alpha: 0.5)
+                : isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE5E7EB),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: _accent,
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: _accent, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -510,9 +514,12 @@ class _MerchantCashWithdrawalScreenState
                 ),
               )
             : _accountVerified
-                ? const Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF059669), size: 22)
-                : null,
+            ? const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF059669),
+                size: 22,
+              )
+            : null,
       ),
     );
   }
@@ -559,11 +566,17 @@ class _MerchantCashWithdrawalScreenState
             colors: isActive
                 ? [
                     _accent.withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFF10B981,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ]
                 : [
-                    const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFFF59E0B,
+                    ).withValues(alpha: isDark ? 0.15 : 0.08),
+                    const Color(
+                      0xFFFBBF24,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ],
           ),
           borderRadius: BorderRadius.circular(14),
@@ -601,7 +614,9 @@ class _MerchantCashWithdrawalScreenState
                         style: GoogleFonts.inter(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1A1D23),
                         ),
                       ),
                       SizedBox(height: 0.3.h),
@@ -610,14 +625,19 @@ class _MerchantCashWithdrawalScreenState
                         style: GoogleFonts.inter(
                           fontSize: 8.5.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                          color: isDark
+                              ? Colors.white60
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 2.5.w,
+                    vertical: 0.5.h,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive ? _accent : const Color(0xFFF59E0B),
                     borderRadius: BorderRadius.circular(8),
@@ -651,7 +671,9 @@ class _MerchantCashWithdrawalScreenState
                       style: GoogleFonts.inter(
                         fontSize: 8.5.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.white54
+                            : const Color(0xFF64748B),
                       ),
                     ),
                     Text(
@@ -664,7 +686,9 @@ class _MerchantCashWithdrawalScreenState
                     ),
                     const Spacer(),
                     CustomIconWidget(
-                      iconName: _balanceVisible ? 'visibility' : 'visibility_off',
+                      iconName: _balanceVisible
+                          ? 'visibility'
+                          : 'visibility_off',
                       color: isDark ? Colors.white54 : const Color(0xFF64748B),
                       size: 16,
                     ),
@@ -678,26 +702,37 @@ class _MerchantCashWithdrawalScreenState
     );
   }
 
-  Widget _infoRow(String label, String value, bool isDark,
-      {Color? valueColor, bool valueBold = false, Widget? widget}) {
+  Widget _infoRow(
+    String label,
+    String value,
+    bool isDark, {
+    Color? valueColor,
+    bool valueBold = false,
+    Widget? widget,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: GoogleFonts.inter(
-              fontSize: 7.sp,
-              fontWeight: FontWeight.w400,
-              color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-            )),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 7.sp,
+            fontWeight: FontWeight.w400,
+            color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+          ),
+        ),
         SizedBox(height: 0.2.h),
         widget ??
-            Text(value,
-                style: GoogleFonts.inter(
-                  fontSize: 9.5.sp,
-                  fontWeight: valueBold ? FontWeight.w600 : FontWeight.w500,
-                  color: valueColor ??
-                      (isDark ? Colors.white70 : const Color(0xFF4B5563)),
-                )),
+            Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: 9.5.sp,
+                fontWeight: valueBold ? FontWeight.w600 : FontWeight.w500,
+                color:
+                    valueColor ??
+                    (isDark ? Colors.white70 : const Color(0xFF4B5563)),
+              ),
+            ),
       ],
     );
   }
@@ -725,8 +760,11 @@ class _MerchantCashWithdrawalScreenState
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Center(
-                child: Icon(Icons.person_off_rounded,
-                    color: Color(0xFFDC2626), size: 18),
+                child: Icon(
+                  Icons.person_off_rounded,
+                  color: Color(0xFFDC2626),
+                  size: 18,
+                ),
               ),
             ),
             SizedBox(width: 3.w),
@@ -734,21 +772,23 @@ class _MerchantCashWithdrawalScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Account Not Found',
-                      style: GoogleFonts.inter(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFDC2626),
-                      )),
+                  Text(
+                    'Account Not Found',
+                    style: GoogleFonts.inter(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFDC2626),
+                    ),
+                  ),
                   SizedBox(height: 0.15.h),
                   Text(
-                      'No account matches this number. Please verify and try again.',
-                      style: GoogleFonts.inter(
-                        fontSize: 7.5.sp,
-                        fontWeight: FontWeight.w400,
-                        color:
-                            isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                      )),
+                    'No account matches this number. Please verify and try again.',
+                    style: GoogleFonts.inter(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w400,
+                      color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -797,8 +837,7 @@ class _MerchantCashWithdrawalScreenState
         ),
         filled: true,
         fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
@@ -817,10 +856,7 @@ class _MerchantCashWithdrawalScreenState
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: _accent,
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: _accent, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -845,9 +881,7 @@ class _MerchantCashWithdrawalScreenState
         padding: EdgeInsets.symmetric(vertical: 1.7.h),
         decoration: BoxDecoration(
           gradient: enabled
-              ? const LinearGradient(
-                  colors: [_accent, Color(0xFF047857)],
-                )
+              ? const LinearGradient(colors: [_accent, Color(0xFF047857)])
               : null,
           color: enabled
               ? null
@@ -923,8 +957,9 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           Container(
@@ -940,8 +975,7 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
+                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
                 child: Row(
                   children: [
                     GestureDetector(
@@ -957,8 +991,11 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Center(
-                          child: Icon(Icons.arrow_back_rounded,
-                              color: Colors.white, size: 19),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 19,
+                          ),
                         ),
                       ),
                     ),
@@ -1043,8 +1080,7 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
           ),
           SizedBox(height: 0.5.h),
           Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.3.h),
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.3.h),
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
@@ -1079,12 +1115,14 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Transaction Details',
-              style: GoogleFonts.inter(
-                fontSize: 9.5.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF111827),
-              )),
+          Text(
+            'Transaction Details',
+            style: GoogleFonts.inter(
+              fontSize: 9.5.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF111827),
+            ),
+          ),
           SizedBox(height: 1.5.h),
           _detailRow('Account Number', accountNo, isDark),
           _divider(isDark),
@@ -1104,8 +1142,12 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value, bool isDark,
-      {double? valueSize}) {
+  Widget _detailRow(
+    String label,
+    String value,
+    bool isDark, {
+    double? valueSize,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.6.h),
       child: Row(
@@ -1113,21 +1155,25 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
         children: [
           SizedBox(
             width: 30.w,
-            child: Text(label,
-                style: GoogleFonts.inter(
-                  fontSize: 8.sp,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                )),
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 8.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+              ),
+            ),
           ),
           Expanded(
-            child: Text(value,
-                style: GoogleFonts.inter(
-                  fontSize: valueSize ?? 9.sp,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                ),
-                textAlign: TextAlign.right),
+            child: Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: valueSize ?? 9.sp,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white : const Color(0xFF1A1D23),
+              ),
+              textAlign: TextAlign.right,
+            ),
           ),
         ],
       ),
@@ -1159,36 +1205,48 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Charges & Total',
-              style: GoogleFonts.inter(
-                fontSize: 9.5.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF111827),
-              )),
+          Text(
+            'Charges & Total',
+            style: GoogleFonts.inter(
+              fontSize: 9.5.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF111827),
+            ),
+          ),
           SizedBox(height: 1.5.h),
           _detailRow(
-              'Amount', 'GH₵ ${_amountValue.toStringAsFixed(2)}', isDark),
+            'Amount',
+            'GH₵ ${_amountValue.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
-          _detailRow('Charges (1%)',
-              'GH₵ ${_charges.toStringAsFixed(2)}', isDark),
+          _detailRow(
+            'Charges (1%)',
+            'GH₵ ${_charges.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 0.8.h),
             child: Row(
               children: [
-                Text('Total',
-                    style: GoogleFonts.inter(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : const Color(0xFF111827),
-                    )),
+                Text(
+                  'Total',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF111827),
+                  ),
+                ),
                 const Spacer(),
-                Text('GH₵ ${_totalAmount.toStringAsFixed(2)}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                      color: accentColor,
-                    )),
+                Text(
+                  'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                    color: accentColor,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1215,14 +1273,20 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
           );
           return;
         }
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _SuccessDialog(
-            amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
-            accountName: accountName,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _SuccessDialog(
+                amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+                accountName: accountName,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(
@@ -1244,15 +1308,20 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline_rounded,
-                color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             SizedBox(width: 2.w),
-            Text('Confirm & Withdraw',
-                style: GoogleFonts.inter(
-                  fontSize: 10.5.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                )),
+            Text(
+              'Confirm & Withdraw',
+              style: GoogleFonts.inter(
+                fontSize: 10.5.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
           ],
         ),
       ),
@@ -1275,12 +1344,14 @@ class _WithdrawalReceiptScreen extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: Text('Go Back',
-              style: GoogleFonts.inter(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.w500,
-                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-              )),
+          child: Text(
+            'Go Back',
+            style: GoogleFonts.inter(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+            ),
+          ),
         ),
       ),
     );
@@ -1320,25 +1391,32 @@ class _SuccessDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child:
-                    Icon(Icons.check_rounded, color: Color(0xFF059669), size: 36),
+                child: Icon(
+                  Icons.check_rounded,
+                  color: Color(0xFF059669),
+                  size: 36,
+                ),
               ),
             ),
             SizedBox(height: 2.h),
-            Text('Withdrawal Successful',
-                style: GoogleFonts.inter(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF111827),
-                )),
+            Text(
+              'Withdrawal Successful',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
             SizedBox(height: 0.8.h),
-            Text('$amount withdrawn from $accountName',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 9.sp,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                )),
+            Text(
+              '$amount withdrawn from $accountName',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+              ),
+            ),
             SizedBox(height: 2.5.h),
             GestureDetector(
               onTap: () {
@@ -1356,12 +1434,14 @@ class _SuccessDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text('Done',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      )),
+                  child: Text(
+                    'Done',
+                    style: GoogleFonts.inter(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -1373,12 +1453,14 @@ class _SuccessDialog extends StatelessWidget {
               },
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 0.8.h),
-                child: Text('New Transaction',
-                    style: GoogleFonts.inter(
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w500,
-                      color: accentColor,
-                    )),
+                child: Text(
+                  'New Transaction',
+                  style: GoogleFonts.inter(
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w500,
+                    color: accentColor,
+                  ),
+                ),
               ),
             ),
           ],
@@ -1426,26 +1508,33 @@ class _InsufficientFundsDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.account_balance_wallet_outlined,
-                    color: Color(0xFFDC2626), size: 32),
+                child: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Color(0xFFDC2626),
+                  size: 32,
+                ),
               ),
             ),
             SizedBox(height: 2.h),
-            Text('Insufficient Balance',
-                style: GoogleFonts.inter(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF111827),
-                )),
+            Text(
+              'Insufficient Balance',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
             SizedBox(height: 0.8.h),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 8.5.sp,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                  height: 1.4,
-                )),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 8.5.sp,
+                fontWeight: FontWeight.w400,
+                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+                height: 1.4,
+              ),
+            ),
             SizedBox(height: 2.5.h),
             GestureDetector(
               onTap: () => Navigator.of(context).pop(),
@@ -1459,14 +1548,14 @@ class _InsufficientFundsDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text('Go Back',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? Colors.white70
-                            : const Color(0xFF374151),
-                      )),
+                  child: Text(
+                    'Go Back',
+                    style: GoogleFonts.inter(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : const Color(0xFF374151),
+                    ),
+                  ),
                 ),
               ),
             ),

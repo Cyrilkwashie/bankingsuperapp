@@ -2219,21 +2219,27 @@ class _StatementConfirmationScreen extends StatelessWidget {
   Widget _buildConfirmButton(BuildContext context, bool isDark) {
     return GestureDetector(
       onTap: () {
-        // Navigate to statement result screen
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => _StatementResultScreen(
-              accountNo: accountNo,
-              accountName: accountName,
-              statementType: statementType,
-              startDate: startDate,
-              endDate: endDate,
-              pickupBranch: pickupBranch,
-              charges: _charges,
-              accentColor: accentColor,
-              gradientColors: gradientColors,
-            ),
-          ),
+        showTransactionAuthBottomSheet(
+          context: context,
+          accentColor: accentColor,
+          onAuthenticated: () {
+            // Navigate to statement result screen
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => _StatementResultScreen(
+                  accountNo: accountNo,
+                  accountName: accountName,
+                  statementType: statementType,
+                  startDate: startDate,
+                  endDate: endDate,
+                  pickupBranch: pickupBranch,
+                  charges: _charges,
+                  accentColor: accentColor,
+                  gradientColors: gradientColors,
+                ),
+              ),
+            );
+          },
         );
       },
       child: Container(

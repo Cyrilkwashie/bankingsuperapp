@@ -113,7 +113,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -145,7 +147,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFF059669),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -200,7 +204,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -230,7 +236,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
@@ -263,9 +271,13 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                         controller: _amountController,
                         hint: '0.00',
                         isDark: isDark,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+\.?\d{0,2}'),
+                          ),
                         ],
                         prefixText: 'GH₵  ',
                         validator: (v) {
@@ -327,12 +339,19 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                       if (_fixedNarration.isNotEmpty) ...[
                         Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.2.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 4.w,
+                            vertical: 1.2.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E8B8B).withValues(alpha: isDark ? 0.08 : 0.05),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: isDark ? 0.08 : 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: const Color(0xFF2E8B8B).withValues(alpha: 0.15),
+                              color: const Color(
+                                0xFF2E8B8B,
+                              ).withValues(alpha: 0.15),
                             ),
                           ),
                           child: Column(
@@ -352,7 +371,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                                 style: GoogleFonts.inter(
                                   fontSize: 8.5.sp,
                                   fontWeight: FontWeight.w600,
-                                  color: isDark ? Colors.white70 : const Color(0xFF1A1D23),
+                                  color: isDark
+                                      ? Colors.white70
+                                      : const Color(0xFF1A1D23),
                                   letterSpacing: 0.2,
                                 ),
                               ),
@@ -427,7 +448,10 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
               GestureDetector(
                 onTap: () => setState(() => _floatVisible = !_floatVisible),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 3.5.w,
+                    vertical: 1.h,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
@@ -442,7 +466,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                       ),
                       SizedBox(width: 2.w),
                       Text(
-                        _floatVisible ? 'Float: GH₵ 250,000.00' : 'Float: ••••••••',
+                        _floatVisible
+                            ? 'Float: GH₵ 250,000.00'
+                            : 'Float: ••••••••',
                         style: GoogleFonts.inter(
                           fontSize: 9.sp,
                           fontWeight: FontWeight.w600,
@@ -451,7 +477,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                       ),
                       SizedBox(width: 2.w),
                       CustomIconWidget(
-                        iconName: _floatVisible ? 'visibility' : 'visibility_off',
+                        iconName: _floatVisible
+                            ? 'visibility'
+                            : 'visibility_off',
                         color: Colors.white70,
                         size: 16,
                       ),
@@ -499,8 +527,8 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
           color: _accountVerified
               ? const Color(0xFF059669).withValues(alpha: 0.5)
               : isDark
-                  ? const Color(0xFF30363D)
-                  : const Color(0xFFE2E8F0),
+              ? const Color(0xFF30363D)
+              : const Color(0xFFE2E8F0),
         ),
         boxShadow: [
           BoxShadow(
@@ -517,7 +545,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
             width: 30.w,
             height: 30.w,
             decoration: BoxDecoration(
-              color: const Color(0xFF2E8B8B).withValues(alpha: isDark ? 0.1 : 0.05),
+              color: const Color(
+                0xFF2E8B8B,
+              ).withValues(alpha: isDark ? 0.1 : 0.05),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: const Color(0xFF2E8B8B).withValues(alpha: 0.3),
@@ -531,7 +561,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                       height: 10.w,
                       child: CircularProgressIndicator(
                         strokeWidth: 3,
-                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E8B8B)),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF2E8B8B),
+                        ),
                       ),
                     ),
                   )
@@ -539,7 +571,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CustomIconWidget(
-                        iconName: _accountVerified ? 'qr_code_2' : 'qr_code_scanner',
+                        iconName: _accountVerified
+                            ? 'qr_code_2'
+                            : 'qr_code_scanner',
                         color: _accountVerified
                             ? const Color(0xFF059669)
                             : const Color(0xFF2E8B8B),
@@ -652,12 +686,20 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
           end: Alignment.bottomRight,
           colors: isActive
               ? [
-                  const Color(0xFF059669).withValues(alpha: isDark ? 0.15 : 0.08),
-                  const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+                  const Color(
+                    0xFF059669,
+                  ).withValues(alpha: isDark ? 0.15 : 0.08),
+                  const Color(
+                    0xFF10B981,
+                  ).withValues(alpha: isDark ? 0.08 : 0.04),
                 ]
               : [
-                  const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
-                  const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
+                  const Color(
+                    0xFFF59E0B,
+                  ).withValues(alpha: isDark ? 0.15 : 0.08),
+                  const Color(
+                    0xFFFBBF24,
+                  ).withValues(alpha: isDark ? 0.08 : 0.04),
                 ],
         ),
         borderRadius: BorderRadius.circular(14),
@@ -675,13 +717,18 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
               Container(
                 padding: EdgeInsets.all(2.w),
                 decoration: BoxDecoration(
-                  color: (isActive ? const Color(0xFF059669) : const Color(0xFFF59E0B))
-                      .withValues(alpha: 0.15),
+                  color:
+                      (isActive
+                              ? const Color(0xFF059669)
+                              : const Color(0xFFF59E0B))
+                          .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: CustomIconWidget(
                   iconName: 'person',
-                  color: isActive ? const Color(0xFF059669) : const Color(0xFFF59E0B),
+                  color: isActive
+                      ? const Color(0xFF059669)
+                      : const Color(0xFFF59E0B),
                   size: 20,
                 ),
               ),
@@ -704,16 +751,23 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                       style: GoogleFonts.inter(
                         fontSize: 8.5.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        color: isDark
+                            ? Colors.white60
+                            : const Color(0xFF64748B),
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 2.5.w,
+                  vertical: 0.5.h,
+                ),
                 decoration: BoxDecoration(
-                  color: isActive ? const Color(0xFF059669) : const Color(0xFFF59E0B),
+                  color: isActive
+                      ? const Color(0xFF059669)
+                      : const Color(0xFFF59E0B),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -734,8 +788,11 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
               decoration: BoxDecoration(
-                color: (isActive ? const Color(0xFF059669) : const Color(0xFFF59E0B))
-                    .withValues(alpha: 0.1),
+                color:
+                    (isActive
+                            ? const Color(0xFF059669)
+                            : const Color(0xFFF59E0B))
+                        .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -754,7 +811,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                       style: GoogleFonts.inter(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w700,
-                        color: isActive ? const Color(0xFF059669) : const Color(0xFFF59E0B),
+                        color: isActive
+                            ? const Color(0xFF059669)
+                            : const Color(0xFFF59E0B),
                       ),
                     ),
                   ),
@@ -877,7 +936,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -947,7 +1008,9 @@ class _QrDepositReceiptScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           // Header
@@ -980,8 +1043,11 @@ class _QrDepositReceiptScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Center(
-                          child: Icon(Icons.arrow_back_rounded,
-                              color: Colors.white, size: 19),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 19,
+                          ),
                         ),
                       ),
                     ),
@@ -1129,7 +1195,12 @@ class _QrDepositReceiptScreen extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value, bool isDark, {double? valueSize}) {
+  Widget _detailRow(
+    String label,
+    String value,
+    bool isDark, {
+    double? valueSize,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.6.h),
       child: Row(
@@ -1196,9 +1267,17 @@ class _QrDepositReceiptScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 1.5.h),
-          _detailRow('Amount', 'GH₵ ${_amountValue.toStringAsFixed(2)}', isDark),
+          _detailRow(
+            'Amount',
+            'GH₵ ${_amountValue.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
-          _detailRow('Charges (1%)', 'GH₵ ${_charges.toStringAsFixed(2)}', isDark),
+          _detailRow(
+            'Charges (1%)',
+            'GH₵ ${_charges.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 0.8.h),
@@ -1244,14 +1323,20 @@ class _QrDepositReceiptScreen extends StatelessWidget {
           );
           return;
         }
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _SuccessDialog(
-            amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
-            accountName: accountName,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _SuccessDialog(
+                amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
+                accountName: accountName,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(
@@ -1273,8 +1358,11 @@ class _QrDepositReceiptScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_outline_rounded,
-                color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             SizedBox(width: 2.w),
             Text(
               'Confirm & Deposit',

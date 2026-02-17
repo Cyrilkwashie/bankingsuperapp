@@ -296,7 +296,9 @@ class _AgencySameBankTransferScreenState
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -310,7 +312,9 @@ class _AgencySameBankTransferScreenState
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: const Color(0xFFDC2626),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -346,8 +350,9 @@ class _AgencySameBankTransferScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
@@ -397,10 +402,16 @@ class _AgencySameBankTransferScreenState
                           showBalance: true,
                           balance: _senderBalance,
                           balanceVisible: _senderBalanceVisible,
-                          onToggleBalance: () => setState(() => _senderBalanceVisible = !_senderBalanceVisible),
+                          onToggleBalance: () => setState(
+                            () =>
+                                _senderBalanceVisible = !_senderBalanceVisible,
+                          ),
                         ),
                       if (_senderNotFound)
-                        _buildNotFoundCard(isDark, _senderLookupType == 'phone'),
+                        _buildNotFoundCard(
+                          isDark,
+                          _senderLookupType == 'phone',
+                        ),
 
                       SizedBox(height: 2.5.h),
 
@@ -440,7 +451,9 @@ class _AgencySameBankTransferScreenState
                         ),
                       if (_beneficiaryNotFound)
                         _buildNotFoundCard(
-                            isDark, _beneficiaryLookupType == 'phone'),
+                          isDark,
+                          _beneficiaryLookupType == 'phone',
+                        ),
 
                       SizedBox(height: 2.5.h),
 
@@ -454,11 +467,13 @@ class _AgencySameBankTransferScreenState
                         controller: _amountController,
                         hint: '0.00',
                         isDark: isDark,
-                        keyboardType:
-                            const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}')),
+                            RegExp(r'^\d+\.?\d{0,2}'),
+                          ),
                         ],
                         prefixText: 'GH₵  ',
                         validator: (v) {
@@ -501,14 +516,18 @@ class _AgencySameBankTransferScreenState
                         Container(
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 4.w, vertical: 1.2.h),
+                            horizontal: 4.w,
+                            vertical: 1.2.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: isDark ? 0.08 : 0.05),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: isDark ? 0.08 : 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: const Color(0xFF2E8B8B)
-                                  .withValues(alpha: 0.15),
+                              color: const Color(
+                                0xFF2E8B8B,
+                              ).withValues(alpha: 0.15),
                             ),
                           ),
                           child: Column(
@@ -585,8 +604,11 @@ class _AgencySameBankTransferScreenState
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
                   ),
                 ),
               ),
@@ -617,8 +639,7 @@ class _AgencySameBankTransferScreenState
                 ),
               ),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -723,8 +744,9 @@ class _AgencySameBankTransferScreenState
                   boxShadow: currentType == 'account'
                       ? [
                           BoxShadow(
-                            color:
-                                const Color(0xFF2E8B8B).withValues(alpha: 0.2),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -739,9 +761,7 @@ class _AgencySameBankTransferScreenState
                       size: 16,
                       color: currentType == 'account'
                           ? Colors.white
-                          : (isDark
-                              ? Colors.white38
-                              : const Color(0xFF9CA3AF)),
+                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
                     ),
                     SizedBox(width: 1.5.w),
                     Text(
@@ -752,8 +772,8 @@ class _AgencySameBankTransferScreenState
                         color: currentType == 'account'
                             ? Colors.white
                             : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
                       ),
                     ),
                   ],
@@ -775,8 +795,9 @@ class _AgencySameBankTransferScreenState
                   boxShadow: currentType == 'phone'
                       ? [
                           BoxShadow(
-                            color:
-                                const Color(0xFF2E8B8B).withValues(alpha: 0.2),
+                            color: const Color(
+                              0xFF2E8B8B,
+                            ).withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -791,9 +812,7 @@ class _AgencySameBankTransferScreenState
                       size: 16,
                       color: currentType == 'phone'
                           ? Colors.white
-                          : (isDark
-                              ? Colors.white38
-                              : const Color(0xFF9CA3AF)),
+                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
                     ),
                     SizedBox(width: 1.5.w),
                     Text(
@@ -804,8 +823,8 @@ class _AgencySameBankTransferScreenState
                         color: currentType == 'phone'
                             ? Colors.white
                             : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
                       ),
                     ),
                   ],
@@ -880,18 +899,15 @@ class _AgencySameBankTransferScreenState
             color: isVerified
                 ? const Color(0xFF059669).withValues(alpha: 0.5)
                 : isNotFound
-                    ? const Color(0xFFDC2626).withValues(alpha: 0.5)
-                    : isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE5E7EB),
+                ? const Color(0xFFDC2626).withValues(alpha: 0.5)
+                : isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE5E7EB),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFF2E8B8B),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -914,9 +930,12 @@ class _AgencySameBankTransferScreenState
                 ),
               )
             : isVerified
-                ? const Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF059669), size: 22)
-                : null,
+            ? const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF059669),
+                size: 22,
+              )
+            : null,
       ),
     );
   }
@@ -973,11 +992,17 @@ class _AgencySameBankTransferScreenState
             colors: isActive
                 ? [
                     accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFF10B981).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFF10B981,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ]
                 : [
-                    const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
+                    const Color(
+                      0xFFF59E0B,
+                    ).withValues(alpha: isDark ? 0.15 : 0.08),
+                    const Color(
+                      0xFFFBBF24,
+                    ).withValues(alpha: isDark ? 0.08 : 0.04),
                   ],
           ),
           borderRadius: BorderRadius.circular(14),
@@ -1015,7 +1040,9 @@ class _AgencySameBankTransferScreenState
                         style: GoogleFonts.inter(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                          color: isDark
+                              ? Colors.white
+                              : const Color(0xFF1A1D23),
                         ),
                       ),
                       SizedBox(height: 0.3.h),
@@ -1024,14 +1051,19 @@ class _AgencySameBankTransferScreenState
                         style: GoogleFonts.inter(
                           fontSize: 8.5.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                          color: isDark
+                              ? Colors.white60
+                              : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 2.5.w,
+                    vertical: 0.5.h,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive ? accentColor : const Color(0xFFF59E0B),
                     borderRadius: BorderRadius.circular(8),
@@ -1066,7 +1098,9 @@ class _AgencySameBankTransferScreenState
                         style: GoogleFonts.inter(
                           fontSize: 8.5.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                          color: isDark
+                              ? Colors.white54
+                              : const Color(0xFF64748B),
                         ),
                       ),
                       Text(
@@ -1074,13 +1108,19 @@ class _AgencySameBankTransferScreenState
                         style: GoogleFonts.inter(
                           fontSize: 10.sp,
                           fontWeight: FontWeight.w700,
-                          color: isActive ? accentColor : const Color(0xFFF59E0B),
+                          color: isActive
+                              ? accentColor
+                              : const Color(0xFFF59E0B),
                         ),
                       ),
                       const Spacer(),
                       CustomIconWidget(
-                        iconName: balanceVisible ? 'visibility' : 'visibility_off',
-                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
+                        iconName: balanceVisible
+                            ? 'visibility'
+                            : 'visibility_off',
+                        color: isDark
+                            ? Colors.white54
+                            : const Color(0xFF64748B),
                         size: 16,
                       ),
                     ],
@@ -1117,8 +1157,11 @@ class _AgencySameBankTransferScreenState
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Center(
-                child: Icon(Icons.person_off_rounded,
-                    color: Color(0xFFDC2626), size: 18),
+                child: Icon(
+                  Icons.person_off_rounded,
+                  color: Color(0xFFDC2626),
+                  size: 18,
+                ),
               ),
             ),
             SizedBox(width: 3.w),
@@ -1212,10 +1255,7 @@ class _AgencySameBankTransferScreenState
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(
-            color: Color(0xFF2E8B8B),
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -1313,8 +1353,10 @@ class _TransferOtpScreen extends StatefulWidget {
 }
 
 class _TransferOtpScreenState extends State<_TransferOtpScreen> {
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isVerifying = false;
@@ -1452,8 +1494,9 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           _buildHeader(isDark),
@@ -1543,17 +1586,17 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                               fillColor: isDark
                                   ? const Color(0xFF161B22)
                                   : Colors.white,
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 3.w),
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 3.w,
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
                                   color: _otpError
                                       ? const Color(0xFFDC2626)
                                       : isDark
-                                          ? Colors.white
-                                              .withValues(alpha: 0.08)
-                                          : const Color(0xFFE5E7EB),
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : const Color(0xFFE5E7EB),
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
@@ -1562,9 +1605,8 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                                   color: _otpError
                                       ? const Color(0xFFDC2626)
                                       : isDark
-                                          ? Colors.white
-                                              .withValues(alpha: 0.08)
-                                          : const Color(0xFFE5E7EB),
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : const Color(0xFFE5E7EB),
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
@@ -1588,8 +1630,11 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline_rounded,
-                            color: Color(0xFFDC2626), size: 16),
+                        const Icon(
+                          Icons.error_outline_rounded,
+                          color: Color(0xFFDC2626),
+                          size: 16,
+                        ),
                         SizedBox(width: 1.w),
                         Text(
                           'Invalid OTP. Please try again.',
@@ -1611,8 +1656,9 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 8.5.sp,
                         fontWeight: FontWeight.w400,
-                        color:
-                            isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                        color: isDark
+                            ? Colors.white38
+                            : const Color(0xFF9CA3AF),
                       ),
                     )
                   else
@@ -1640,21 +1686,22 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                             ? LinearGradient(
                                 colors: [
                                   widget.accentColor,
-                                  widget.accentColor.withValues(alpha: 0.85)
+                                  widget.accentColor.withValues(alpha: 0.85),
                                 ],
                               )
                             : null,
                         color: _enteredOtp.length == 6 && !_isVerifying
                             ? null
                             : (isDark
-                                ? const Color(0xFF1E2328)
-                                : const Color(0xFFE5E7EB)),
+                                  ? const Color(0xFF1E2328)
+                                  : const Color(0xFFE5E7EB)),
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: _enteredOtp.length == 6 && !_isVerifying
                             ? [
                                 BoxShadow(
-                                  color: widget.accentColor
-                                      .withValues(alpha: 0.3),
+                                  color: widget.accentColor.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -1679,8 +1726,8 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                                   color: _enteredOtp.length == 6
                                       ? Colors.white
                                       : (isDark
-                                          ? Colors.white24
-                                          : const Color(0xFF9CA3AF)),
+                                            ? Colors.white24
+                                            : const Color(0xFF9CA3AF)),
                                 ),
                               ),
                       ),
@@ -1709,8 +1756,9 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
-                            color:
-                                isDark ? Colors.white54 : const Color(0xFF6B7280),
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xFF6B7280),
                           ),
                         ),
                       ),
@@ -1790,8 +1838,11 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                     ),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
                   ),
                 ),
               ),
@@ -1822,8 +1873,7 @@ class _TransferOtpScreenState extends State<_TransferOtpScreen> {
                 ),
               ),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -1904,8 +1954,9 @@ class _TransferReceiptScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor: isDark
+          ? const Color(0xFF0D1117)
+          : const Color(0xFFF8FAFC),
       body: Column(
         children: [
           Container(
@@ -1937,8 +1988,11 @@ class _TransferReceiptScreen extends StatelessWidget {
                           ),
                         ),
                         child: const Center(
-                          child: Icon(Icons.arrow_back_rounded,
-                              color: Colors.white, size: 19),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 19,
+                          ),
                         ),
                       ),
                     ),
@@ -2054,8 +2108,11 @@ class _TransferReceiptScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_upward_rounded,
-                        color: Color(0xFFDC2626), size: 22),
+                    child: Icon(
+                      Icons.arrow_upward_rounded,
+                      color: Color(0xFFDC2626),
+                      size: 22,
+                    ),
                   ),
                 ),
                 SizedBox(height: 1.h),
@@ -2101,8 +2158,11 @@ class _TransferReceiptScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Center(
-                    child: Icon(Icons.arrow_downward_rounded,
-                        color: Color(0xFF059669), size: 22),
+                    child: Icon(
+                      Icons.arrow_downward_rounded,
+                      color: Color(0xFF059669),
+                      size: 22,
+                    ),
                   ),
                 ),
                 SizedBox(height: 1.h),
@@ -2169,15 +2229,23 @@ class _TransferReceiptScreen extends StatelessWidget {
             _detailRow('Narration', narration, isDark),
           ],
           _divider(isDark),
-          _detailRow('Trans. Description', fixedNarration, isDark,
-              valueSize: 7.5.sp),
+          _detailRow(
+            'Trans. Description',
+            fixedNarration,
+            isDark,
+            valueSize: 7.5.sp,
+          ),
         ],
       ),
     );
   }
 
-  Widget _detailRow(String label, String value, bool isDark,
-      {double? valueSize}) {
+  Widget _detailRow(
+    String label,
+    String value,
+    bool isDark, {
+    double? valueSize,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.6.h),
       child: Row(
@@ -2244,10 +2312,17 @@ class _TransferReceiptScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 1.5.h),
-          _detailRow('Amount', 'GH₵ ${_amountValue.toStringAsFixed(2)}', isDark),
+          _detailRow(
+            'Amount',
+            'GH₵ ${_amountValue.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
           _detailRow(
-              'Charges (1%)', 'GH₵ ${_charges.toStringAsFixed(2)}', isDark),
+            'Charges (1%)',
+            'GH₵ ${_charges.toStringAsFixed(2)}',
+            isDark,
+          ),
           _divider(isDark),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 0.8.h),
@@ -2292,14 +2367,20 @@ class _TransferReceiptScreen extends StatelessWidget {
           );
           return;
         }
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _SuccessDialog(
-            amount: 'GH₵ ${_amountValue.toStringAsFixed(2)}',
-            beneficiaryName: beneficiaryName,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _SuccessDialog(
+                amount: 'GH₵ ${_amountValue.toStringAsFixed(2)}',
+                beneficiaryName: beneficiaryName,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(
@@ -2400,8 +2481,11 @@ class _SuccessDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.check_rounded,
-                    color: Color(0xFF059669), size: 36),
+                child: Icon(
+                  Icons.check_rounded,
+                  color: Color(0xFF059669),
+                  size: 36,
+                ),
               ),
             ),
             SizedBox(height: 2.h),
@@ -2509,8 +2593,11 @@ class _InsufficientFundsDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.account_balance_wallet_outlined,
-                    color: Color(0xFFDC2626), size: 32),
+                child: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Color(0xFFDC2626),
+                  size: 32,
+                ),
               ),
             ),
             SizedBox(height: 2.h),
@@ -2540,8 +2627,9 @@ class _InsufficientFundsDialog extends StatelessWidget {
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: 1.5.h),
                 decoration: BoxDecoration(
-                  color:
-                      isDark ? const Color(0xFF1E2328) : const Color(0xFFF3F4F6),
+                  color: isDark
+                      ? const Color(0xFF1E2328)
+                      : const Color(0xFFF3F4F6),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(

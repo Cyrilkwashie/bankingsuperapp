@@ -1996,15 +1996,21 @@ class _ChequeBookConfirmationScreen extends StatelessWidget {
   Widget _buildConfirmButton(BuildContext context, bool isDark) {
     return GestureDetector(
       onTap: () {
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _ChequeBookSuccessDialog(
-            numberOfLeaves: numberOfLeaves,
-            accountName: accountName,
-            pickupBranch: pickupBranch,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _ChequeBookSuccessDialog(
+                numberOfLeaves: numberOfLeaves,
+                accountName: accountName,
+                pickupBranch: pickupBranch,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(

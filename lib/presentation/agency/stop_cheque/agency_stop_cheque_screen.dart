@@ -2606,18 +2606,24 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
   Widget _buildConfirmButton(BuildContext context, bool isDark) {
     return GestureDetector(
       onTap: () {
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _StopChequeSuccessDialog(
-            fromChequeNo: fromChequeNo,
-            toChequeNo: toChequeNo,
-            beneficiaryName: beneficiaryName,
-            amount: amount,
-            totalFee: _totalFee,
-            chequeCount: _chequeCount,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _StopChequeSuccessDialog(
+                fromChequeNo: fromChequeNo,
+                toChequeNo: toChequeNo,
+                beneficiaryName: beneficiaryName,
+                amount: amount,
+                totalFee: _totalFee,
+                chequeCount: _chequeCount,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(

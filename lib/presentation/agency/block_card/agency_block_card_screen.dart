@@ -2249,16 +2249,23 @@ class _BlockCardConfirmationScreen extends StatelessWidget {
   Widget _buildConfirmButton(BuildContext context, bool isDark) {
     return GestureDetector(
       onTap: () {
-        showDialog(
+        showTransactionAuthBottomSheet(
           context: context,
-          barrierDismissible: false,
-          builder: (_) => _BlockCardSuccessDialog(
-            cardType: cardType,
-            maskedCardNumber: _maskedCardNumber,
-            accountName: accountName,
-            reason: reason,
-            accentColor: accentColor,
-          ),
+          accentColor: accentColor,
+          title: 'Authorize Card Block',
+          onAuthenticated: () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => _BlockCardSuccessDialog(
+                cardType: cardType,
+                maskedCardNumber: _maskedCardNumber,
+                accountName: accountName,
+                reason: reason,
+                accentColor: accentColor,
+              ),
+            );
+          },
         );
       },
       child: Container(
