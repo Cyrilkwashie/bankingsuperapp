@@ -36,7 +36,17 @@ class _MerchantCashWithdrawalScreenState
   String _accountName = '';
   String _accountStatus = '';
   String _accountBalance = '';
+  String _resolvedAccountNo = '';
+  // ignore: unused_field
+  String _customerPhone = '';
   Timer? _debounce;
+
+  // Multiple phone accounts – populated when phone has >1 account
+  List<Map<String, String>> _phoneAccountsList = [];
+  String _phoneForAccounts = '';
+
+  // Lookup type: 'account' or 'phone'
+  String _lookupType = 'account';
 
   // Merchant green theme
   static const Color _gradientStart = Color(0xFF065F46);
@@ -48,22 +58,87 @@ class _MerchantCashWithdrawalScreenState
       'name': 'Kwame Asante',
       'status': 'Active',
       'balance': 'GH₵ 12,450.00',
+      'phone': '232501234567',
     },
     '0023456789': {
       'name': 'Ama Mensah',
       'status': 'Active',
       'balance': 'GH₵ 8,320.50',
+      'phone': '232502345678',
     },
     '0034567890': {
       'name': 'Kofi Adjei',
       'status': 'Dormant',
       'balance': 'GH₵ 150.00',
+      'phone': '232503456789',
     },
     '0045678901': {
       'name': 'Abena Osei',
       'status': 'Active',
       'balance': 'GH₵ 45,800.75',
+      'phone': '232504567890',
     },
+  };
+
+  // Mock accounts by phone number (one phone can link to multiple accounts)
+  static const _mockPhoneAccounts = {
+    '232501234567': [
+      {
+        'accountNo': '0012345678',
+        'name': 'Kwame Asante',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 12,450.00',
+      },
+    ],
+    '232502345678': [
+      {
+        'accountNo': '0023456789',
+        'name': 'Ama Mensah',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 8,320.50',
+      },
+      {
+        'accountNo': '0098765432',
+        'name': 'Ama Mensah',
+        'type': 'Current',
+        'status': 'Active',
+        'balance': 'GH₵ 25,100.00',
+      },
+    ],
+    '232503456789': [
+      {
+        'accountNo': '0034567890',
+        'name': 'Kofi Adjei',
+        'type': 'Savings',
+        'status': 'Dormant',
+        'balance': 'GH₵ 150.00',
+      },
+    ],
+    '232504567890': [
+      {
+        'accountNo': '0045678901',
+        'name': 'Abena Osei',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 45,800.75',
+      },
+      {
+        'accountNo': '0054321098',
+        'name': 'Abena Osei',
+        'type': 'Current',
+        'status': 'Active',
+        'balance': 'GH₵ 3,200.00',
+      },
+      {
+        'accountNo': '0067890123',
+        'name': 'Abena Osei',
+        'type': 'Fixed Deposit',
+        'status': 'Active',
+        'balance': 'GH₵ 100,000.00',
+      },
+    ],
   };
 
   @override
@@ -91,10 +166,12 @@ class _MerchantCashWithdrawalScreenState
 
   void _onAccountChanged(String value) {
     _debounce?.cancel();
-    if (value.length < 10) {
+    final minLength = _lookupType == 'account' ? 10 : 12;
+    if (value.length < minLength) {
       setState(() {
         _accountVerified = false;
         _accountNotFound = false;
+        _phoneAccountsList = [];
       });
       return;
     }
@@ -103,16 +180,67 @@ class _MerchantCashWithdrawalScreenState
     });
   }
 
-  Future<void> _lookupAccount(String accountNo) async {
+  Future<void> _lookupAccount(String input) async {
     setState(() {
       _isLookingUp = true;
       _accountVerified = false;
       _accountNotFound = false;
+      _phoneAccountsList = [];
     });
 
     await Future.delayed(const Duration(milliseconds: 900));
 
-    final account = _mockAccounts[accountNo];
+    Map<String, String>? account;
+    String accountNo = input;
+    String customerPhone = '';
+
+    if (_lookupType == 'phone') {
+      final phoneAccounts = _mockPhoneAccounts[input];
+      if (phoneAccounts != null && phoneAccounts.isNotEmpty) {
+        if (phoneAccounts.length == 1) {
+          // Single account - auto-select
+          final pa = phoneAccounts.first;
+          account = {
+            'name': pa['name']!,
+            'status': pa['status']!,
+            'balance': pa['balance']!,
+          };
+          accountNo = pa['accountNo']!;
+          customerPhone = input;
+        } else {
+
+          // Multiple accounts - show dropdown
+
+          setState(() {
+
+            _isLookingUp = false;
+
+            _phoneAccountsList = phoneAccounts
+
+                .map((e) => Map<String, String>.from(e))
+
+                .toList();
+
+            _phoneForAccounts = input;
+
+          });
+
+          return;
+
+        }
+      }
+    } else {
+      final mockAccount = _mockAccounts[input];
+      if (mockAccount != null) {
+        account = {
+          'name': mockAccount['name']!,
+          'status': mockAccount['status']!,
+          'balance': mockAccount['balance']!,
+        };
+        customerPhone = mockAccount['phone']!;
+      }
+    }
+
     setState(() {
       _isLookingUp = false;
       if (account != null) {
@@ -120,12 +248,154 @@ class _MerchantCashWithdrawalScreenState
         _accountName = account['name']!;
         _accountStatus = account['status']!;
         _accountBalance = account['balance']!;
+        _resolvedAccountNo = accountNo;
+        _customerPhone = customerPhone;
         if (_withdrawnByController.text.trim().isEmpty) {
           _withdrawnByController.text = _accountName;
         }
       } else {
         _accountNotFound = true;
       }
+    });
+  }
+
+  void _selectPhoneAccount(Map<String, String> acct, String phoneNumber) {
+    setState(() {
+      _accountVerified = true;
+      _accountName = acct['name']!;
+      _accountStatus = acct['status']!;
+      _accountBalance = acct['balance']!;
+      _resolvedAccountNo = acct['accountNo']!;
+      _customerPhone = phoneNumber;
+      if (_withdrawnByController.text.trim().isEmpty) {
+        _withdrawnByController.text = _accountName;
+      }
+    });
+  }
+
+  // ── Account Selection Dropdown (multiple phone accounts) ──
+  Widget _buildAccountSelectionDropdown(bool isDark) {
+    return Padding(
+      padding: EdgeInsets.only(top: 1.2.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Select Account',
+            style: GoogleFonts.inter(
+              fontSize: 9.sp,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white70 : const Color(0xFF374151),
+            ),
+          ),
+          SizedBox(height: 0.8.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF161B22) : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: _accountVerified
+                    ? const Color(0xFF059669).withValues(alpha: 0.5)
+                    : isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : const Color(0xFFE5E7EB),
+              ),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _accountVerified ? _resolvedAccountNo : null,
+                isExpanded: true,
+                hint: Text(
+                  'Select account for this transaction',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.sp,
+                    color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
+                  ),
+                ),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: _accountVerified
+                      ? const Color(0xFF059669)
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                ),
+                dropdownColor:
+                    isDark ? const Color(0xFF161B22) : Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                style: GoogleFonts.inter(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                ),
+                items: _phoneAccountsList.map((acct) {
+                  final accNo = acct['accountNo']!;
+                  final maskedNo = accNo.length >= 7
+                      ? '${accNo.substring(0, 3)}****${accNo.substring(7)}'
+                      : accNo;
+                  return DropdownMenuItem<String>(
+                    value: accNo,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.account_balance_rounded,
+                              size: 16,
+                              color: const Color(0xFF059669)
+                                  .withValues(alpha: 0.6),
+                            ),
+                            SizedBox(width: 2.w),
+                            Expanded(
+                              child: Text(
+                                '${acct['name']} \u2022 ${acct['type'] ?? 'Savings'}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 9.5.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 0.2.h),
+                        Text(
+                          maskedNo,
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 7.5.sp,
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  final acct = _phoneAccountsList.firstWhere(
+                    (a) => a['accountNo'] == value,
+                  );
+                  _selectPhoneAccount(acct, _phoneForAccounts);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onLookupTypeChanged(String type) {
+    setState(() {
+      _lookupType = type;
+      _accountController.clear();
+      _accountVerified = false;
+      _accountNotFound = false;
+      _resolvedAccountNo = '';
+      _customerPhone = '';
+      _phoneAccountsList = [];
     });
   }
 
@@ -141,7 +411,9 @@ class _MerchantCashWithdrawalScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please enter a valid account number',
+            _lookupType == 'phone'
+                ? 'Please enter a valid phone number'
+                : 'Please enter a valid account number',
             style: GoogleFonts.inter(fontWeight: FontWeight.w500),
           ),
           behavior: SnackBarBehavior.floating,
@@ -157,7 +429,9 @@ class _MerchantCashWithdrawalScreenState
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => _WithdrawalReceiptScreen(
-          accountNo: _accountController.text.trim(),
+          accountNo: _resolvedAccountNo.isNotEmpty
+              ? _resolvedAccountNo
+              : _accountController.text.trim(),
           accountName: _accountName,
           accountBalance: _accountBalance,
           amount: _amountController.text.trim(),
@@ -194,11 +468,22 @@ class _MerchantCashWithdrawalScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildFieldLabel('Account Number', isDark),
+                      // Lookup type toggle
+                      _buildLookupTypeToggle(isDark),
+                      SizedBox(height: 2.h),
+
+                      _buildFieldLabel(
+                        _lookupType == 'account'
+                            ? 'Account Number'
+                            : 'Phone Number',
+                        isDark,
+                      ),
                       SizedBox(height: 0.8.h),
                       _buildAccountField(isDark),
 
                       if (_isLookingUp) _buildLookupLoader(isDark),
+                      if (_phoneAccountsList.length > 1)
+                        _buildAccountSelectionDropdown(isDark),
                       if (_accountVerified) _buildAccountInfoCard(isDark),
                       if (_accountNotFound) _buildNotFoundCard(isDark),
 
@@ -446,13 +731,20 @@ class _MerchantCashWithdrawalScreenState
   }
 
   Widget _buildAccountField(bool isDark) {
+    final isPhone = _lookupType == 'phone';
+    final maxLength = isPhone ? 12 : 10;
+    final hintText = isPhone ? '232XXXXXXXXX' : '00 XXXX XXXX';
+    final validationMsg = isPhone
+        ? 'Enter valid phone number (232XXXXXXXXX)'
+        : 'Enter 10-digit account number';
+
     return TextFormField(
       controller: _accountController,
       onChanged: _onAccountChanged,
       keyboardType: TextInputType.number,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(10),
+        LengthLimitingTextInputFormatter(maxLength),
       ],
       style: GoogleFonts.inter(
         fontSize: 10.sp,
@@ -460,10 +752,12 @@ class _MerchantCashWithdrawalScreenState
         color: isDark ? Colors.white : const Color(0xFF1A1D23),
         letterSpacing: 1.2,
       ),
-      validator: (v) =>
-          v == null || v.length < 10 ? 'Enter 10-digit account number' : null,
+      validator: (v) {
+        if (v == null || v.length < maxLength) return validationMsg;
+        return null;
+      },
       decoration: InputDecoration(
-        hintText: '00 XXXX XXXX',
+        hintText: hintText,
         hintStyle: GoogleFonts.inter(
           fontSize: 10.sp,
           color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
@@ -472,6 +766,11 @@ class _MerchantCashWithdrawalScreenState
         filled: true,
         fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
         contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        prefixIcon: Icon(
+          isPhone ? Icons.phone_rounded : Icons.account_balance_rounded,
+          color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+          size: 20,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
@@ -523,6 +822,122 @@ class _MerchantCashWithdrawalScreenState
                 size: 22,
               )
             : null,
+      ),
+    );
+  }
+
+  // ── Lookup Type Toggle ──
+  Widget _buildLookupTypeToggle(bool isDark) {
+    return Container(
+      padding: EdgeInsets.all(0.5.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : const Color(0xFFE5E7EB),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _onLookupTypeChanged('account'),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(vertical: 1.2.h),
+                decoration: BoxDecoration(
+                  color: _lookupType == 'account'
+                      ? _accent
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: _lookupType == 'account'
+                      ? [
+                          BoxShadow(
+                            color: _accent.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.account_balance_rounded,
+                      size: 16,
+                      color: _lookupType == 'account'
+                          ? Colors.white
+                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                    ),
+                    SizedBox(width: 1.5.w),
+                    Text(
+                      'Account No.',
+                      style: GoogleFonts.inter(
+                        fontSize: 8.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: _lookupType == 'account'
+                            ? Colors.white
+                            : (isDark
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _onLookupTypeChanged('phone'),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(vertical: 1.2.h),
+                decoration: BoxDecoration(
+                  color: _lookupType == 'phone' ? _accent : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: _lookupType == 'phone'
+                      ? [
+                          BoxShadow(
+                            color: _accent.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.phone_rounded,
+                      size: 16,
+                      color: _lookupType == 'phone'
+                          ? Colors.white
+                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                    ),
+                    SizedBox(width: 1.5.w),
+                    Text(
+                      'Phone No.',
+                      style: GoogleFonts.inter(
+                        fontSize: 8.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: _lookupType == 'phone'
+                            ? Colors.white
+                            : (isDark
+                                  ? Colors.white38
+                                  : const Color(0xFF9CA3AF)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -624,7 +1039,7 @@ class _MerchantCashWithdrawalScreenState
                       ),
                       SizedBox(height: 0.3.h),
                       Text(
-                        'A/C: ${_accountController.text}',
+                        'A/C: ${_resolvedAccountNo.isNotEmpty ? _resolvedAccountNo : _accountController.text}',
                         style: GoogleFonts.inter(
                           fontSize: 8.5.sp,
                           fontWeight: FontWeight.w500,
@@ -750,7 +1165,9 @@ class _MerchantCashWithdrawalScreenState
                   ),
                   SizedBox(height: 0.15.h),
                   Text(
-                    'No account matches this number. Please verify and try again.',
+                    _lookupType == 'phone'
+                        ? 'No account linked to this phone number. Please verify and try again.'
+                        : 'No account matches this number. Please verify and try again.',
                     style: GoogleFonts.inter(
                       fontSize: 7.5.sp,
                       fontWeight: FontWeight.w400,

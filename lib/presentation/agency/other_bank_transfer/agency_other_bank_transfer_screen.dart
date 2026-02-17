@@ -60,6 +60,10 @@ class _AgencyOtherBankTransferScreenState
   Timer? _senderDebounce;
   String _senderLookupType = 'account';
 
+  // Multiple phone accounts – populated when phone has >1 account
+  List<Map<String, String>> _senderPhoneAccountsList = [];
+  String _senderPhoneForAccounts = '';
+
   // Beneficiary lookup
   bool _isLookingUpBeneficiary = false;
   bool _beneficiaryVerified = false;
@@ -69,6 +73,9 @@ class _AgencyOtherBankTransferScreenState
   String _resolvedBeneficiaryAccountNo = '';
   Timer? _beneficiaryDebounce;
   String _beneficiaryLookupType = 'account';
+
+  List<Map<String, String>> _beneficiaryPhoneAccountsList = [];
+  String _beneficiaryPhoneForAccounts = '';
 
   // Mock accounts
   static const _mockAccounts = {
@@ -97,32 +104,65 @@ class _AgencyOtherBankTransferScreenState
       'phone': '232504567890',
     },
   };
-
+  // Mock accounts by phone number (one phone can link to multiple accounts)
   static const _mockPhoneAccounts = {
-    '232501234567': {
-      'accountNo': '0012345678',
-      'name': 'Kwame Asante',
-      'status': 'Active',
-      'balance': 'GH₵ 12,450.00',
-    },
-    '232502345678': {
-      'accountNo': '0023456789',
-      'name': 'Ama Mensah',
-      'status': 'Active',
-      'balance': 'GH₵ 8,320.50',
-    },
-    '232503456789': {
-      'accountNo': '0034567890',
-      'name': 'Kofi Adjei',
-      'status': 'Dormant',
-      'balance': 'GH₵ 150.00',
-    },
-    '232504567890': {
-      'accountNo': '0045678901',
-      'name': 'Abena Osei',
-      'status': 'Active',
-      'balance': 'GH₵ 45,800.75',
-    },
+    '232501234567': [
+      {
+        'accountNo': '0012345678',
+        'name': 'Kwame Asante',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 12,450.00',
+      },
+    ],
+    '232502345678': [
+      {
+        'accountNo': '0023456789',
+        'name': 'Ama Mensah',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 8,320.50',
+      },
+      {
+        'accountNo': '0098765432',
+        'name': 'Ama Mensah',
+        'type': 'Current',
+        'status': 'Active',
+        'balance': 'GH₵ 25,100.00',
+      },
+    ],
+    '232503456789': [
+      {
+        'accountNo': '0034567890',
+        'name': 'Kofi Adjei',
+        'type': 'Savings',
+        'status': 'Dormant',
+        'balance': 'GH₵ 150.00',
+      },
+    ],
+    '232504567890': [
+      {
+        'accountNo': '0045678901',
+        'name': 'Abena Osei',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 45,800.75',
+      },
+      {
+        'accountNo': '0054321098',
+        'name': 'Abena Osei',
+        'type': 'Current',
+        'status': 'Active',
+        'balance': 'GH₵ 3,200.00',
+      },
+      {
+        'accountNo': '0067890123',
+        'name': 'Abena Osei',
+        'type': 'Fixed Deposit',
+        'status': 'Active',
+        'balance': 'GH₵ 100,000.00',
+      },
+    ],
   };
 
   @override
@@ -157,6 +197,7 @@ class _AgencyOtherBankTransferScreenState
       setState(() {
         _senderVerified = false;
         _senderNotFound = false;
+        _senderPhoneAccountsList = [];
       });
       return;
     }
@@ -170,6 +211,7 @@ class _AgencyOtherBankTransferScreenState
       _isLookingUpSender = true;
       _senderVerified = false;
       _senderNotFound = false;
+      _senderPhoneAccountsList = [];
     });
 
     await Future.delayed(const Duration(milliseconds: 900));
@@ -179,15 +221,39 @@ class _AgencyOtherBankTransferScreenState
     String customerPhone = '';
 
     if (_senderLookupType == 'phone') {
-      final phoneAccount = _mockPhoneAccounts[input];
-      if (phoneAccount != null) {
-        account = {
-          'name': phoneAccount['name']!,
-          'status': phoneAccount['status']!,
-          'balance': phoneAccount['balance']!,
-        };
-        accountNo = phoneAccount['accountNo']!;
-        customerPhone = input;
+      final phoneAccounts = _mockPhoneAccounts[input];
+      if (phoneAccounts != null && phoneAccounts.isNotEmpty) {
+        if (phoneAccounts.length == 1) {
+          // Single account - auto-select
+          final pa = phoneAccounts.first;
+          account = {
+            'name': pa['name']!,
+            'status': pa['status']!,
+            'balance': pa['balance']!,
+          };
+          accountNo = pa['accountNo']!;
+          customerPhone = input;
+        } else {
+
+          // Multiple accounts - show dropdown
+
+          setState(() {
+
+            _isLookingUpSender = false;
+
+            _senderPhoneAccountsList = phoneAccounts
+
+                .map((e) => Map<String, String>.from(e))
+
+                .toList();
+
+            _senderPhoneForAccounts = input;
+
+          });
+
+          return;
+
+        }
       }
     } else {
       final mockAccount = _mockAccounts[input];
@@ -219,6 +285,145 @@ class _AgencyOtherBankTransferScreenState
     });
   }
 
+  void _selectPhoneAccount(Map<String, String> acct, String phoneNumber, {required bool isSender}) {
+    setState(() {
+      if (isSender) {
+        _senderVerified = true;
+        _senderName = acct['name']!;
+        _senderStatus = acct['status']!;
+        _senderBalance = acct['balance']!;
+        _resolvedSenderAccountNo = acct['accountNo']!;
+        _senderPhone = phoneNumber;
+        if (_transferredByController.text.trim().isEmpty) {
+          _transferredByController.text = _senderName;
+        }
+      } else {
+        _beneficiaryVerified = true;
+        _beneficiaryName = acct['name']!;
+        _beneficiaryStatus = acct['status']!;
+        _resolvedBeneficiaryAccountNo = acct['accountNo']!;
+      }
+    });
+  }
+
+  // ── Account Selection Dropdown (multiple phone accounts) ──
+  Widget _buildAccountSelectionDropdown(bool isDark, {required bool isSender}) {
+    final accounts = isSender ? _senderPhoneAccountsList : _beneficiaryPhoneAccountsList;
+    final phoneFor = isSender ? _senderPhoneForAccounts : _beneficiaryPhoneForAccounts;
+    final isVerified = isSender ? _senderVerified : _beneficiaryVerified;
+    final resolvedNo = isSender ? _resolvedSenderAccountNo : _resolvedBeneficiaryAccountNo;
+    return Padding(
+      padding: EdgeInsets.only(top: 1.2.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Select Account',
+            style: GoogleFonts.inter(
+              fontSize: 9.sp,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white70 : const Color(0xFF374151),
+            ),
+          ),
+          SizedBox(height: 0.8.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF161B22) : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isVerified
+                    ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+                    : isDark
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : const Color(0xFFE5E7EB),
+              ),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: isVerified ? resolvedNo : null,
+                isExpanded: true,
+                hint: Text(
+                  'Select account for this transaction',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.sp,
+                    color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
+                  ),
+                ),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: isVerified
+                      ? const Color(0xFF2E8B8B)
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                ),
+                dropdownColor:
+                    isDark ? const Color(0xFF161B22) : Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                style: GoogleFonts.inter(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                ),
+                items: accounts.map((acct) {
+                  final accNo = acct['accountNo']!;
+                  final maskedNo = accNo.length >= 7
+                      ? '${accNo.substring(0, 3)}****${accNo.substring(7)}'
+                      : accNo;
+                  return DropdownMenuItem<String>(
+                    value: accNo,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.account_balance_rounded,
+                              size: 16,
+                              color: const Color(0xFF2E8B8B)
+                                  .withValues(alpha: 0.6),
+                            ),
+                            SizedBox(width: 2.w),
+                            Expanded(
+                              child: Text(
+                                '${acct['name']} \u2022 ${acct['type'] ?? 'Savings'}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 9.5.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 0.2.h),
+                        Text(
+                          maskedNo,
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 7.5.sp,
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  final acct = accounts.firstWhere(
+                    (a) => a['accountNo'] == value,
+                  );
+                  _selectPhoneAccount(acct, phoneFor, isSender: isSender);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onSenderLookupTypeChanged(String type) {
     setState(() {
       _senderLookupType = type;
@@ -227,6 +432,7 @@ class _AgencyOtherBankTransferScreenState
       _senderNotFound = false;
       _resolvedSenderAccountNo = '';
       _senderPhone = '';
+      _senderPhoneAccountsList = [];
     });
   }
 
@@ -238,6 +444,7 @@ class _AgencyOtherBankTransferScreenState
       setState(() {
         _beneficiaryVerified = false;
         _beneficiaryNotFound = false;
+        _beneficiaryPhoneAccountsList = [];
       });
       return;
     }
@@ -251,6 +458,7 @@ class _AgencyOtherBankTransferScreenState
       _isLookingUpBeneficiary = true;
       _beneficiaryVerified = false;
       _beneficiaryNotFound = false;
+      _beneficiaryPhoneAccountsList = [];
     });
 
     await Future.delayed(const Duration(milliseconds: 900));
@@ -259,13 +467,37 @@ class _AgencyOtherBankTransferScreenState
     String accountNo = input;
 
     if (_beneficiaryLookupType == 'phone') {
-      final phoneAccount = _mockPhoneAccounts[input];
-      if (phoneAccount != null) {
-        account = {
-          'name': phoneAccount['name']!,
-          'status': phoneAccount['status']!,
-        };
-        accountNo = phoneAccount['accountNo']!;
+      final phoneAccounts = _mockPhoneAccounts[input];
+      if (phoneAccounts != null && phoneAccounts.isNotEmpty) {
+        if (phoneAccounts.length == 1) {
+          // Single account - auto-select
+          final pa = phoneAccounts.first;
+          account = {
+            'name': pa['name']!,
+            'status': pa['status']!,
+          };
+          accountNo = pa['accountNo']!;
+        } else {
+
+          // Multiple accounts - show dropdown
+
+          setState(() {
+
+            _isLookingUpBeneficiary = false;
+
+            _beneficiaryPhoneAccountsList = phoneAccounts
+
+                .map((e) => Map<String, String>.from(e))
+
+                .toList();
+
+            _beneficiaryPhoneForAccounts = input;
+
+          });
+
+          return;
+
+        }
       }
     } else {
       final mockAccount = _mockAccounts[input];
@@ -297,6 +529,7 @@ class _AgencyOtherBankTransferScreenState
       _beneficiaryVerified = false;
       _beneficiaryNotFound = false;
       _resolvedBeneficiaryAccountNo = '';
+      _beneficiaryPhoneAccountsList = [];
     });
   }
 
@@ -436,6 +669,8 @@ class _AgencyOtherBankTransferScreenState
                         isDark: isDark,
                       ),
                       if (_isLookingUpSender) _buildLookupLoader(isDark),
+                      if (_senderPhoneAccountsList.length > 1)
+                        _buildAccountSelectionDropdown(isDark, isSender: true),
                       if (_senderVerified)
                         _buildAccountInfoCard(
                           isDark,
@@ -491,6 +726,8 @@ class _AgencyOtherBankTransferScreenState
                         isDark: isDark,
                       ),
                       if (_isLookingUpBeneficiary) _buildLookupLoader(isDark),
+                      if (_beneficiaryPhoneAccountsList.length > 1)
+                        _buildAccountSelectionDropdown(isDark, isSender: false),
                       if (_beneficiaryVerified)
                         _buildAccountInfoCard(
                           isDark,

@@ -45,6 +45,10 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
   // Cards associated with verified account – populated after lookup
   List<String> _associatedCards = [];
 
+  // Multiple phone accounts – populated when phone has >1 account
+  List<Map<String, String>> _phoneAccountsList = [];
+  String _phoneForAccounts = '';
+
   static const _blockReasons = [
     'Lost Card',
     'Stolen Card',
@@ -83,32 +87,65 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
       'phone': '232504567890',
     },
   };
-
+  // Mock accounts by phone number (one phone can link to multiple accounts)
   static const _mockPhoneAccounts = {
-    '232501234567': {
-      'accountNo': '0012345678',
-      'name': 'Kwame Asante',
-      'status': 'Active',
-      'balance': 'GH₵ 12,450.00',
-    },
-    '232502345678': {
-      'accountNo': '0023456789',
-      'name': 'Ama Mensah',
-      'status': 'Active',
-      'balance': 'GH₵ 8,320.50',
-    },
-    '232503456789': {
-      'accountNo': '0034567890',
-      'name': 'Kofi Adjei',
-      'status': 'Dormant',
-      'balance': 'GH₵ 150.00',
-    },
-    '232504567890': {
-      'accountNo': '0045678901',
-      'name': 'Abena Osei',
-      'status': 'Active',
-      'balance': 'GH₵ 45,800.75',
-    },
+    '232501234567': [
+      {
+        'accountNo': '0012345678',
+        'name': 'Kwame Asante',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 12,450.00',
+      },
+    ],
+    '232502345678': [
+      {
+        'accountNo': '0023456789',
+        'name': 'Ama Mensah',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 8,320.50',
+      },
+      {
+        'accountNo': '0098765432',
+        'name': 'Ama Mensah',
+        'type': 'Current',
+        'status': 'Active',
+        'balance': 'GH₵ 25,100.00',
+      },
+    ],
+    '232503456789': [
+      {
+        'accountNo': '0034567890',
+        'name': 'Kofi Adjei',
+        'type': 'Savings',
+        'status': 'Dormant',
+        'balance': 'GH₵ 150.00',
+      },
+    ],
+    '232504567890': [
+      {
+        'accountNo': '0045678901',
+        'name': 'Abena Osei',
+        'type': 'Savings',
+        'status': 'Active',
+        'balance': 'GH₵ 45,800.75',
+      },
+      {
+        'accountNo': '0054321098',
+        'name': 'Abena Osei',
+        'type': 'Current',
+        'status': 'Active',
+        'balance': 'GH₵ 3,200.00',
+      },
+      {
+        'accountNo': '0067890123',
+        'name': 'Abena Osei',
+        'type': 'Fixed Deposit',
+        'status': 'Active',
+        'balance': 'GH₵ 100,000.00',
+      },
+    ],
   };
 
   // Cards linked to each account
@@ -117,6 +154,23 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
     '0023456789': ['Visa Gold Card', 'MasterCard Debit', 'GHLink Card'],
     '0034567890': ['Visa Classic Card'],
     '0045678901': ['MasterCard Gold', 'Visa Debit Card'],
+  };
+
+  static const _mockCardNumbers = {
+    '0012345678': {
+      'Visa Debit Card': '4184361023456789',
+      'GHLink Card': '6012345612345678',
+    },
+    '0023456789': {
+      'Visa Gold Card': '4532876543219876',
+      'MasterCard Debit': '5399412345678901',
+      'GHLink Card': '6012987612345678',
+    },
+    '0034567890': {'Visa Classic Card': '4234567890123456'},
+    '0045678901': {
+      'MasterCard Gold': '5412349876543210',
+      'Visa Debit Card': '4098123456789012',
+    },
   };
 
   @override
@@ -150,6 +204,7 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
         _accountNotFound = false;
         _associatedCards = [];
         _selectedCard = null;
+        _phoneAccountsList = [];
       });
       return;
     }
@@ -165,6 +220,7 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
       _accountNotFound = false;
       _associatedCards = [];
       _selectedCard = null;
+      _phoneAccountsList = [];
     });
 
     await Future.delayed(const Duration(milliseconds: 900));
@@ -174,15 +230,29 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
     String customerPhone = '';
 
     if (_lookupType == 'phone') {
-      final phoneAccount = _mockPhoneAccounts[input];
-      if (phoneAccount != null) {
-        account = {
-          'name': phoneAccount['name']!,
-          'status': phoneAccount['status']!,
-          'balance': phoneAccount['balance']!,
-        };
-        accountNo = phoneAccount['accountNo']!;
-        customerPhone = input;
+      final phoneAccounts = _mockPhoneAccounts[input];
+      if (phoneAccounts != null && phoneAccounts.isNotEmpty) {
+        if (phoneAccounts.length == 1) {
+          // Single account - auto-select
+          final pa = phoneAccounts.first;
+          account = {
+            'name': pa['name']!,
+            'status': pa['status']!,
+            'balance': pa['balance']!,
+          };
+          accountNo = pa['accountNo']!;
+          customerPhone = input;
+        } else {
+          // Multiple accounts - show dropdown
+          setState(() {
+            _isLookingUp = false;
+            _phoneAccountsList = phoneAccounts
+                .map((e) => Map<String, String>.from(e))
+                .toList();
+            _phoneForAccounts = input;
+          });
+          return;
+        }
       }
     } else {
       final mockAccount = _mockAccounts[input];
@@ -215,6 +285,136 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
     });
   }
 
+  void _selectPhoneAccount(Map<String, String> acct, String phoneNumber) {
+    final accountNo = acct['accountNo']!;
+    setState(() {
+      _accountVerified = true;
+      _accountName = acct['name']!;
+      _accountStatus = acct['status']!;
+      _accountBalance = acct['balance']!;
+      _resolvedAccountNo = accountNo;
+      _customerPhone = phoneNumber;
+      _associatedCards = List<String>.from(_mockAccountCards[accountNo] ?? []);
+      _selectedCard = null;
+      _cardNumberController.clear();
+      _selectedReason = null;
+    });
+  }
+
+  // ── Account Selection Dropdown (multiple phone accounts) ──
+  Widget _buildAccountSelectionDropdown(bool isDark) {
+    return Padding(
+      padding: EdgeInsets.only(top: 1.2.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Select Account',
+            style: GoogleFonts.inter(
+              fontSize: 9.sp,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white70 : const Color(0xFF374151),
+            ),
+          ),
+          SizedBox(height: 0.8.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF161B22) : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: _accountVerified
+                    ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+                    : isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : const Color(0xFFE5E7EB),
+              ),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _accountVerified ? _resolvedAccountNo : null,
+                isExpanded: true,
+                hint: Text(
+                  'Select account for this transaction',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.sp,
+                    color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
+                  ),
+                ),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: _accountVerified
+                      ? const Color(0xFF2E8B8B)
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                ),
+                dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                style: GoogleFonts.inter(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white : const Color(0xFF1A1D23),
+                ),
+                items: _phoneAccountsList.map((acct) {
+                  final accNo = acct['accountNo']!;
+                  final maskedNo = accNo.length >= 7
+                      ? '${accNo.substring(0, 3)}****${accNo.substring(7)}'
+                      : accNo;
+                  return DropdownMenuItem<String>(
+                    value: accNo,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.account_balance_rounded,
+                              size: 16,
+                              color: const Color(
+                                0xFF2E8B8B,
+                              ).withValues(alpha: 0.6),
+                            ),
+                            SizedBox(width: 2.w),
+                            Expanded(
+                              child: Text(
+                                '${acct['name']} \u2022 ${acct['type'] ?? 'Savings'}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 9.5.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 0.2.h),
+                        Text(
+                          maskedNo,
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 7.5.sp,
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xFF6B7280),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  final acct = _phoneAccountsList.firstWhere(
+                    (a) => a['accountNo'] == value,
+                  );
+                  _selectPhoneAccount(acct, _phoneForAccounts);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onLookupTypeChanged(String type) {
     setState(() {
       _lookupType = type;
@@ -227,6 +427,7 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
       _associatedCards = [];
       _selectedCard = null;
       _selectedReason = null;
+      _phoneAccountsList = [];
     });
   }
 
@@ -249,7 +450,7 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
       } else if (_selectedCard == null) {
         msg = 'Please select a card to block';
       } else if (_cardNumberController.text.trim().length < 16) {
-        msg = 'Please enter a valid 16-digit card number';
+        msg = 'Card number was not resolved. Please reselect the card';
       } else if (_selectedReason == null) {
         msg = 'Please select a reason for blocking';
       }
@@ -330,6 +531,8 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
                       _buildAccountField(isDark),
 
                       if (_isLookingUp) _buildLookupLoader(isDark),
+                      if (_phoneAccountsList.length > 1)
+                        _buildAccountSelectionDropdown(isDark),
                       if (_accountVerified) _buildAccountInfoCard(isDark),
                       if (_accountNotFound) _buildNotFoundCard(isDark),
 
@@ -1022,32 +1225,60 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
             color: isDark ? Colors.white : const Color(0xFF1A1D23),
           ),
           items: _associatedCards.map((card) {
+            final cardNo = _mockCardNumbers[_resolvedAccountNo]?[card] ?? '';
+            final maskedNo = cardNo.length >= 4
+                ? '**** **** **** ${cardNo.substring(cardNo.length - 4)}'
+                : '';
             return DropdownMenuItem<String>(
               value: card,
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.credit_card_rounded,
-                    size: 16,
-                    color: const Color(0xFFDC2626).withValues(alpha: 0.6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.credit_card_rounded,
+                        size: 16,
+                        color: const Color(0xFFDC2626).withValues(alpha: 0.6),
+                      ),
+                      SizedBox(width: 2.w),
+                      Expanded(
+                        child: Text(
+                          card,
+                          style: GoogleFonts.inter(
+                            fontSize: 9.5.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 2.w),
-                  Expanded(
-                    child: Text(
-                      card,
+                  if (maskedNo.isNotEmpty) ...[
+                    SizedBox(height: 0.2.h),
+                    Text(
+                      maskedNo,
                       style: GoogleFonts.inter(
-                        fontSize: 9.5.sp,
+                        fontSize: 7.5.sp,
                         fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? Colors.white54
+                            : const Color(0xFF6B7280),
+                        letterSpacing: 1.0,
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             );
           }).toList(),
           onChanged: hasCards
               ? (value) {
-                  setState(() => _selectedCard = value);
+                  final accountCards = _mockCardNumbers[_resolvedAccountNo];
+                  setState(() {
+                    _selectedCard = value;
+                    _cardNumberController.text = accountCards?[value] ?? '';
+                  });
                 }
               : null,
         ),
@@ -1060,13 +1291,14 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
     return TextFormField(
       controller: _cardNumberController,
       keyboardType: TextInputType.number,
-      onChanged: (_) => setState(() {}),
+      readOnly: true,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(16),
       ],
       validator: (v) {
-        if (v == null || v.length < 16) return 'Enter 16-digit card number';
+        if (v == null || v.length < 16)
+          return 'Select a card to auto-fill number';
         return null;
       },
       style: GoogleFonts.inter(
@@ -1090,6 +1322,13 @@ class _AgencyBlockCardScreenState extends State<AgencyBlockCardScreen>
           color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
           size: 20,
         ),
+        suffixIcon: _selectedCard != null
+            ? const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF059669),
+                size: 20,
+              )
+            : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(
