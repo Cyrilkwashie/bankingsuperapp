@@ -660,6 +660,7 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                 totalFee: _totalFee,
                 chequeCount: _chequeCount,
                 accentColor: accentColor,
+                gradientColors: gradientColors,
               ),
               ),
             );

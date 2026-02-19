@@ -484,6 +484,14 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
             Navigator.of(context).pushNamed(AppRoutes.agencyStopCheque);
             return;
           }
+          if (service.label == 'Balance Enquiry') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyBalanceEnquiry);
+            return;
+          }
+          if (service.label == 'Mini Statement') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyMiniStatement);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(

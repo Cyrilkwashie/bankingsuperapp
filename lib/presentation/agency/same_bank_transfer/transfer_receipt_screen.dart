@@ -464,6 +464,7 @@ class _TransferReceiptScreen extends StatelessWidget {
                 amount: 'GH₵ ${_amountValue.toStringAsFixed(2)}',
                 beneficiaryName: beneficiaryName,
                 accentColor: accentColor,
+                gradientColors: gradientColors,
               ),
               ),
             );

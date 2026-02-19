@@ -356,6 +356,7 @@ class _QrWithdrawalReceiptScreen extends StatelessWidget {
                 amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
                 accountName: accountName,
                 accentColor: accentColor,
+                gradientColors: gradientColors,
                 isWithdrawal: true,
               ),
               ),

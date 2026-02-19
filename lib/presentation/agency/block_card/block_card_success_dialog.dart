@@ -6,6 +6,7 @@ class _BlockCardSuccessDialog extends StatelessWidget {
   final String accountName;
   final String reason;
   final Color accentColor;
+  final List<Color> gradientColors;
 
   const _BlockCardSuccessDialog({
     required this.cardType,
@@ -13,6 +14,7 @@ class _BlockCardSuccessDialog extends StatelessWidget {
     required this.accountName,
     required this.reason,
     required this.accentColor,
+    required this.gradientColors,
   });
 
   @override
@@ -21,12 +23,16 @@ class _BlockCardSuccessDialog extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
-      body: SafeArea(child: Center(child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(6.w, 4.h, 6.w, 4.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+      body: Column(
+        children: [
+          _buildHeader(context, isDark),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(6.w, 3.h, 6.w, 4.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
             Container(
               width: 64,
               height: 64,
@@ -161,9 +167,100 @@ class _BlockCardSuccessDialog extends StatelessWidget {
                 ),
               ),
             ),
-          ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [const Color(0xFF162032), const Color(0xFF0D1117)]
+              : gradientColors,
         ),
-      ))),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                ),
+                child: const Center(
+                  child: Icon(Icons.check_circle_rounded,
+                      color: Color(0xFF34D399), size: 22),
+                ),
+              ),
+              SizedBox(width: 3.5.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Card Blocked',
+                      style: GoogleFonts.inter(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    SizedBox(height: 0.2.h),
+                    Text(
+                      'Block Card \u00b7 Complete',
+                      style: GoogleFonts.inter(
+                        fontSize: 8.sp,
+                        color: Colors.white.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF059669).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFF059669).withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check_rounded,
+                        size: 12, color: Color(0xFF34D399)),
+                    SizedBox(width: 1.w),
+                    Text(
+                      'Success',
+                      style: GoogleFonts.inter(
+                        fontSize: 7.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF34D399),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

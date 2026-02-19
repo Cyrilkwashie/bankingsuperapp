@@ -364,6 +364,7 @@ class _QrDepositReceiptScreen extends StatelessWidget {
                 amount: 'GH₵ ${_totalAmount.toStringAsFixed(2)}',
                 accountName: accountName,
                 accentColor: accentColor,
+                gradientColors: gradientColors,
               ),
               ),
             );

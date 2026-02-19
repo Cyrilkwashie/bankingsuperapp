@@ -404,6 +404,7 @@ class _AtmCardConfirmationScreen extends StatelessWidget {
                 accountName: accountName,
                 pickupBranch: pickupBranch,
                 accentColor: accentColor,
+                gradientColors: gradientColors,
               ),
               ),
             );

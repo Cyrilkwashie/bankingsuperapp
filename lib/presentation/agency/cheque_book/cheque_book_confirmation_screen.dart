@@ -332,6 +332,7 @@ class _ChequeBookConfirmationScreen extends StatelessWidget {
                 accountName: accountName,
                 pickupBranch: pickupBranch,
                 accentColor: accentColor,
+                gradientColors: gradientColors,
               ),
               ),
             );

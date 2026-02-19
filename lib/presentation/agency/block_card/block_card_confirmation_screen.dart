@@ -409,6 +409,7 @@ class _BlockCardConfirmationScreen extends StatelessWidget {
                 accountName: accountName,
                 reason: reason,
                 accentColor: accentColor,
+                gradientColors: gradientColors,
               ),
               ),
             );
