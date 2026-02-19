@@ -85,11 +85,11 @@ class MerchantQuickActionsGrid extends StatelessWidget {
             children: [
               _buildAction(context, 'Cash Out', 'remove_circle',
                   const Color(0xFFEF4444)),
-              _buildAction(context, 'QR Pay', 'qr_code_scanner',
+              _buildAction(context, 'QR Withdraw', 'qr_code_scanner',
                   const Color(0xFF8B5CF6)),
-              _buildAction(context, 'POS', 'credit_card',
+              _buildAction(context, 'Transactions', 'receipt_long',
                   const Color(0xFFF59E0B)),
-              _buildAction(context, 'Airtime', 'phone_android',
+              _buildAction(context, 'Settings', 'settings',
                   const Color(0xFF6366F1)),
             ],
           ),
@@ -107,6 +107,22 @@ class MerchantQuickActionsGrid extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () {
+          if (label == 'Cash Out') {
+            Navigator.of(context).pushNamed(AppRoutes.merchantCashWithdrawal);
+            return;
+          }
+          if (label == 'QR Withdraw') {
+            Navigator.of(context).pushNamed(AppRoutes.merchantQrWithdrawal);
+            return;
+          }
+          if (label == 'Transactions') {
+            Navigator.of(context).pushNamed(AppRoutes.merchantTransactions);
+            return;
+          }
+          if (label == 'Settings') {
+            Navigator.of(context).pushNamed(AppRoutes.merchantSettings);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('$label — Coming Soon'),

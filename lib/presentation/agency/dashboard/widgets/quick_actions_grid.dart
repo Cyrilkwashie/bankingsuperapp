@@ -89,9 +89,9 @@ class QuickActionsGrid extends StatelessWidget {
                   const Color(0xFF10B981)),
               _buildAction(context, 'Withdraw', 'remove_circle',
                   const Color(0xFFEF4444)),
-              _buildAction(context, 'Transfer', 'send',
+              _buildAction(context, 'Balance', 'account_balance_wallet',
                   const Color(0xFF6366F1)),
-              _buildAction(context, 'QR Pay', 'qr_code_scanner',
+              _buildAction(context, 'Statement', 'description',
                   const Color(0xFF8B5CF6)),
             ],
           ),
@@ -115,6 +115,14 @@ class QuickActionsGrid extends StatelessWidget {
           }
           if (label == 'Withdraw') {
             Navigator.of(context).pushNamed(AppRoutes.agencyCashWithdrawal);
+            return;
+          }
+          if (label == 'Balance') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyBalanceEnquiry);
+            return;
+          }
+          if (label == 'Statement') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyMiniStatement);
             return;
           }
           ScaffoldMessenger.of(context).showSnackBar(

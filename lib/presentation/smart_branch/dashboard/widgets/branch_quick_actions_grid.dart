@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
+import '../smart_branch_all_services_screen.dart';
 
 /// Quick actions — icon + label only, 4 across
 class BranchQuickActionsGrid extends StatelessWidget {
@@ -87,9 +88,9 @@ class BranchQuickActionsGrid extends StatelessWidget {
                   const Color(0xFF10B981)),
               _buildAction(context, 'Withdraw', 'arrow_upward',
                   const Color(0xFFEF4444)),
-              _buildAction(context, 'Account', 'person_add',
+              _buildAction(context, 'Transactions', 'receipt_long',
                   const Color(0xFF6366F1)),
-              _buildAction(context, 'Statement', 'description',
+              _buildAction(context, 'Settings', 'settings',
                   const Color(0xFFF59E0B)),
             ],
           ),
@@ -107,6 +108,22 @@ class BranchQuickActionsGrid extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () {
+          if (label == 'Deposit' || label == 'Withdraw') {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const SmartBranchAllServicesScreen(),
+              ),
+            );
+            return;
+          }
+          if (label == 'Transactions') {
+            Navigator.of(context).pushNamed(AppRoutes.smartBranchTransactions);
+            return;
+          }
+          if (label == 'Settings') {
+            Navigator.of(context).pushNamed(AppRoutes.smartBranchSettings);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('$label — Coming Soon'),

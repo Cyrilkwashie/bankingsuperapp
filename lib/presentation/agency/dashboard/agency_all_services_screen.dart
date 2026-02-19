@@ -492,6 +492,10 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
             Navigator.of(context).pushNamed(AppRoutes.agencyMiniStatement);
             return;
           }
+          if (service.label == 'Open Account') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyOpenAccount);
+            return;
+          }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(

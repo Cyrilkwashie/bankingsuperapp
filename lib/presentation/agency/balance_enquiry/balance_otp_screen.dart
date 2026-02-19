@@ -57,8 +57,12 @@ class _BalanceOtpScreenState extends State<_BalanceOtpScreen> {
 
   @override
   void dispose() {
-    for (final c in _otpControllers) c.dispose();
-    for (final f in _focusNodes) f.dispose();
+    for (final c in _otpControllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
     _countdownTimer?.cancel();
     super.dispose();
   }
@@ -145,7 +149,9 @@ class _BalanceOtpScreenState extends State<_BalanceOtpScreen> {
         _isVerifying = false;
         _otpError = true;
       });
-      for (final c in _otpControllers) c.clear();
+      for (final c in _otpControllers) {
+        c.clear();
+      }
       _focusNodes[0].requestFocus();
     }
   }

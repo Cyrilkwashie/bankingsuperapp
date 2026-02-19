@@ -28,6 +28,7 @@ import '../presentation/agency/block_card/agency_block_card_screen.dart';
 import '../presentation/agency/stop_cheque/agency_stop_cheque_screen.dart';
 import '../presentation/agency/balance_enquiry/agency_balance_enquiry_screen.dart';
 import '../presentation/agency/mini_statement/agency_mini_statement_screen.dart';
+import '../presentation/agency/open_account/agency_open_account_screen.dart';
 import '../presentation/merchant/transactions/merchant_transactions_screen.dart';
 import '../presentation/merchant/cash_withdrawal/merchant_cash_withdrawal_screen.dart';
 import '../presentation/merchant/qr_withdrawal/merchant_qr_withdrawal_screen.dart';
@@ -67,6 +68,7 @@ class AppRoutes {
   static const String agencyStopCheque = '/agency-stop-cheque';
   static const String agencyBalanceEnquiry = '/agency-balance-enquiry';
   static const String agencyMiniStatement = '/agency-mini-statement';
+  static const String agencyOpenAccount = '/agency-open-account';
   static const String merchantCashWithdrawal = '/merchant-cash-withdrawal';
   static const String merchantQrWithdrawal = '/merchant-qr-withdrawal';
 
@@ -126,6 +128,7 @@ class AppRoutes {
     agencyStopCheque: (context) => const AgencyStopChequeScreen(),
     agencyBalanceEnquiry: (context) => const AgencyBalanceEnquiryScreen(),
     agencyMiniStatement: (context) => const AgencyMiniStatementScreen(),
+    agencyOpenAccount: (context) => const AgencyOpenAccountScreen(),
     merchantCashWithdrawal: (context) => const MerchantCashWithdrawalScreen(),
     merchantQrWithdrawal: (context) => const MerchantQrWithdrawalScreen(),
   };

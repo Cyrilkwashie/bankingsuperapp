@@ -50,8 +50,12 @@ class _MiniStatementOtpScreenState extends State<_MiniStatementOtpScreen> {
 
   @override
   void dispose() {
-    for (final c in _otpControllers) c.dispose();
-    for (final n in _focusNodes) n.dispose();
+    for (final c in _otpControllers) {
+      c.dispose();
+    }
+    for (final n in _focusNodes) {
+      n.dispose();
+    }
     _countdownTimer?.cancel();
     super.dispose();
   }
@@ -134,7 +138,9 @@ class _MiniStatementOtpScreenState extends State<_MiniStatementOtpScreen> {
         _isVerifying = false;
         _otpError = true;
       });
-      for (final c in _otpControllers) c.clear();
+      for (final c in _otpControllers) {
+        c.clear();
+      }
       _focusNodes[0].requestFocus();
     }
   }
