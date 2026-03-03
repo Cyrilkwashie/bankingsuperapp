@@ -30,13 +30,23 @@ class _OpenAccountPersonalScreenState
   final _firstNameCtrl = TextEditingController();
   final _lastNameCtrl = TextEditingController();
   final _otherNameCtrl = TextEditingController();
-  final _mothersMaidenCtrl = TextEditingController();
   final _dobCtrl = TextEditingController();
+  final _customOccupationCtrl = TextEditingController();
 
+  String _selectedTitle = '';
   String _selectedGender = '';
   String _selectedMarital = '';
   String _selectedOccupation = '';
   DateTime? _selectedDob;
+
+  static const _titles = [
+    'Mr.',
+    'Mrs.',
+    'Ms.',
+    'Dr.',
+    'Prof.',
+    'Rev.',
+  ];
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -80,18 +90,21 @@ class _OpenAccountPersonalScreenState
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
     _otherNameCtrl.dispose();
-    _mothersMaidenCtrl.dispose();
     _dobCtrl.dispose();
+    _customOccupationCtrl.dispose();
     super.dispose();
   }
 
   bool get _canContinue =>
+      _selectedTitle.isNotEmpty &&
       _firstNameCtrl.text.trim().isNotEmpty &&
       _lastNameCtrl.text.trim().isNotEmpty &&
       _selectedGender.isNotEmpty &&
       _selectedMarital.isNotEmpty &&
       _selectedDob != null &&
-      _selectedOccupation.isNotEmpty;
+      _selectedOccupation.isNotEmpty &&
+      (_selectedOccupation != 'Other' ||
+          _customOccupationCtrl.text.trim().isNotEmpty);
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -143,14 +156,16 @@ class _OpenAccountPersonalScreenState
         builder: (_) => _OpenAccountIdContactScreen(
           accountType: widget.accountType,
           minDeposit: widget.minDeposit,
+          title: _selectedTitle,
           firstName: _firstNameCtrl.text.trim(),
           lastName: _lastNameCtrl.text.trim(),
           otherName: _otherNameCtrl.text.trim(),
           gender: _selectedGender,
           maritalStatus: _selectedMarital,
           dob: _dobCtrl.text,
-          mothersMaidenName: _mothersMaidenCtrl.text.trim(),
-          occupation: _selectedOccupation,
+          occupation: _selectedOccupation == 'Other'
+              ? _customOccupationCtrl.text.trim()
+              : _selectedOccupation,
           accentColor: widget.accentColor,
           gradientColors: widget.gradientColors,
         ),
@@ -205,6 +220,22 @@ class _OpenAccountPersonalScreenState
                         ),
                       ),
                       SizedBox(height: 2.5.h),
+
+                      // Title dropdown
+                      _buildFieldLabel('Title *', isDark),
+                      SizedBox(height: 0.8.h),
+                      _buildDropdown(
+                        value: _selectedTitle.isEmpty
+                            ? null
+                            : _selectedTitle,
+                        items: _titles,
+                        hint: 'Select title',
+                        icon: Icons.person_pin_outlined,
+                        isDark: isDark,
+                        onChanged: (v) =>
+                            setState(() => _selectedTitle = v ?? ''),
+                      ),
+                      SizedBox(height: 2.h),
 
                       // First Name & Last Name side by side
                       Row(
@@ -350,19 +381,15 @@ class _OpenAccountPersonalScreenState
                         onChanged: (v) => setState(
                             () => _selectedOccupation = v ?? ''),
                       ),
-                      SizedBox(height: 2.h),
-
-                      // Mother's Maiden Name
-                      _buildFieldLabel(
-                          'Mother\'s Maiden Name', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _mothersMaidenCtrl,
-                        hint: 'Optional — for security',
-                        icon: Icons.family_restroom_rounded,
-                        isDark: isDark,
-                        required: false,
-                      ),
+                      if (_selectedOccupation == 'Other') ...[
+                        SizedBox(height: 1.2.h),
+                        _buildTextField(
+                          controller: _customOccupationCtrl,
+                          hint: 'Enter your occupation',
+                          icon: Icons.edit_outlined,
+                          isDark: isDark,
+                        ),
+                      ],
                       SizedBox(height: 3.h),
 
                       // Continue

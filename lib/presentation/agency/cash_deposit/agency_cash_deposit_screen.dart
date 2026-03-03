@@ -9,7 +9,18 @@ part 'success_dialog.dart';
 part 'insufficient_funds_dialog.dart';
 
 class AgencyCashDepositScreen extends StatefulWidget {
-  const AgencyCashDepositScreen({super.key});
+  final String? prefilledAccountNumber;
+  final String? prefilledAccountName;
+  final String? prefilledAccountType;
+  final String? prefilledPhone;
+
+  const AgencyCashDepositScreen({
+    super.key,
+    this.prefilledAccountNumber,
+    this.prefilledAccountName,
+    this.prefilledAccountType,
+    this.prefilledPhone,
+  });
 
   @override
   State<AgencyCashDepositScreen> createState() =>
@@ -138,6 +149,37 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
     );
     _fadeIn = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
     _animController.forward();
+
+    // Prefill if navigated from account opening
+    if (widget.prefilledAccountNumber != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _prefillFromNewAccount();
+      });
+    }
+  }
+
+  void _prefillFromNewAccount() {
+    final accNo = widget.prefilledAccountNumber!;
+    final accName = widget.prefilledAccountName ?? '';
+    final accType = widget.prefilledAccountType ?? '';
+
+    setState(() {
+      _lookupType = 'account';
+      _accountController.text = accNo;
+      _resolvedAccountNo = accNo;
+      _accountName = accName;
+      _accountStatus = 'Active';
+      _accountBalance = 'GH₵ 0.00'; // newly opened
+      _accountVerified = true;
+      _accountNotFound = false;
+      _isLookingUp = false;
+      _depositorNameController.text = accName;
+      if (widget.prefilledPhone != null) {
+        _depositorTelController.text = widget.prefilledPhone!;
+      }
+      _narrationController.text =
+          'Initial deposit – $accType Account';
+    });
   }
 
   @override

@@ -7,13 +7,13 @@ part of 'agency_open_account_screen.dart';
 class _OpenAccountIdContactScreen extends StatefulWidget {
   final String accountType;
   final String minDeposit;
+  final String title;
   final String firstName;
   final String lastName;
   final String otherName;
   final String gender;
   final String maritalStatus;
   final String dob;
-  final String mothersMaidenName;
   final String occupation;
   final Color accentColor;
   final List<Color> gradientColors;
@@ -21,13 +21,13 @@ class _OpenAccountIdContactScreen extends StatefulWidget {
   const _OpenAccountIdContactScreen({
     required this.accountType,
     required this.minDeposit,
+    required this.title,
     required this.firstName,
     required this.lastName,
     required this.otherName,
     required this.gender,
     required this.maritalStatus,
     required this.dob,
-    required this.mothersMaidenName,
     required this.occupation,
     required this.accentColor,
     required this.gradientColors,
@@ -45,7 +45,6 @@ class _OpenAccountIdContactScreenState
 
   String _selectedIdType = '';
   String _selectedCity = '';
-  String _selectedNokRelation = '';
   final _idNumberCtrl = TextEditingController();
   final _issueDateCtrl = TextEditingController();
   final _expiryDateCtrl = TextEditingController();
@@ -53,8 +52,6 @@ class _OpenAccountIdContactScreenState
   final _altPhoneCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
-  final _nokNameCtrl = TextEditingController();
-  final _nokPhoneCtrl = TextEditingController();
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -84,17 +81,6 @@ class _OpenAccountIdContactScreenState
     'Tarkwa',
   ];
 
-  static const _nokRelationships = [
-    'Spouse',
-    'Parent',
-    'Sibling',
-    'Child',
-    'Uncle / Aunt',
-    'Cousin',
-    'Friend',
-    'Other',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -115,8 +101,6 @@ class _OpenAccountIdContactScreenState
     _altPhoneCtrl.dispose();
     _emailCtrl.dispose();
     _addressCtrl.dispose();
-    _nokNameCtrl.dispose();
-    _nokPhoneCtrl.dispose();
     super.dispose();
   }
 
@@ -125,10 +109,7 @@ class _OpenAccountIdContactScreenState
       _idNumberCtrl.text.trim().isNotEmpty &&
       _phoneCtrl.text.trim().isNotEmpty &&
       _addressCtrl.text.trim().isNotEmpty &&
-      _selectedCity.isNotEmpty &&
-      _nokNameCtrl.text.trim().isNotEmpty &&
-      _nokPhoneCtrl.text.trim().isNotEmpty &&
-      _selectedNokRelation.isNotEmpty;
+      _selectedCity.isNotEmpty;
 
   Future<void> _pickDate({required bool isIssue}) async {
     final now = DateTime.now();
@@ -184,13 +165,13 @@ class _OpenAccountIdContactScreenState
         builder: (_) => _OpenAccountRequirementsScreen(
           accountType: widget.accountType,
           minDeposit: widget.minDeposit,
+          title: widget.title,
           firstName: widget.firstName,
           lastName: widget.lastName,
           otherName: widget.otherName,
           gender: widget.gender,
           maritalStatus: widget.maritalStatus,
           dob: widget.dob,
-          mothersMaidenName: widget.mothersMaidenName,
           occupation: widget.occupation,
           idType: _selectedIdType,
           idNumber: _idNumberCtrl.text.trim(),
@@ -201,9 +182,6 @@ class _OpenAccountIdContactScreenState
           email: _emailCtrl.text.trim(),
           address: _addressCtrl.text.trim(),
           city: _selectedCity,
-          nokName: _nokNameCtrl.text.trim(),
-          nokPhone: _nokPhoneCtrl.text.trim(),
-          nokRelation: _selectedNokRelation,
           accentColor: widget.accentColor,
           gradientColors: widget.gradientColors,
         ),
@@ -403,57 +381,6 @@ class _OpenAccountIdContactScreenState
                         isDark: isDark,
                         onChanged: (v) =>
                             setState(() => _selectedCity = v ?? ''),
-                      ),
-                      SizedBox(height: 3.h),
-
-                      // ── Next of Kin ───────────────────────
-                      _buildSectionTitle('Next of Kin', isDark),
-                      SizedBox(height: 0.5.h),
-                      _buildSectionSubtitle(
-                          'Emergency contact person.',
-                          isDark),
-                      SizedBox(height: 2.h),
-
-                      _buildFieldLabel(
-                          'Full Name *', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _nokNameCtrl,
-                        hint: 'e.g. Ama Mensah',
-                        icon: Icons.person_outline_rounded,
-                        isDark: isDark,
-                      ),
-                      SizedBox(height: 2.h),
-
-                      _buildFieldLabel(
-                          'Phone Number *', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _nokPhoneCtrl,
-                        hint: 'e.g. 0271234567',
-                        icon: Icons.phone_outlined,
-                        isDark: isDark,
-                        keyboardType: TextInputType.phone,
-                        formatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(10),
-                        ],
-                      ),
-                      SizedBox(height: 2.h),
-
-                      _buildFieldLabel(
-                          'Relationship *', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildDropdown(
-                        value: _selectedNokRelation.isEmpty
-                            ? null
-                            : _selectedNokRelation,
-                        items: _nokRelationships,
-                        hint: 'Select relationship',
-                        icon: Icons.people_outline_rounded,
-                        isDark: isDark,
-                        onChanged: (v) =>
-                            setState(() => _selectedNokRelation = v ?? ''),
                       ),
                       SizedBox(height: 3.h),
 

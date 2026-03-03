@@ -7,13 +7,13 @@ part of 'agency_open_account_screen.dart';
 class _OpenAccountReviewScreen extends StatefulWidget {
   final String accountType;
   final String minDeposit;
+  final String title;
   final String firstName;
   final String lastName;
   final String otherName;
   final String gender;
   final String maritalStatus;
   final String dob;
-  final String mothersMaidenName;
   final String occupation;
   final String idType;
   final String idNumber;
@@ -24,27 +24,24 @@ class _OpenAccountReviewScreen extends StatefulWidget {
   final String email;
   final String address;
   final String city;
-  final String nokName;
-  final String nokPhone;
-  final String nokRelation;
   final bool hasIdCopy;
   final bool hasPassportPhoto;
   final bool hasProofOfAddress;
   final bool hasSignature;
-  final String initialDeposit;
+  final bool hasFingerprints;
   final Color accentColor;
   final List<Color> gradientColors;
 
   const _OpenAccountReviewScreen({
     required this.accountType,
     required this.minDeposit,
+    required this.title,
     required this.firstName,
     required this.lastName,
     required this.otherName,
     required this.gender,
     required this.maritalStatus,
     required this.dob,
-    required this.mothersMaidenName,
     required this.occupation,
     required this.idType,
     required this.idNumber,
@@ -55,14 +52,11 @@ class _OpenAccountReviewScreen extends StatefulWidget {
     required this.email,
     required this.address,
     required this.city,
-    required this.nokName,
-    required this.nokPhone,
-    required this.nokRelation,
     required this.hasIdCopy,
     required this.hasPassportPhoto,
     required this.hasProofOfAddress,
     required this.hasSignature,
-    required this.initialDeposit,
+    required this.hasFingerprints,
     required this.accentColor,
     required this.gradientColors,
   });
@@ -96,6 +90,7 @@ class _OpenAccountReviewScreenState
   }
 
   String get _fullName => [
+        if (widget.title.isNotEmpty) widget.title,
         widget.firstName,
         if (widget.otherName.isNotEmpty) widget.otherName,
         widget.lastName,
@@ -128,7 +123,6 @@ class _OpenAccountReviewScreenState
                 fullName: _fullName,
                 accountNumber: accountNum,
                 referenceNumber: refNum,
-                initialDeposit: widget.initialDeposit,
                 phone: widget.phone,
                 accentColor: widget.accentColor,
                 gradientColors: widget.gradientColors,
@@ -205,10 +199,6 @@ class _OpenAccountReviewScreenState
                                   widget.maritalStatus),
                               _row('Occupation',
                                   widget.occupation),
-                              if (widget.mothersMaidenName
-                                  .isNotEmpty)
-                                _row('Mother\'s Maiden',
-                                    widget.mothersMaidenName),
                             ],
                           ),
                           SizedBox(height: 2.h),
@@ -249,20 +239,6 @@ class _OpenAccountReviewScreenState
                           ),
                           SizedBox(height: 2.h),
 
-                          // Next of Kin
-                          _buildSection(
-                            title: 'Next of Kin',
-                            icon: Icons.people_outline_rounded,
-                            isDark: isDark,
-                            rows: [
-                              _row('Name', widget.nokName),
-                              _row('Phone', widget.nokPhone),
-                              _row('Relationship',
-                                  widget.nokRelation),
-                            ],
-                          ),
-                          SizedBox(height: 2.h),
-
                           // Documents
                           _buildSection(
                             title: 'Documents',
@@ -277,20 +253,8 @@ class _OpenAccountReviewScreenState
                                   widget.hasProofOfAddress),
                               _checkRow('Signature',
                                   widget.hasSignature),
-                            ],
-                          ),
-                          SizedBox(height: 2.h),
-
-                          // Deposit
-                          _buildSection(
-                            title: 'Initial Deposit',
-                            icon: Icons.account_balance_wallet_outlined,
-                            isDark: isDark,
-                            rows: [
-                              _row('Amount',
-                                  'GH₵${widget.initialDeposit}'),
-                              _row('Account Type',
-                                  widget.accountType),
+                              _checkRow('Fingerprints',
+                                  widget.hasFingerprints),
                             ],
                           ),
                           SizedBox(height: 3.h),
@@ -418,7 +382,7 @@ class _OpenAccountReviewScreenState
                 ),
                 SizedBox(height: 0.2.h),
                 Text(
-                  'For $_fullName · GH₵${widget.initialDeposit} deposit',
+                  'Review details for $_fullName',
                   style: GoogleFonts.inter(
                     fontSize: 8.sp,
                     color: isDark

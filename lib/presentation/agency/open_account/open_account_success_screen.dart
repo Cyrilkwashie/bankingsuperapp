@@ -9,7 +9,7 @@ class _OpenAccountSuccessScreen extends StatefulWidget {
   final String fullName;
   final String accountNumber;
   final String referenceNumber;
-  final String initialDeposit;
+
   final String phone;
   final Color accentColor;
   final List<Color> gradientColors;
@@ -19,7 +19,7 @@ class _OpenAccountSuccessScreen extends StatefulWidget {
     required this.fullName,
     required this.accountNumber,
     required this.referenceNumber,
-    required this.initialDeposit,
+
     required this.phone,
     required this.accentColor,
     required this.gradientColors,
@@ -228,6 +228,8 @@ class _OpenAccountSuccessScreenState
                         SizedBox(height: 3.5.h),
 
                         // ── Actions ──
+                        _buildDepositButton(isDark),
+                        SizedBox(height: 1.5.h),
                         _buildSendSmsButton(),
                         SizedBox(height: 1.5.h),
                         _buildDoneButton(isDark),
@@ -347,13 +349,6 @@ class _OpenAccountSuccessScreenState
           _divider(isDark),
           _resultRow(
             isDark: isDark,
-            icon: Icons.account_balance_wallet_rounded,
-            label: 'Initial Deposit',
-            value: 'GH₵${widget.initialDeposit}',
-          ),
-          _divider(isDark),
-          _resultRow(
-            isDark: isDark,
             icon: Icons.phone_android_rounded,
             label: 'Phone',
             value: widget.phone,
@@ -366,6 +361,77 @@ class _OpenAccountSuccessScreenState
             value: _formatTimestamp(_timestamp),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDepositButton(bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => AgencyCashDepositScreen(
+              prefilledAccountNumber: widget.accountNumber,
+              prefilledAccountName: widget.fullName,
+              prefilledAccountType: widget.accountType,
+              prefilledPhone: widget.phone,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 1.7.h),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1B365D), Color(0xFF2E8B8B)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2E8B8B).withValues(alpha: 0.35),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.account_balance_wallet_rounded,
+              size: 18,
+              color: Colors.white,
+            ),
+            SizedBox(width: 2.w),
+            Text(
+              'Make Initial Deposit',
+              style: GoogleFonts.inter(
+                fontSize: 10.5.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 3.w),
+            Container(
+              padding: EdgeInsets.symmetric(
+                  horizontal: 2.w, vertical: 0.3.h),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                widget.accountNumber,
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 7.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.9),
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
