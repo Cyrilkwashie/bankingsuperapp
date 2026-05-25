@@ -22,5 +22,5 @@ class _BlockedStripePainter extends CustomPainter {
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── Success Dialog ──
+// ── Success Screen ──
 // ══════════════════════════════════════════════════════════════

@@ -47,5 +47,7 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required to scan customer QR codes.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Biometric authentication is used to capture and verify customer fingerprints during account opening.</string>
 </dict>
 </plist>

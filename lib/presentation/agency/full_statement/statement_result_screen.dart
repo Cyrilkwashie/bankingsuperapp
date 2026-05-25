@@ -34,7 +34,9 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
   bool _isLoading = true;
   List<_StatementEntry> _entries = [];
 
-  // Mock statement data
+  late final String _referenceNo;
+  late final DateTime _timestamp;
+
   static final _mockStatementData = [
     _StatementEntry(
       date: DateTime(2026, 1, 3),
@@ -161,6 +163,8 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
   @override
   void initState() {
     super.initState();
+    _timestamp = DateTime.now();
+    _referenceNo = _generateReference();
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -174,6 +178,23 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
   void dispose() {
     _animController.dispose();
     super.dispose();
+  }
+
+  String _generateReference() {
+    final now = DateTime.now();
+    return 'FST/${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}/${now.millisecond.toString().padLeft(4, '0').substring(0, 4)}';
+  }
+
+  String _formatTimestamp(DateTime dt) {
+    final h = dt.hour > 12 ? dt.hour - 12 : dt.hour == 0 ? 12 : dt.hour;
+    final m = dt.minute.toString().padLeft(2, '0');
+    final s = dt.second.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${dt.day} ${months[dt.month - 1]} ${dt.year}  $h:$m:$s $period';
   }
 
   Future<void> _fetchStatement() async {
@@ -193,25 +214,22 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
   }
 
   String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ];
     return '${date.day.toString().padLeft(2, '0')} ${months[date.month - 1]} ${date.year}';
   }
 
   String _formatCurrency(double amount) {
     return 'GH₵ ${amount.toStringAsFixed(2)}';
+  }
+
+  String _maskAccountNo(String no) {
+    if (no.length >= 7) {
+      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
+    }
+    return no;
   }
 
   double get _totalDebits => _entries.fold(0.0, (sum, e) => sum + e.debit);
@@ -222,18 +240,19 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF0D1117)
-          : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
           children: [
             _buildHeader(isDark),
+            _AgencyFullStatementScreenState.buildFlowStepIndicator(4, isDark),
             if (_isLoading)
               Expanded(child: _buildLoadingState(isDark))
             else
               Expanded(child: _buildStatementContent(isDark)),
+            if (!_isLoading) _buildStickyDone(isDark),
           ],
         ),
       ),
@@ -246,27 +265,27 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            width: 48,
-            height: 48,
+            width: 40,
+            height: 40,
             child: CircularProgressIndicator(
-              strokeWidth: 3,
+              strokeWidth: 2.5,
               color: widget.accentColor,
             ),
           ),
-          SizedBox(height: 2.5.h),
+          SizedBox(height: 2.h),
           Text(
             'Fetching Statement...',
             style: GoogleFonts.inter(
-              fontSize: 12.sp,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w600,
               color: isDark ? Colors.white70 : const Color(0xFF374151),
             ),
           ),
-          SizedBox(height: 0.8.h),
+          SizedBox(height: 0.6.h),
           Text(
             'Please wait while we retrieve the account statement',
             style: GoogleFonts.inter(
-              fontSize: 8.5.sp,
+              fontSize: 7.5.sp,
               fontWeight: FontWeight.w400,
               color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
             ),
@@ -285,152 +304,196 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 4.h),
+      padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 2.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Account summary card
+          _buildSuccessHeader(isDark, isElectronic: true),
+          SizedBox(height: 1.5.h),
+          _buildReceiptCard(isDark),
+          SizedBox(height: 1.5.h),
           _buildAccountSummaryCard(isDark),
-          SizedBox(height: 2.h),
-
-          // Summary totals
+          SizedBox(height: 1.5.h),
           _buildSummaryTotals(isDark),
-          SizedBox(height: 2.h),
-
-          // Statement entries
+          SizedBox(height: 1.5.h),
           if (_entries.isEmpty)
             _buildEmptyEntries(isDark)
           else
             _buildEntriesList(isDark),
-
-          SizedBox(height: 3.h),
-
-          // Done button
-          _buildDoneButton(isDark),
-          SizedBox(height: 1.2.h),
-          _buildNewRequestButton(isDark),
         ],
       ),
     );
   }
 
-  /// Ordinary statement — matches the cheque-book "Request Submitted" dialog.
   Widget _buildOrdinarySuccessContent(bool isDark) {
-    return Center(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(6.w, 4.h, 6.w, 4.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ── Green check icon ──
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(5.w, 2.5.h, 5.w, 2.h),
+      child: Column(
+        children: [
+          _buildSuccessHeader(isDark, isElectronic: false),
+          SizedBox(height: 1.5.h),
+          _buildReceiptCard(isDark),
+          if (widget.pickupBranch != null) ...[
+            SizedBox(height: 1.2.h),
             Container(
-              width: 64,
-              height: 64,
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.9.h),
               decoration: BoxDecoration(
-                color: const Color(0xFF059669).withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.check_rounded,
-                  color: Color(0xFF059669),
-                  size: 36,
+                color: widget.accentColor.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: widget.accentColor.withValues(alpha: 0.12),
                 ),
-              ),
-            ),
-            SizedBox(height: 2.h),
-
-            // ── Title ──
-            Text(
-              'Request Submitted',
-              style: GoogleFonts.inter(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF111827),
-              ),
-            ),
-            SizedBox(height: 0.8.h),
-
-            // ── Description ──
-            Text(
-              'Ordinary statement for ${widget.accountName} has been submitted successfully.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 9.sp,
-                fontWeight: FontWeight.w400,
-                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-              ),
-            ),
-            SizedBox(height: 1.h),
-
-            // ── Pickup chip ──
-            if (widget.pickupBranch != null)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
-                decoration: BoxDecoration(
-                  color: widget.accentColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.location_on_rounded,
-                      color: widget.accentColor,
-                      size: 14,
-                    ),
-                    SizedBox(width: 1.w),
-                    Flexible(
-                      child: Text(
-                        'Pickup: ${widget.pickupBranch}',
-                        style: GoogleFonts.inter(
-                          fontSize: 7.5.sp,
-                          fontWeight: FontWeight.w600,
-                          color: widget.accentColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            SizedBox(height: 1.h),
-
-            // ── Processing chip ──
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.schedule_rounded,
-                    color: Color(0xFFF59E0B),
+                  Icon(
+                    Icons.location_on_outlined,
+                    color: widget.accentColor,
                     size: 14,
                   ),
-                  SizedBox(width: 1.w),
-                  Text(
-                    'Processing: 3–5 working days',
-                    style: GoogleFonts.inter(
-                      fontSize: 7.5.sp,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFF59E0B),
+                  SizedBox(width: 2.w),
+                  Expanded(
+                    child: Text(
+                      'Pickup: ${widget.pickupBranch}',
+                      style: GoogleFonts.inter(
+                        fontSize: 7.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: widget.accentColor,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 2.5.h),
-
-            // ── Done button ──
-            _buildDoneButton(isDark),
-            SizedBox(height: 1.2.h),
-            _buildNewRequestButton(isDark),
           ],
+          SizedBox(height: 1.2.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.9.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.schedule_rounded,
+                  color: Color(0xFFF59E0B),
+                  size: 14,
+                ),
+                SizedBox(width: 2.w),
+                Text(
+                  'Processing: 3–5 working days',
+                  style: GoogleFonts.inter(
+                    fontSize: 7.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFF59E0B),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuccessHeader(bool isDark, {required bool isElectronic}) {
+    return Column(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: const Color(0xFF059669).withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: const Color(0xFF059669).withValues(alpha: 0.25),
+            ),
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.check_rounded,
+              color: Color(0xFF059669),
+              size: 28,
+            ),
+          ),
         ),
+        SizedBox(height: 1.2.h),
+        Text(
+          isElectronic ? 'Statement Ready' : 'Request Submitted',
+          style: GoogleFonts.inter(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white : const Color(0xFF111827),
+          ),
+        ),
+        SizedBox(height: 0.5.h),
+        Text(
+          isElectronic
+              ? 'Electronic statement for ${widget.accountName}'
+              : 'Ordinary statement for ${widget.accountName} has been submitted successfully.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            fontSize: 8.sp,
+            color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+            height: 1.4,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReceiptCard(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: widget.accentColor.withValues(alpha: 0.12),
+        ),
+      ),
+      child: Column(
+        children: [
+          _receiptRow(
+            isDark,
+            'Reference',
+            _referenceNo,
+            mono: true,
+            accent: true,
+          ),
+          _divider(isDark),
+          _receiptRow(isDark, 'Timestamp', _formatTimestamp(_timestamp)),
+          _divider(isDark),
+          _receiptRow(isDark, 'Account Holder', widget.accountName),
+          _divider(isDark),
+          _receiptRow(
+            isDark,
+            'Account',
+            _maskAccountNo(widget.accountNo),
+            mono: true,
+          ),
+          _divider(isDark),
+          _receiptRow(
+            isDark,
+            'Period',
+            '${_formatDate(widget.startDate)} – ${_formatDate(widget.endDate)}',
+          ),
+          _divider(isDark),
+          _receiptRow(
+            isDark,
+            'Fee',
+            _formatCurrency(widget.charges),
+            accent: true,
+          ),
+        ],
       ),
     );
   }
@@ -438,112 +501,70 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
   Widget _buildAccountSummaryCard(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(3.5.w),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? [const Color(0xFF162032), const Color(0xFF0D1117)]
-              : [
-                  widget.accentColor.withValues(alpha: 0.06),
-                  widget.accentColor.withValues(alpha: 0.02),
-                ],
-        ),
-        borderRadius: BorderRadius.circular(18),
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: widget.accentColor.withValues(alpha: isDark ? 0.15 : 0.12),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: widget.accentColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Icon(
-                    widget.statementType == 'electronic'
-                        ? Icons.email_rounded
-                        : Icons.description_rounded,
-                    color: widget.accentColor,
-                    size: 22,
-                  ),
-                ),
-              ),
-              SizedBox(width: 3.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.accountName,
-                      style: GoogleFonts.inter(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                      ),
-                    ),
-                    SizedBox(height: 0.2.h),
-                    Text(
-                      'A/C: ${widget.accountNo}',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 1.5.h),
           Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: widget.accentColor.withValues(alpha: 0.08),
+              color: widget.accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Center(
+              child: Icon(
+                Icons.email_outlined,
+                color: widget.accentColor,
+                size: 18,
+              ),
+            ),
+          ),
+          SizedBox(width: 2.5.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${_formatDate(widget.startDate)}  →  ${_formatDate(widget.endDate)}',
+                  widget.accountName,
                   style: GoogleFonts.inter(
-                    fontSize: 8.sp,
+                    fontSize: 9.sp,
                     fontWeight: FontWeight.w600,
-                    color: widget.accentColor,
+                    color: isDark ? Colors.white : const Color(0xFF111827),
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 2.w,
-                    vertical: 0.3.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: widget.accentColor,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    '${_entries.length} entries',
-                    style: GoogleFonts.inter(
-                      fontSize: 7.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                SizedBox(height: 0.15.h),
+                Text(
+                  '${_formatDate(widget.startDate)} → ${_formatDate(widget.endDate)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 7.sp,
+                    color: isDark ? Colors.white54 : const Color(0xFF64748B),
                   ),
                 ),
               ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.25.h),
+            decoration: BoxDecoration(
+              color: widget.accentColor,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              '${_entries.length} entries',
+              style: GoogleFonts.inter(
+                fontSize: 6.5.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -556,10 +577,10 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
       children: [
         Expanded(
           child: Container(
-            padding: EdgeInsets.all(3.5.w),
+            padding: EdgeInsets.all(3.w),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF161B22) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: const Color(0xFF10B981).withValues(alpha: 0.2),
               ),
@@ -569,29 +590,27 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.arrow_downward_rounded,
-                      color: const Color(0xFF10B981),
-                      size: 16,
+                      color: Color(0xFF10B981),
+                      size: 14,
                     ),
                     SizedBox(width: 1.w),
                     Text(
                       'Total Credits',
                       style: GoogleFonts.inter(
-                        fontSize: 7.5.sp,
+                        fontSize: 7.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF6B7280),
+                        color: isDark ? Colors.white54 : const Color(0xFF6B7280),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 0.5.h),
+                SizedBox(height: 0.4.h),
                 Text(
                   _formatCurrency(_totalCredits),
                   style: GoogleFonts.inter(
-                    fontSize: 11.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF10B981),
                   ),
@@ -600,13 +619,13 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
             ),
           ),
         ),
-        SizedBox(width: 3.w),
+        SizedBox(width: 2.5.w),
         Expanded(
           child: Container(
-            padding: EdgeInsets.all(3.5.w),
+            padding: EdgeInsets.all(3.w),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF161B22) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: const Color(0xFFEF4444).withValues(alpha: 0.2),
               ),
@@ -616,29 +635,27 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.arrow_upward_rounded,
-                      color: const Color(0xFFEF4444),
-                      size: 16,
+                      color: Color(0xFFEF4444),
+                      size: 14,
                     ),
                     SizedBox(width: 1.w),
                     Text(
                       'Total Debits',
                       style: GoogleFonts.inter(
-                        fontSize: 7.5.sp,
+                        fontSize: 7.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF6B7280),
+                        color: isDark ? Colors.white54 : const Color(0xFF6B7280),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 0.5.h),
+                SizedBox(height: 0.4.h),
                 Text(
                   _formatCurrency(_totalDebits),
                   style: GoogleFonts.inter(
-                    fontSize: 11.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFFEF4444),
                   ),
@@ -654,10 +671,10 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
   Widget _buildEmptyEntries(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 5.h),
+      padding: EdgeInsets.symmetric(vertical: 4.h),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.06)
@@ -667,24 +684,24 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
       child: Column(
         children: [
           Icon(
-            Icons.receipt_long_rounded,
-            size: 48,
+            Icons.receipt_long_outlined,
+            size: 40,
             color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
           ),
-          SizedBox(height: 1.5.h),
+          SizedBox(height: 1.2.h),
           Text(
             'No Transactions Found',
             style: GoogleFonts.inter(
-              fontSize: 11.sp,
+              fontSize: 10.sp,
               fontWeight: FontWeight.w600,
               color: isDark ? Colors.white54 : const Color(0xFF6B7280),
             ),
           ),
-          SizedBox(height: 0.5.h),
+          SizedBox(height: 0.4.h),
           Text(
             'No transactions within the selected date range',
             style: GoogleFonts.inter(
-              fontSize: 8.5.sp,
+              fontSize: 7.5.sp,
               fontWeight: FontWeight.w400,
               color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
             ),
@@ -699,7 +716,7 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
       width: double.infinity,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.06)
@@ -710,11 +727,11 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(4.w, 3.w, 4.w, 2.w),
+            padding: EdgeInsets.fromLTRB(3.5.w, 3.w, 3.5.w, 2.w),
             child: Text(
               'Transaction History',
               style: GoogleFonts.inter(
-                fontSize: 9.5.sp,
+                fontSize: 9.sp,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : const Color(0xFF111827),
               ),
@@ -742,16 +759,16 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+          padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.2.h),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: amountColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Icon(
@@ -759,11 +776,11 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
                         ? Icons.arrow_downward_rounded
                         : Icons.arrow_upward_rounded,
                     color: amountColor,
-                    size: 18,
+                    size: 16,
                   ),
                 ),
               ),
-              SizedBox(width: 3.w),
+              SizedBox(width: 2.5.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -771,29 +788,29 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
                     Text(
                       entry.description,
                       style: GoogleFonts.inter(
-                        fontSize: 9.sp,
+                        fontSize: 8.5.sp,
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white : const Color(0xFF1A1D23),
                       ),
                     ),
-                    SizedBox(height: 0.3.h),
+                    SizedBox(height: 0.25.h),
                     Row(
                       children: [
                         Text(
                           _formatDate(entry.date),
                           style: GoogleFonts.inter(
-                            fontSize: 7.5.sp,
+                            fontSize: 7.sp,
                             fontWeight: FontWeight.w400,
                             color: isDark
                                 ? Colors.white38
                                 : const Color(0xFF9CA3AF),
                           ),
                         ),
-                        SizedBox(width: 2.w),
+                        SizedBox(width: 1.5.w),
                         Text(
                           '• ${entry.reference}',
                           style: GoogleFonts.inter(
-                            fontSize: 7.sp,
+                            fontSize: 6.5.sp,
                             fontWeight: FontWeight.w400,
                             color: isDark
                                 ? Colors.white24
@@ -811,16 +828,16 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
                   Text(
                     '$sign ${_formatCurrency(amount)}',
                     style: GoogleFonts.inter(
-                      fontSize: 9.sp,
+                      fontSize: 8.5.sp,
                       fontWeight: FontWeight.w700,
                       color: amountColor,
                     ),
                   ),
-                  SizedBox(height: 0.3.h),
+                  SizedBox(height: 0.25.h),
                   Text(
                     'Bal: ${_formatCurrency(entry.balance)}',
                     style: GoogleFonts.inter(
-                      fontSize: 7.sp,
+                      fontSize: 6.5.sp,
                       fontWeight: FontWeight.w400,
                       color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                     ),
@@ -833,8 +850,8 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
         if (!isLast)
           Divider(
             height: 1,
-            indent: 4.w,
-            endIndent: 4.w,
+            indent: 3.5.w,
+            endIndent: 3.5.w,
             color: isDark
                 ? Colors.white.withValues(alpha: 0.05)
                 : const Color(0xFFF3F4F6),
@@ -843,73 +860,121 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
     );
   }
 
-  Widget _buildDoneButton(bool isDark) {
-    return GestureDetector(
-      onTap: () {
-        // Pop back to the main form (pop OTP replacement + this)
-        Navigator.of(context).pop(); // pop result screen
-        Navigator.of(context).pop(); // pop back to form
-      },
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 1.7.h),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              widget.accentColor,
-              widget.accentColor.withValues(alpha: 0.85),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: widget.accentColor.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            'Done',
-            style: GoogleFonts.inter(
-              fontSize: 10.5.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+  Widget _receiptRow(
+    bool isDark,
+    String label,
+    String value, {
+    bool mono = false,
+    bool accent = false,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.7.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 28.w,
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 7.5.sp,
+                color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+              ),
             ),
           ),
-        ),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: mono
+                  ? GoogleFonts.jetBrainsMono(
+                      fontSize: 7.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: accent
+                          ? widget.accentColor
+                          : (isDark ? Colors.white : const Color(0xFF111827)),
+                    )
+                  : GoogleFonts.inter(
+                      fontSize: 8.sp,
+                      fontWeight: FontWeight.w500,
+                      color: accent
+                          ? widget.accentColor
+                          : (isDark ? Colors.white : const Color(0xFF111827)),
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildNewRequestButton(bool isDark) {
-    return GestureDetector(
-      onTap: () {
-        // Pop back to the form screen only
-        Navigator.of(context).pop();
-      },
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 1.5.h),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF161B22) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
+  Widget _divider(bool isDark) => Divider(
+        height: 0,
+        thickness: 1,
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : const Color(0xFFF3F4F6),
+      );
+
+  Widget _buildStickyDone(bool isDark) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(5.w, 1.h, 5.w, 1.4.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          top: BorderSide(
             color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
+                ? Colors.white.withValues(alpha: 0.06)
                 : const Color(0xFFE5E7EB),
           ),
         ),
-        child: Center(
-          child: Text(
-            'New Request',
-            style: GoogleFonts.inter(
-              fontSize: 10.sp,
-              fontWeight: FontWeight.w500,
-              color: widget.accentColor,
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 1.25.h),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      widget.accentColor,
+                      widget.accentColor.withValues(alpha: 0.85),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Text(
+                    'Done',
+                    style: GoogleFonts.inter(
+                      fontSize: 9.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
+            SizedBox(height: 0.8.h),
+            GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Text(
+                'New Request',
+                style: GoogleFonts.inter(
+                  fontSize: 8.5.sp,
+                  fontWeight: FontWeight.w500,
+                  color: widget.accentColor,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -932,39 +997,48 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
           child: Row(
             children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.08),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.arrow_back_rounded,
-                      color: Colors.white,
-                      size: 19,
-                    ),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.check_circle_rounded,
+                    color: Color(0xFF34D399),
+                    size: 22,
                   ),
                 ),
               ),
               SizedBox(width: 3.5.w),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.receipt_long_outlined,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+              SizedBox(width: 3.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Account Statement',
+                      widget.statementType == 'electronic'
+                          ? 'Account Statement'
+                          : 'Request Complete',
                       style: GoogleFonts.inter(
-                        fontSize: 15.sp,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: -0.3,
@@ -972,10 +1046,9 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
                     ),
                     SizedBox(height: 0.2.h),
                     Text(
-                      'Statement Request',
+                      'Full Statement · Step 4 of 4',
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
-                        fontWeight: FontWeight.w400,
                         color: Colors.white.withValues(alpha: 0.6),
                       ),
                     ),
@@ -985,27 +1058,27 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
+                  color: const Color(0xFF059669).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: const Color(0xFF059669).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
-                      Icons.receipt_long_rounded,
+                      Icons.check_rounded,
                       size: 12,
-                      color: Colors.white70,
+                      color: Color(0xFF34D399),
                     ),
                     SizedBox(width: 1.w),
                     Text(
-                      '${_entries.length}',
+                      'Success',
                       style: GoogleFonts.inter(
                         fontSize: 7.sp,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white70,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF34D399),
                       ),
                     ),
                   ],
@@ -1019,7 +1092,6 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
   }
 }
 
-// ── Statement Entry Model ──
 class _StatementEntry {
   final DateTime date;
   final String description;

@@ -1,20 +1,30 @@
-part of 'agency_other_bank_transfer_screen.dart';
+part of 'agency_reverse_transaction_screen.dart';
 
-class _TransferSuccessScreen extends StatelessWidget {
-  final String amount;
-  final String senderName;
-  final String beneficiaryName;
-  final String beneficiaryAccountNo;
-  final String beneficiaryBank;
+class _ReverseReceiptRow {
+  final String label;
+  final String value;
+  final bool mono;
+  final Color? valueColor;
+
+  const _ReverseReceiptRow(
+    this.label,
+    this.value, {
+    this.mono = false,
+    this.valueColor,
+  });
+}
+
+class _ReverseTransactionSuccessScreen extends StatelessWidget {
+  final _ReverseTxn txn;
+  final String reason;
+  final String narration;
   final Color accentColor;
   final List<Color> gradientColors;
 
-  const _TransferSuccessScreen({
-    required this.amount,
-    required this.senderName,
-    required this.beneficiaryName,
-    required this.beneficiaryAccountNo,
-    required this.beneficiaryBank,
+  const _ReverseTransactionSuccessScreen({
+    required this.txn,
+    required this.reason,
+    required this.narration,
     required this.accentColor,
     required this.gradientColors,
   });
@@ -23,14 +33,7 @@ class _TransferSuccessScreen extends StatelessWidget {
 
   String get _referenceNo {
     final ts = DateTime.now().millisecondsSinceEpoch.toString();
-    return 'OBT${ts.substring(ts.length - 8)}';
-  }
-
-  String _maskAccountNo(String no) {
-    if (no.length >= 7) {
-      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
-    }
-    return no;
+    return 'REV${ts.substring(ts.length - 8)}';
   }
 
   String _formatTimestamp(DateTime now) {
@@ -61,7 +64,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                   _buildSuccessBadge(isDark),
                   SizedBox(height: 1.8.h),
                   Text(
-                    'Transfer Successful',
+                    'Reversal Complete',
                     style: GoogleFonts.inter(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w800,
@@ -71,7 +74,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 0.5.h),
                   Text(
-                    'Funds have been sent to the beneficiary\'s external bank account.',
+                    'Transaction ${txn.reference} has been successfully reversed for ${txn.customer}.',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       fontSize: 8.sp,
@@ -80,8 +83,6 @@ class _TransferSuccessScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 2.h),
-                  _buildTransferFlow(isDark),
-                  SizedBox(height: 1.5.h),
                   _buildReceiptCard(isDark, timestamp),
                 ],
               ),
@@ -119,7 +120,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                   border: Border.all(color: _success.withValues(alpha: 0.28)),
                 ),
                 child: const Icon(
-                  Icons.account_balance_rounded,
+                  Icons.undo_rounded,
                   color: Color(0xFF34D399),
                   size: 19,
                 ),
@@ -139,7 +140,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Other Bank Transfer',
+                      'Reverse Transaction',
                       style: GoogleFonts.inter(
                         fontSize: 7.5.sp,
                         color: Colors.white.withValues(alpha: 0.6),
@@ -222,96 +223,26 @@ class _TransferSuccessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTransferFlow(bool isDark) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.2.h),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  'From',
-                  style: GoogleFonts.inter(
-                    fontSize: 7.sp,
-                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                  ),
-                ),
-                SizedBox(height: 0.3.h),
-                Text(
-                  senderName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF111827),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.arrow_forward_rounded, color: accentColor, size: 16),
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  'To',
-                  style: GoogleFonts.inter(
-                    fontSize: 7.sp,
-                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                  ),
-                ),
-                SizedBox(height: 0.3.h),
-                Text(
-                  beneficiaryName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF111827),
-                  ),
-                ),
-                SizedBox(height: 0.2.h),
-                Text(
-                  beneficiaryBank,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 6.5.sp,
-                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildReceiptCard(bool isDark, String timestamp) {
+    final rows = <_ReverseReceiptRow>[
+      _ReverseReceiptRow('Customer', txn.customer),
+      _ReverseReceiptRow('Transaction Type', txn.type),
+      _ReverseReceiptRow(
+        'Account',
+        _AgencyReverseTransactionScreenState.maskAccountNo(txn.accountNo),
+      ),
+      _ReverseReceiptRow('Original Ref', txn.reference, mono: true),
+      _ReverseReceiptRow('Reversal Reason', reason),
+      if (narration.isNotEmpty) _ReverseReceiptRow('Narration', narration),
+      _ReverseReceiptRow('Reversal Ref', _referenceNo, mono: true),
+      _ReverseReceiptRow('Date & Time', timestamp),
+      _ReverseReceiptRow(
+        'Status',
+        'Reversed',
+        valueColor: _success,
+      ),
+    ];
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -338,9 +269,7 @@ class _TransferSuccessScreen extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 1.8.h),
               decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(color: _success, width: 3),
-                ),
+                border: Border(left: BorderSide(color: _success, width: 3)),
                 gradient: LinearGradient(
                   colors: [
                     accentColor.withValues(alpha: isDark ? 0.1 : 0.05),
@@ -351,7 +280,7 @@ class _TransferSuccessScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    amount,
+                    'GH₵ ${txn.amount}',
                     style: GoogleFonts.inter(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.w800,
@@ -361,7 +290,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 0.3.h),
                   Text(
-                    'Transferred',
+                    'Reversed Amount',
                     style: GoogleFonts.inter(
                       fontSize: 7.5.sp,
                       fontWeight: FontWeight.w500,
@@ -375,15 +304,16 @@ class _TransferSuccessScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.5.h),
               child: Column(
                 children: [
-                  _buildReceiptRow('Beneficiary Bank', beneficiaryBank, isDark),
-                  Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
-                  _buildReceiptRow('Beneficiary Account', _maskAccountNo(beneficiaryAccountNo), isDark, mono: true),
-                  Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
-                  _buildReceiptRow('Reference', _referenceNo, isDark, mono: true),
-                  Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
-                  _buildReceiptRow('Date & Time', timestamp, isDark),
-                  Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
-                  _buildReceiptRow('Status', 'Completed', isDark, valueColor: _success),
+                  for (var i = 0; i < rows.length; i++) ...[
+                    if (i > 0)
+                      Divider(
+                        height: 1,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : const Color(0xFFF3F4F6),
+                      ),
+                    _buildReceiptRow(rows[i], isDark),
+                  ],
                 ],
               ),
             ),
@@ -393,13 +323,7 @@ class _TransferSuccessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReceiptRow(
-    String label,
-    String value,
-    bool isDark, {
-    bool mono = false,
-    Color? valueColor,
-  }) {
+  Widget _buildReceiptRow(_ReverseReceiptRow row, bool isDark) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.7.h),
       child: Row(
@@ -407,7 +331,7 @@ class _TransferSuccessScreen extends StatelessWidget {
           SizedBox(
             width: 30.w,
             child: Text(
-              label,
+              row.label,
               style: GoogleFonts.inter(
                 fontSize: 7.5.sp,
                 color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
@@ -416,17 +340,19 @@ class _TransferSuccessScreen extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              value,
-              style: mono
+              row.value,
+              style: row.mono
                   ? GoogleFonts.jetBrainsMono(
                       fontSize: 7.sp,
                       fontWeight: FontWeight.w500,
-                      color: valueColor ?? (isDark ? Colors.white : const Color(0xFF111827)),
+                      color: row.valueColor ??
+                          (isDark ? Colors.white : const Color(0xFF111827)),
                     )
                   : GoogleFonts.inter(
                       fontSize: 8.sp,
                       fontWeight: FontWeight.w600,
-                      color: valueColor ?? (isDark ? Colors.white : const Color(0xFF111827)),
+                      color: row.valueColor ??
+                          (isDark ? Colors.white : const Color(0xFF111827)),
                     ),
               textAlign: TextAlign.right,
             ),
@@ -492,7 +418,7 @@ class _TransferSuccessScreen extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 0.6.h),
                 child: Text(
-                  'New Transfer',
+                  'New Reversal',
                   style: GoogleFonts.inter(
                     fontSize: 8.5.sp,
                     fontWeight: FontWeight.w600,

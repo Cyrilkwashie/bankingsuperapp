@@ -6,7 +6,7 @@ import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
 part 'atm_card_otp_screen.dart';
 part 'atm_card_confirmation_screen.dart';
-part 'atm_card_success_dialog.dart';
+part 'atm_card_success_screen.dart';
 
 class AgencyAtmCardScreen extends StatefulWidget {
   const AgencyAtmCardScreen({super.key});
@@ -17,6 +17,14 @@ class AgencyAtmCardScreen extends StatefulWidget {
 
 class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
     with SingleTickerProviderStateMixin {
+  static const Color _accent = Color(0xFF2E8B8B);
+  static const List<Color> _gradient = [Color(0xFF1B365D), Color(0xFF2E8B8B)];
+  static const Color _success = Color(0xFF059669);
+  static const double _fieldRadius = 10;
+
+  EdgeInsets get _fieldPadding =>
+      EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 0.95.h);
+
   final _formKey = GlobalKey<FormState>();
   final _accountController = TextEditingController();
   final _displayNameController = TextEditingController();
@@ -274,7 +282,6 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
     });
   }
 
-  // ── Account Selection Dropdown (multiple phone accounts) ──
   Widget _buildAccountSelectionDropdown(bool isDark) {
     return Padding(
       padding: EdgeInsets.only(top: 1.2.h),
@@ -284,20 +291,22 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
           Text(
             'Select Account',
             style: GoogleFonts.inter(
-              fontSize: 9.sp,
+              fontSize: 7.5.sp,
               fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white70 : const Color(0xFF374151),
+              letterSpacing: 0.2,
+              color: isDark ? Colors.white54 : const Color(0xFF64748B),
             ),
           ),
-          SizedBox(height: 0.8.h),
+          SizedBox(height: 0.4.h),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            height: 42,
+            padding: EdgeInsets.symmetric(horizontal: 3.w),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF161B22) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(_fieldRadius),
               border: Border.all(
                 color: _accountVerified
-                    ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+                    ? _accent.withValues(alpha: 0.4)
                     : isDark
                     ? Colors.white.withValues(alpha: 0.08)
                     : const Color(0xFFE5E7EB),
@@ -307,23 +316,25 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
               child: DropdownButton<String>(
                 value: _accountVerified ? _resolvedAccountNo : null,
                 isExpanded: true,
+                isDense: true,
                 hint: Text(
-                  'Select account for this transaction',
+                  'Select account',
                   style: GoogleFonts.inter(
-                    fontSize: 10.sp,
+                    fontSize: 9.sp,
                     color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
                   ),
                 ),
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
+                  size: 18,
                   color: _accountVerified
-                      ? const Color(0xFF2E8B8B)
+                      ? _accent
                       : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
                 ),
                 dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(_fieldRadius),
                 style: GoogleFonts.inter(
-                  fontSize: 10.sp,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.w500,
                   color: isDark ? Colors.white : const Color(0xFF1A1D23),
                 ),
@@ -342,17 +353,15 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                           children: [
                             Icon(
                               Icons.account_balance_rounded,
-                              size: 16,
-                              color: const Color(
-                                0xFF2E8B8B,
-                              ).withValues(alpha: 0.6),
+                              size: 14,
+                              color: _accent.withValues(alpha: 0.6),
                             ),
                             SizedBox(width: 2.w),
                             Expanded(
                               child: Text(
                                 '${acct['name']} \u2022 ${acct['type'] ?? 'Savings'}',
                                 style: GoogleFonts.inter(
-                                  fontSize: 9.5.sp,
+                                  fontSize: 8.5.sp,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -363,7 +372,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                         Text(
                           maskedNo,
                           style: GoogleFonts.jetBrainsMono(
-                            fontSize: 7.5.sp,
+                            fontSize: 7.sp,
                             color: isDark
                                 ? Colors.white54
                                 : const Color(0xFF6B7280),
@@ -450,8 +459,8 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
           cardType: _selectedCardType!,
           displayName: _displayNameController.text.trim(),
           pickupBranch: _selectedBranch!,
-          accentColor: const Color(0xFF2E8B8B),
-          gradientColors: const [Color(0xFF1B365D), Color(0xFF2E8B8B)],
+          accentColor: _accent,
+          gradientColors: _gradient,
         ),
       ),
     );
@@ -470,72 +479,85 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
         child: Column(
           children: [
             _buildHeader(isDark),
+            _buildStepIndicator(1, isDark),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 4.h),
+                padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 2.h),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Lookup type toggle
-                      _buildLookupTypeToggle(isDark),
-                      SizedBox(height: 2.h),
-
-                      _buildFieldLabel(
-                        _lookupType == 'account'
-                            ? 'Account Number'
-                            : 'Phone Number',
-                        isDark,
-                      ),
-                      SizedBox(height: 0.8.h),
-                      _buildAccountField(isDark),
-
-                      if (_isLookingUp) _buildLookupLoader(isDark),
-                      if (_phoneAccountsList.length > 1)
-                        _buildAccountSelectionDropdown(isDark),
-                      if (_accountVerified) _buildAccountInfoCard(isDark),
-                      if (_accountNotFound) _buildNotFoundCard(isDark),
-
-                      SizedBox(height: 2.5.h),
-
-                      // Card Type
-                      _buildFieldLabel('Card Type', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildCardTypeDropdown(isDark),
-                      SizedBox(height: 2.5.h),
-
-                      // Card Display Name
-                      _buildFieldLabel('Card Display Name', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildDisplayNameField(isDark),
-                      SizedBox(height: 0.5.h),
-                      Text(
-                        'Name to be printed on the card (max 21 characters)',
-                        style: GoogleFonts.inter(
-                          fontSize: 7.sp,
-                          fontWeight: FontWeight.w400,
-                          color: isDark
-                              ? Colors.white38
-                              : const Color(0xFF9CA3AF),
+                      _buildIntroTip(isDark),
+                      SizedBox(height: 1.5.h),
+                      _buildSectionCard(
+                        isDark: isDark,
+                        title: 'Find Account',
+                        subtitle: 'Look up by account or phone number',
+                        icon: Icons.search_rounded,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLookupTypeToggle(isDark),
+                            SizedBox(height: 1.3.h),
+                            _buildFieldLabel(
+                              _lookupType == 'account'
+                                  ? 'Account Number'
+                                  : 'Phone Number',
+                              isDark,
+                            ),
+                            SizedBox(height: 0.4.h),
+                            _buildAccountField(isDark),
+                            if (_isLookingUp) _buildLookupLoader(isDark),
+                            if (_phoneAccountsList.length > 1)
+                              _buildAccountSelectionDropdown(isDark),
+                            if (_accountVerified) _buildAccountInfoCard(isDark),
+                            if (_accountNotFound) _buildNotFoundCard(isDark),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 2.5.h),
-
-                      // Pickup Branch
-                      _buildFieldLabel('Pickup Branch', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildBranchDropdown(isDark),
-                      SizedBox(height: 3.h),
-
-                      _buildSubmitButton(isDark),
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 1.5.h),
+                      _buildSectionCard(
+                        isDark: isDark,
+                        title: 'Card Details',
+                        subtitle: 'Type, display name and pickup branch',
+                        icon: Icons.credit_card_outlined,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildFieldLabel('Card Type', isDark),
+                            SizedBox(height: 0.4.h),
+                            _buildCardTypeDropdown(isDark),
+                            SizedBox(height: 1.3.h),
+                            _buildFieldLabel('Card Display Name', isDark),
+                            SizedBox(height: 0.4.h),
+                            _buildDisplayNameField(isDark),
+                            SizedBox(height: 0.4.h),
+                            Text(
+                              'Name to be printed on the card (max 21 characters)',
+                              style: GoogleFonts.inter(
+                                fontSize: 7.sp,
+                                fontWeight: FontWeight.w400,
+                                color: isDark
+                                    ? Colors.white38
+                                    : const Color(0xFF9CA3AF),
+                              ),
+                            ),
+                            SizedBox(height: 1.3.h),
+                            _buildFieldLabel('Pickup Branch', isDark),
+                            SizedBox(height: 0.4.h),
+                            _buildBranchDropdown(isDark),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 1.5.h),
                     ],
                   ),
                 ),
               ),
             ),
+            _buildStickyActionBar(isDark),
           ],
         ),
       ),
@@ -551,7 +573,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
           end: Alignment.bottomRight,
           colors: isDark
               ? [const Color(0xFF162032), const Color(0xFF0D1117)]
-              : [const Color(0xFF1B365D), const Color(0xFF2E8B8B)],
+              : _gradient,
         ),
       ),
       child: SafeArea(
@@ -582,6 +604,25 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                 ),
               ),
               SizedBox(width: 3.5.w),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(13),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.credit_card_outlined,
+                    color: Colors.white,
+                    size: 21,
+                  ),
+                ),
+              ),
+              SizedBox(width: 3.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,7 +630,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                     Text(
                       'ATM Card Request',
                       style: GoogleFonts.inter(
-                        fontSize: 15.sp,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: -0.3,
@@ -597,7 +638,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                     ),
                     SizedBox(height: 0.2.h),
                     Text(
-                      'Agency Banking',
+                      'Agency Banking · Step 1 of 3',
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
                         fontWeight: FontWeight.w400,
@@ -646,13 +687,275 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
     );
   }
 
+  Widget _buildStepIndicator(int currentStep, bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.4.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          _stepDot(1, 'Request', isDark, completed: false, isCurrent: currentStep == 1),
+          _stepConnector(isDark, active: currentStep >= 2),
+          _stepDot(2, 'Verify', isDark, completed: currentStep > 2, isCurrent: currentStep == 2),
+          _stepConnector(isDark, active: currentStep >= 3),
+          _stepDot(3, 'Confirm', isDark, completed: false, isCurrent: currentStep == 3),
+        ],
+      ),
+    );
+  }
+
+  Widget _stepConnector(bool isDark, {bool active = false}) {
+    return Expanded(
+      child: Container(
+        height: 2,
+        margin: EdgeInsets.only(bottom: 2.2.h, left: 1.w, right: 1.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(2),
+          gradient: active
+              ? LinearGradient(
+                  colors: [_accent, _accent.withValues(alpha: 0.5)],
+                )
+              : null,
+          color: active
+              ? null
+              : (isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : const Color(0xFFE5E7EB)),
+        ),
+      ),
+    );
+  }
+
+  Widget _stepDot(
+    int step,
+    String label,
+    bool isDark, {
+    required bool completed,
+    bool isCurrent = false,
+  }) {
+    return Column(
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: completed || isCurrent ? _accent : null,
+            border: completed || isCurrent
+                ? null
+                : Border.all(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : const Color(0xFFD1D5DB),
+                  ),
+            boxShadow: isCurrent
+                ? [
+                    BoxShadow(
+                      color: _accent.withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: completed
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
+                : Text(
+                    '$step',
+                    style: GoogleFonts.inter(
+                      fontSize: 8.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isCurrent
+                          ? Colors.white
+                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                    ),
+                  ),
+          ),
+        ),
+        SizedBox(height: 0.5.h),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 7.sp,
+            fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w500,
+            color: isCurrent || completed
+                ? _accent
+                : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIntroTip(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.h),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            _accent.withValues(alpha: isDark ? 0.12 : 0.06),
+            _accent.withValues(alpha: isDark ? 0.04 : 0.02),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _accent.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline_rounded, color: _accent, size: 15),
+          SizedBox(width: 2.5.w),
+          Expanded(
+            child: Text(
+              'Verify the customer account, select card type and pickup branch, then confirm with OTP.',
+              style: GoogleFonts.inter(
+                fontSize: 7.5.sp,
+                height: 1.35,
+                color: isDark ? Colors.white60 : const Color(0xFF64748B),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required bool isDark,
+    required String title,
+    String? subtitle,
+    IconData? icon,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(3.5.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (icon != null) ...[
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: _accent.withValues(alpha: isDark ? 0.15 : 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: _accent, size: 15),
+                ),
+                SizedBox(width: 2.5.w),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: 9.5.sp,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF111827),
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      SizedBox(height: 0.1.h),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.inter(
+                          fontSize: 7.sp,
+                          color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 1.3.h),
+          child,
+        ],
+      ),
+    );
+  }
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+  }
+
+  String _maskAccountNo(String no) {
+    if (no.length >= 7) {
+      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
+    }
+    return no;
+  }
+
+  Widget _buildStickyActionBar(bool isDark) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(5.w, 1.h, 5.w, 1.4.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: _buildSubmitButton(isDark),
+      ),
+    );
+  }
+
   Widget _buildFieldLabel(String label, bool isDark) {
     return Text(
       label,
       style: GoogleFonts.inter(
-        fontSize: 9.sp,
+        fontSize: 7.5.sp,
         fontWeight: FontWeight.w600,
-        color: isDark ? Colors.white70 : const Color(0xFF374151),
+        letterSpacing: 0.2,
+        color: isDark ? Colors.white54 : const Color(0xFF64748B),
       ),
     );
   }
@@ -674,32 +977,34 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
         LengthLimitingTextInputFormatter(maxLength),
       ],
       style: GoogleFonts.inter(
-        fontSize: 10.sp,
+        fontSize: 9.sp,
         fontWeight: FontWeight.w500,
         color: isDark ? Colors.white : const Color(0xFF1A1D23),
-        letterSpacing: 1.2,
+        letterSpacing: 0.8,
       ),
       validator: (v) {
         if (v == null || v.length < maxLength) return validationMsg;
         return null;
       },
       decoration: InputDecoration(
+        isDense: true,
         hintText: hintText,
         hintStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
+          fontSize: 9.sp,
           color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
-          letterSpacing: 1.2,
+          letterSpacing: 0.8,
         ),
         filled: true,
-        fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        contentPadding: _fieldPadding,
         prefixIcon: Icon(
-          isPhone ? Icons.phone_rounded : Icons.account_balance_rounded,
+          isPhone ? Icons.phone_outlined : Icons.account_balance_outlined,
           color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-          size: 20,
+          size: 17,
         ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 40),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -707,48 +1012,52 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: _accountVerified
-                ? const Color(0xFF059669).withValues(alpha: 0.5)
+                ? _success.withValues(alpha: 0.45)
                 : _accountNotFound
-                ? const Color(0xFFDC2626).withValues(alpha: 0.5)
+                ? const Color(0xFFDC2626).withValues(alpha: 0.45)
                 : isDark
                 ? Colors.white.withValues(alpha: 0.08)
                 : const Color(0xFFE5E7EB),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(color: _accent, width: 1),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: const BorderSide(color: Color(0xFFDC2626)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1),
         ),
         suffixIcon: _isLookingUp
             ? Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 child: SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 16,
+                  height: 16,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: isDark ? Colors.white38 : const Color(0xFF2E8B8B),
+                    strokeWidth: 1.5,
+                    color: isDark ? Colors.white38 : _accent,
                   ),
                 ),
               )
             : _accountVerified
-            ? const Icon(
-                Icons.check_circle_rounded,
-                color: Color(0xFF059669),
-                size: 22,
+            ? const Padding(
+                padding: EdgeInsets.only(right: 4),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF059669),
+                  size: 18,
+                ),
               )
             : null,
+        suffixIconConstraints: const BoxConstraints(minWidth: 36),
       ),
     );
   }
@@ -756,121 +1065,66 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
   // ── Lookup Type Toggle ──
   Widget _buildLookupTypeToggle(bool isDark) {
     return Container(
-      padding: EdgeInsets.all(0.5.w),
+      padding: EdgeInsets.all(0.4.w),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : const Color(0xFFE5E7EB),
-        ),
+        color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _onLookupTypeChanged('account'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: _lookupType == 'account'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: _lookupType == 'account'
-                      ? [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF2E8B8B,
-                            ).withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.account_balance_rounded,
-                      size: 16,
-                      color: _lookupType == 'account'
-                          ? Colors.white
-                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Account No.',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: _lookupType == 'account'
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _onLookupTypeChanged('phone'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: _lookupType == 'phone'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: _lookupType == 'phone'
-                      ? [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF2E8B8B,
-                            ).withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.phone_rounded,
-                      size: 16,
-                      color: _lookupType == 'phone'
-                          ? Colors.white
-                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Phone No.',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: _lookupType == 'phone'
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          _lookupTab('account', Icons.account_balance_rounded, 'Account No.', isDark),
+          _lookupTab('phone', Icons.phone_rounded, 'Phone No.', isDark),
         ],
+      ),
+    );
+  }
+
+  Widget _lookupTab(String type, IconData icon, String label, bool isDark) {
+    final selected = _lookupType == type;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onLookupTypeChanged(type),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.symmetric(vertical: 0.85.h),
+          decoration: BoxDecoration(
+            color: selected ? _accent : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: _accent.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 13,
+                color: selected
+                    ? Colors.white
+                    : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+              ),
+              SizedBox(width: 1.2.w),
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 7.5.sp,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected
+                      ? Colors.white
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -904,59 +1158,48 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
 
   Widget _buildAccountInfoCard(bool isDark) {
     final isActive = _accountStatus == 'Active';
-    const accentColor = Color(0xFF2E8B8B);
+    final statusColor = isActive ? _success : const Color(0xFFF59E0B);
 
     return Padding(
-      padding: EdgeInsets.only(top: 1.2.h),
-      child: Container(
+      padding: EdgeInsets.only(top: 1.h),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
         width: double.infinity,
-        padding: EdgeInsets.all(4.w),
+        padding: EdgeInsets.all(3.w),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isActive
-                ? [
-                    accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(
-                      0xFF10B981,
-                    ).withValues(alpha: isDark ? 0.08 : 0.04),
-                  ]
-                : [
-                    const Color(
-                      0xFFF59E0B,
-                    ).withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(
-                      0xFFFBBF24,
-                    ).withValues(alpha: isDark ? 0.08 : 0.04),
-                  ],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isActive
-                ? accentColor.withValues(alpha: 0.3)
-                : const Color(0xFFF59E0B).withValues(alpha: 0.3),
-          ),
+          color: statusColor.withValues(alpha: isDark ? 0.08 : 0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: statusColor.withValues(alpha: 0.18)),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(2.w),
+                  width: 34,
+                  height: 34,
                   decoration: BoxDecoration(
-                    color: (isActive ? accentColor : const Color(0xFFF59E0B))
-                        .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(
+                      colors: [
+                        _accent.withValues(alpha: 0.85),
+                        _accent,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(9),
                   ),
-                  child: CustomIconWidget(
-                    iconName: 'person',
-                    color: isActive ? accentColor : const Color(0xFFF59E0B),
-                    size: 20,
+                  child: Center(
+                    child: Text(
+                      _initials(_accountName),
+                      style: GoogleFonts.inter(
+                        fontSize: 9.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(width: 3.w),
+                SizedBox(width: 2.5.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -964,85 +1207,98 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                       Text(
                         _accountName,
                         style: GoogleFonts.inter(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF1A1D23),
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF111827),
                         ),
                       ),
-                      SizedBox(height: 0.3.h),
+                      SizedBox(height: 0.15.h),
                       Text(
-                        'A/C: $_resolvedAccountNo',
-                        style: GoogleFonts.inter(
-                          fontSize: 8.5.sp,
-                          fontWeight: FontWeight.w500,
-                          color: isDark
-                              ? Colors.white60
-                              : const Color(0xFF64748B),
+                        _maskAccountNo(_resolvedAccountNo),
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 7.sp,
+                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 2.5.w,
-                    vertical: 0.5.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.3.h),
                   decoration: BoxDecoration(
-                    color: isActive ? accentColor : const Color(0xFFF59E0B),
-                    borderRadius: BorderRadius.circular(8),
+                    color: statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    _accountStatus,
-                    style: GoogleFonts.inter(
-                      fontSize: 7.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      SizedBox(width: 1.w),
+                      Text(
+                        _accountStatus,
+                        style: GoogleFonts.inter(
+                          fontSize: 6.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: statusColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 1.5.h),
+            SizedBox(height: 0.9.h),
             GestureDetector(
               onTap: () => setState(() => _balanceVisible = !_balanceVisible),
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.7.h),
                 decoration: BoxDecoration(
-                  color: (isActive ? accentColor : const Color(0xFFF59E0B))
-                      .withValues(alpha: 0.1),
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.2)
+                      : Colors.white.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
+                    Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 14,
+                      color: isDark ? Colors.white38 : const Color(0xFF64748B),
+                    ),
+                    SizedBox(width: 1.5.w),
                     Text(
-                      'Balance: ',
+                      'Balance',
                       style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
+                        fontSize: 7.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF64748B),
+                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
                       ),
                     ),
-                    Text(
-                      _balanceVisible ? _accountBalance : '••••••••',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
-                        color: isActive ? accentColor : const Color(0xFFF59E0B),
+                    SizedBox(width: 1.5.w),
+                    Expanded(
+                      child: Text(
+                        _balanceVisible ? _accountBalance : '••••••••',
+                        style: GoogleFonts.inter(
+                          fontSize: 8.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF111827),
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    CustomIconWidget(
-                      iconName: _balanceVisible
-                          ? 'visibility'
-                          : 'visibility_off',
-                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                      size: 16,
+                    Icon(
+                      _balanceVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      size: 14,
+                      color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                     ),
                   ],
                 ),
@@ -1121,13 +1377,14 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
   // ── Card Type Dropdown ──
   Widget _buildCardTypeDropdown(bool isDark) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      height: 42,
+      padding: EdgeInsets.symmetric(horizontal: 3.w),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(_fieldRadius),
         border: Border.all(
           color: _selectedCardType != null
-              ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+              ? _accent.withValues(alpha: 0.4)
               : isDark
               ? Colors.white.withValues(alpha: 0.08)
               : const Color(0xFFE5E7EB),
@@ -1137,23 +1394,25 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
         child: DropdownButton<String>(
           value: _selectedCardType,
           isExpanded: true,
+          isDense: true,
           hint: Text(
             'Select card type',
             style: GoogleFonts.inter(
-              fontSize: 10.sp,
+              fontSize: 9.sp,
               color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
             ),
           ),
           icon: Icon(
             Icons.keyboard_arrow_down_rounded,
+            size: 18,
             color: _selectedCardType != null
-                ? const Color(0xFF2E8B8B)
+                ? _accent
                 : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
           ),
           dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           style: GoogleFonts.inter(
-            fontSize: 10.sp,
+            fontSize: 9.sp,
             fontWeight: FontWeight.w500,
             color: isDark ? Colors.white : const Color(0xFF1A1D23),
           ),
@@ -1164,7 +1423,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                 children: [
                   Icon(
                     Icons.credit_card_rounded,
-                    size: 16,
+                    size: 14,
                     color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                   ),
                   SizedBox(width: 2.w),
@@ -1172,7 +1431,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                     child: Text(
                       cardType,
                       style: GoogleFonts.inter(
-                        fontSize: 9.5.sp,
+                        fontSize: 8.5.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1199,29 +1458,31 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
       validator: (v) =>
           v == null || v.trim().isEmpty ? 'Enter card display name' : null,
       style: GoogleFonts.inter(
-        fontSize: 10.sp,
+        fontSize: 9.sp,
         fontWeight: FontWeight.w600,
         color: isDark ? Colors.white : const Color(0xFF1A1D23),
-        letterSpacing: 1.0,
+        letterSpacing: 0.8,
       ),
       decoration: InputDecoration(
+        isDense: true,
         hintText: 'FULL NAME ON CARD',
         counterText: '',
         hintStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
+          fontSize: 9.sp,
           color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
-          letterSpacing: 1.0,
+          letterSpacing: 0.8,
         ),
         filled: true,
-        fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        contentPadding: _fieldPadding,
         prefixIcon: Icon(
-          Icons.badge_rounded,
+          Icons.badge_outlined,
           color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-          size: 20,
+          size: 17,
         ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 40),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -1229,7 +1490,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -1237,16 +1498,16 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(color: _accent, width: 1),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: const BorderSide(color: Color(0xFFDC2626)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1),
         ),
       ),
     );
@@ -1255,13 +1516,14 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
   // ── Branch Dropdown ──
   Widget _buildBranchDropdown(bool isDark) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      height: 42,
+      padding: EdgeInsets.symmetric(horizontal: 3.w),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(_fieldRadius),
         border: Border.all(
           color: _selectedBranch != null
-              ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+              ? _accent.withValues(alpha: 0.4)
               : isDark
               ? Colors.white.withValues(alpha: 0.08)
               : const Color(0xFFE5E7EB),
@@ -1271,23 +1533,25 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
         child: DropdownButton<String>(
           value: _selectedBranch,
           isExpanded: true,
+          isDense: true,
           hint: Text(
             'Select pickup branch',
             style: GoogleFonts.inter(
-              fontSize: 10.sp,
+              fontSize: 9.sp,
               color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
             ),
           ),
           icon: Icon(
             Icons.keyboard_arrow_down_rounded,
+            size: 18,
             color: _selectedBranch != null
-                ? const Color(0xFF2E8B8B)
+                ? _accent
                 : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
           ),
           dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           style: GoogleFonts.inter(
-            fontSize: 10.sp,
+            fontSize: 9.sp,
             fontWeight: FontWeight.w500,
             color: isDark ? Colors.white : const Color(0xFF1A1D23),
           ),
@@ -1297,8 +1561,8 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
               child: Row(
                 children: [
                   Icon(
-                    Icons.location_on_rounded,
-                    size: 16,
+                    Icons.location_on_outlined,
+                    size: 14,
                     color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                   ),
                   SizedBox(width: 2.w),
@@ -1306,7 +1570,7 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
                     child: Text(
                       branch,
                       style: GoogleFonts.inter(
-                        fontSize: 9.5.sp,
+                        fontSize: 8.5.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1331,38 +1595,45 @@ class _AgencyAtmCardScreenState extends State<AgencyAtmCardScreen>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 1.7.h),
+        padding: EdgeInsets.symmetric(vertical: 1.25.h),
         decoration: BoxDecoration(
           gradient: enabled
-              ? const LinearGradient(
-                  colors: [Color(0xFF2E8B8B), Color(0xFF1B6B6B)],
+              ? LinearGradient(
+                  colors: [_accent, _accent.withValues(alpha: 0.85)],
                 )
               : null,
           color: enabled
               ? null
               : (isDark ? const Color(0xFF1E2328) : const Color(0xFFE5E7EB)),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: const Color(0xFF2E8B8B).withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    color: _accent.withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
                 ]
               : null,
         ),
-        child: Center(
-          child: Text(
-            'Continue',
-            style: GoogleFonts.inter(
-              fontSize: 10.5.sp,
-              fontWeight: FontWeight.w600,
-              color: enabled
-                  ? Colors.white
-                  : (isDark ? Colors.white24 : const Color(0xFF9CA3AF)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Continue',
+              style: GoogleFonts.inter(
+                fontSize: 9.5.sp,
+                fontWeight: FontWeight.w600,
+                color: enabled
+                    ? Colors.white
+                    : (isDark ? Colors.white24 : const Color(0xFF9CA3AF)),
+              ),
             ),
-          ),
+            if (enabled) ...[
+              SizedBox(width: 1.5.w),
+              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16),
+            ],
+          ],
         ),
       ),
     );

@@ -23,6 +23,14 @@ class AgencyBalanceEnquiryScreen extends StatefulWidget {
 class _AgencyBalanceEnquiryScreenState
     extends State<AgencyBalanceEnquiryScreen>
     with SingleTickerProviderStateMixin {
+  static const Color _accent = Color(0xFF2E8B8B);
+  static const List<Color> _gradient = [Color(0xFF1B365D), Color(0xFF2E8B8B)];
+  static const Color _success = Color(0xFF059669);
+  static const double _fieldRadius = 10;
+
+  EdgeInsets get _fieldPadding =>
+      EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 0.95.h);
+
   final _formKey = GlobalKey<FormState>();
   final _accountController = TextEditingController();
   final _destinationPhoneController = TextEditingController();
@@ -50,11 +58,11 @@ class _AgencyBalanceEnquiryScreenState
   String _lookupType = 'account';
 
   // Enquiry type
-  String _enquiryType = 'balance'; // 'balance' | 'transactions'
+  final String _enquiryType = 'balance'; // 'balance' | 'transactions'
 
   // Transaction count options
-  int _txnCount = 5;
-  bool _useCustomDateRange = false;
+  final int _txnCount = 5;
+  final bool _useCustomDateRange = false;
   DateTime? _txnStartDate;
   DateTime? _txnEndDate;
 
@@ -276,54 +284,6 @@ class _AgencyBalanceEnquiryScreenState
 
   // ── Date pickers ───────────────────────────────────────────
 
-  Future<void> _pickDate(BuildContext context, {required bool isStart}) async {
-    final now = DateTime.now();
-    final initial = isStart
-        ? (_txnStartDate ?? now.subtract(const Duration(days: 30)))
-        : (_txnEndDate ?? now);
-    final first = DateTime(2020);
-
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initial.isAfter(now) ? now : initial,
-      firstDate: first,
-      lastDate: now,
-      builder: (context, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF2E8B8B),
-              brightness: isDark ? Brightness.dark : Brightness.light,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _txnStartDate = picked;
-          if (_txnEndDate != null && _txnEndDate!.isBefore(picked)) {
-            _txnEndDate = null;
-          }
-        } else {
-          _txnEndDate = picked;
-        }
-      });
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
-    return '${date.day.toString().padLeft(2, '0')} ${months[date.month - 1]} ${date.year}';
-  }
-
   // ── Validation ─────────────────────────────────────────────
 
   bool get _canSubmit {
@@ -370,8 +330,8 @@ class _AgencyBalanceEnquiryScreenState
           txnStartDate: _useCustomDateRange ? _txnStartDate : null,
           txnEndDate: _useCustomDateRange ? _txnEndDate : null,
           destinationPhone: _destinationPhoneController.text.trim(),
-          accentColor: const Color(0xFF2E8B8B),
-          gradientColors: const [Color(0xFF1B365D), Color(0xFF2E8B8B)],
+          accentColor: _accent,
+          gradientColors: _gradient,
         ),
       ),
     );
@@ -391,70 +351,68 @@ class _AgencyBalanceEnquiryScreenState
         child: Column(
           children: [
             _buildHeader(isDark),
+            _buildFlowStepIndicator(1, isDark),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 4.h),
+                padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 2.h),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Lookup type toggle
-                      _buildLookupTypeToggle(isDark),
-                      SizedBox(height: 2.h),
-
-                      _buildFieldLabel(
-                        _lookupType == 'account'
-                            ? 'Account Number'
-                            : 'Phone Number',
-                        isDark,
+                      _buildIntroTip(isDark),
+                      SizedBox(height: 1.5.h),
+                      _buildSectionCard(
+                        isDark: isDark,
+                        title: 'Find Account',
+                        subtitle: 'Look up by account or phone number',
+                        icon: Icons.search_rounded,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLookupTypeToggle(isDark),
+                            SizedBox(height: 1.3.h),
+                            _buildFieldLabel(
+                              _lookupType == 'account'
+                                  ? 'Account Number'
+                                  : 'Phone Number',
+                              isDark,
+                            ),
+                            SizedBox(height: 0.4.h),
+                            _buildAccountField(isDark),
+                            if (_isLookingUp) _buildLookupLoader(isDark),
+                            if (_phoneAccountsList.length > 1)
+                              _buildAccountSelectionDropdown(isDark),
+                            if (_accountVerified) _buildAccountInfoCard(isDark),
+                            if (_accountNotFound) _buildNotFoundCard(isDark),
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 0.8.h),
-                      _buildAccountField(isDark),
-
-                      if (_isLookingUp) _buildLookupLoader(isDark),
-                      if (_phoneAccountsList.length > 1)
-                        _buildAccountSelectionDropdown(isDark),
-                      if (_accountVerified) _buildAccountInfoCard(isDark),
-                      if (_accountNotFound) _buildNotFoundCard(isDark),
-
-                      SizedBox(height: 2.5.h),
-
-                      // Enquiry type
-                      _buildFieldLabel('Enquiry Type', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildEnquiryTypeToggle(isDark),
-
-                      // Transaction options
-                      if (_enquiryType == 'transactions') ...[
-                        SizedBox(height: 2.5.h),
-                        _buildFieldLabel('Transaction Period', isDark),
-                        SizedBox(height: 0.8.h),
-                        _buildTransactionOptions(isDark),
-                      ],
-
-                      SizedBox(height: 2.5.h),
-
-                      // Destination phone
-                      _buildFieldLabel('Deliver To (Phone)', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildDestinationPhoneField(isDark),
-
-                      SizedBox(height: 1.2.h),
-
-                      // SMS info box
-                      _buildSmsInfoBox(isDark),
-
-                      SizedBox(height: 3.h),
-
-                      _buildSubmitButton(isDark),
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 1.5.h),
+                      _buildSectionCard(
+                        isDark: isDark,
+                        title: 'Delivery',
+                        subtitle: 'SMS destination for balance enquiry',
+                        icon: Icons.sms_outlined,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildFieldLabel('Deliver To (Phone)', isDark),
+                            SizedBox(height: 0.4.h),
+                            _buildDestinationPhoneField(isDark),
+                            SizedBox(height: 1.2.h),
+                            _buildSmsInfoBox(isDark),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 1.5.h),
                     ],
                   ),
                 ),
               ),
             ),
+            _buildStickyActionBar(isDark),
           ],
         ),
       ),
@@ -471,7 +429,7 @@ class _AgencyBalanceEnquiryScreenState
           end: Alignment.bottomRight,
           colors: isDark
               ? [const Color(0xFF162032), const Color(0xFF0D1117)]
-              : [const Color(0xFF1B365D), const Color(0xFF2E8B8B)],
+              : _gradient,
         ),
       ),
       child: SafeArea(
@@ -502,6 +460,25 @@ class _AgencyBalanceEnquiryScreenState
                 ),
               ),
               SizedBox(width: 3.5.w),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(13),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: Colors.white,
+                    size: 21,
+                  ),
+                ),
+              ),
+              SizedBox(width: 3.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,7 +486,7 @@ class _AgencyBalanceEnquiryScreenState
                     Text(
                       'Balance Enquiry',
                       style: GoogleFonts.inter(
-                        fontSize: 15.sp,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: -0.3,
@@ -517,7 +494,7 @@ class _AgencyBalanceEnquiryScreenState
                     ),
                     SizedBox(height: 0.2.h),
                     Text(
-                      'Agency Banking',
+                      'Agency Banking · Step 1 of 4',
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
                         fontWeight: FontWeight.w400,
@@ -566,15 +543,284 @@ class _AgencyBalanceEnquiryScreenState
     );
   }
 
+  Widget _buildFlowStepIndicator(int currentStep, bool isDark) =>
+      buildFlowStepIndicator(currentStep, isDark);
+
+  static Widget buildFlowStepIndicator(int currentStep, bool isDark) {
+    const labels = ['Lookup', 'OTP', 'Confirm', 'Done'];
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
+      ),
+      child: Row(
+        children: List.generate(4, (i) {
+          final step = i + 1;
+          final isLast = step == 4;
+          return Expanded(
+            flex: isLast ? 0 : 1,
+            child: Row(
+              children: [
+                _flowStepDotStatic(step, currentStep, labels[i], isDark),
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      height: 2,
+                      margin: EdgeInsets.symmetric(horizontal: 1.w),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        color: step < currentStep
+                            ? _success
+                            : (isDark
+                                  ? Colors.white.withValues(alpha: 0.08)
+                                  : const Color(0xFFE5E7EB)),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  static Widget _flowStepDotStatic(
+    int step,
+    int current,
+    String label,
+    bool isDark,
+  ) {
+    final isActive = step <= current;
+    final isCurrent = step == current;
+    return Column(
+      children: [
+        Container(
+          width: 22,
+          height: 22,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isActive
+                ? (isCurrent ? _accent : _success)
+                : (isDark ? const Color(0xFF1E2328) : const Color(0xFFF3F4F6)),
+            border: Border.all(
+              color: isActive
+                  ? Colors.transparent
+                  : (isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : const Color(0xFFD1D5DB)),
+            ),
+            boxShadow: isCurrent
+                ? [
+                    BoxShadow(
+                      color: _accent.withValues(alpha: 0.35),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: isActive && step < current
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 12)
+                : Text(
+                    '$step',
+                    style: GoogleFonts.inter(
+                      fontSize: 7.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isActive
+                          ? Colors.white
+                          : (isDark
+                                ? Colors.white38
+                                : const Color(0xFF9CA3AF)),
+                    ),
+                  ),
+          ),
+        ),
+        SizedBox(height: 0.4.h),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 6.sp,
+            fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w500,
+            color: isCurrent
+                ? _accent
+                : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIntroTip(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.h),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            _accent.withValues(alpha: isDark ? 0.12 : 0.06),
+            _accent.withValues(alpha: isDark ? 0.04 : 0.02),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _accent.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline_rounded, color: _accent, size: 15),
+          SizedBox(width: 2.5.w),
+          Expanded(
+            child: Text(
+              'Look up the customer account, verify via OTP, then send the balance by SMS.',
+              style: GoogleFonts.inter(
+                fontSize: 7.5.sp,
+                height: 1.35,
+                color: isDark ? Colors.white60 : const Color(0xFF64748B),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required bool isDark,
+    required String title,
+    String? subtitle,
+    IconData? icon,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(3.5.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (icon != null) ...[
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: _accent.withValues(alpha: isDark ? 0.15 : 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: _accent, size: 15),
+                ),
+                SizedBox(width: 2.5.w),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: 9.5.sp,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF111827),
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      SizedBox(height: 0.1.h),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.inter(
+                          fontSize: 7.sp,
+                          color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 1.3.h),
+          child,
+        ],
+      ),
+    );
+  }
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+  }
+
+  String _maskAccountNo(String no) {
+    if (no.length >= 7) {
+      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
+    }
+    return no;
+  }
+
+  Widget _buildStickyActionBar(bool isDark) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(5.w, 1.h, 5.w, 1.4.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: _buildSubmitButton(isDark),
+      ),
+    );
+  }
+
   // ── Field label ────────────────────────────────────────────
 
   Widget _buildFieldLabel(String label, bool isDark) {
     return Text(
       label,
       style: GoogleFonts.inter(
-        fontSize: 9.sp,
+        fontSize: 7.5.sp,
         fontWeight: FontWeight.w600,
-        color: isDark ? Colors.white70 : const Color(0xFF374151),
+        letterSpacing: 0.2,
+        color: isDark ? Colors.white54 : const Color(0xFF64748B),
       ),
     );
   }
@@ -583,123 +829,66 @@ class _AgencyBalanceEnquiryScreenState
 
   Widget _buildLookupTypeToggle(bool isDark) {
     return Container(
-      padding: EdgeInsets.all(0.5.w),
+      padding: EdgeInsets.all(0.4.w),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : const Color(0xFFE5E7EB),
-        ),
+        color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _onLookupTypeChanged('account'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: _lookupType == 'account'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: _lookupType == 'account'
-                      ? [
-                          BoxShadow(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.account_balance_rounded,
-                      size: 16,
-                      color: _lookupType == 'account'
-                          ? Colors.white
-                          : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Account No.',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: _lookupType == 'account'
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _onLookupTypeChanged('phone'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: _lookupType == 'phone'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: _lookupType == 'phone'
-                      ? [
-                          BoxShadow(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.phone_rounded,
-                      size: 16,
-                      color: _lookupType == 'phone'
-                          ? Colors.white
-                          : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Phone No.',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: _lookupType == 'phone'
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          _lookupTab('account', Icons.account_balance_rounded, 'Account No.', isDark),
+          _lookupTab('phone', Icons.phone_rounded, 'Phone No.', isDark),
         ],
+      ),
+    );
+  }
+
+  Widget _lookupTab(String type, IconData icon, String label, bool isDark) {
+    final selected = _lookupType == type;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onLookupTypeChanged(type),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.symmetric(vertical: 0.85.h),
+          decoration: BoxDecoration(
+            color: selected ? _accent : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: _accent.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 13,
+                color: selected
+                    ? Colors.white
+                    : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+              ),
+              SizedBox(width: 1.2.w),
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 7.5.sp,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected
+                      ? Colors.white
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -723,33 +912,34 @@ class _AgencyBalanceEnquiryScreenState
         LengthLimitingTextInputFormatter(maxLength),
       ],
       style: GoogleFonts.inter(
-        fontSize: 10.sp,
+        fontSize: 9.sp,
         fontWeight: FontWeight.w500,
         color: isDark ? Colors.white : const Color(0xFF1A1D23),
-        letterSpacing: 1.2,
+        letterSpacing: 0.8,
       ),
       validator: (v) {
         if (v == null || v.length < maxLength) return validationMsg;
         return null;
       },
       decoration: InputDecoration(
+        isDense: true,
         hintText: hintText,
         hintStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
+          fontSize: 9.sp,
           color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
-          letterSpacing: 1.2,
+          letterSpacing: 0.8,
         ),
         filled: true,
-        fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        contentPadding: _fieldPadding,
         prefixIcon: Icon(
-          isPhone ? Icons.phone_rounded : Icons.account_balance_rounded,
+          isPhone ? Icons.phone_outlined : Icons.account_balance_outlined,
           color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-          size: 20,
+          size: 17,
         ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 40),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -757,52 +947,52 @@ class _AgencyBalanceEnquiryScreenState
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: _accountVerified
-                ? const Color(0xFF059669).withValues(alpha: 0.5)
+                ? _success.withValues(alpha: 0.45)
                 : _accountNotFound
-                    ? const Color(0xFFDC2626).withValues(alpha: 0.5)
+                    ? const Color(0xFFDC2626).withValues(alpha: 0.45)
                     : isDark
                         ? Colors.white.withValues(alpha: 0.08)
                         : const Color(0xFFE5E7EB),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(color: _accent, width: 1),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: const BorderSide(color: Color(0xFFDC2626)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1),
         ),
         suffixIcon: _isLookingUp
             ? Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 child: SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 16,
+                  height: 16,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: isDark
-                        ? Colors.white38
-                        : const Color(0xFF2E8B8B),
+                    strokeWidth: 1.5,
+                    color: isDark ? Colors.white38 : _accent,
                   ),
                 ),
               )
             : _accountVerified
-                ? const Icon(
-                    Icons.check_circle_rounded,
-                    color: Color(0xFF059669),
-                    size: 22,
+                ? const Padding(
+                    padding: EdgeInsets.only(right: 4),
+                    child: Icon(
+                      Icons.check_circle_rounded,
+                      color: Color(0xFF059669),
+                      size: 18,
+                    ),
                   )
                 : null,
+        suffixIconConstraints: const BoxConstraints(minWidth: 36),
       ),
     );
   }
@@ -838,58 +1028,45 @@ class _AgencyBalanceEnquiryScreenState
 
   Widget _buildAccountInfoCard(bool isDark) {
     final isActive = _accountStatus == 'Active';
-    const accentColor = Color(0xFF2E8B8B);
+    final statusColor = isActive ? _success : const Color(0xFFF59E0B);
 
     return Padding(
-      padding: EdgeInsets.only(top: 1.2.h),
-      child: Container(
+      padding: EdgeInsets.only(top: 1.h),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
         width: double.infinity,
-        padding: EdgeInsets.all(4.w),
+        padding: EdgeInsets.all(3.w),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isActive
-                ? [
-                    accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFF10B981)
-                        .withValues(alpha: isDark ? 0.08 : 0.04),
-                  ]
-                : [
-                    const Color(0xFFF59E0B)
-                        .withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFFFBBF24)
-                        .withValues(alpha: isDark ? 0.08 : 0.04),
-                  ],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isActive
-                ? accentColor.withValues(alpha: 0.3)
-                : const Color(0xFFF59E0B).withValues(alpha: 0.3),
-          ),
+          color: statusColor.withValues(alpha: isDark ? 0.08 : 0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: statusColor.withValues(alpha: 0.18)),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(2.w),
+                  width: 34,
+                  height: 34,
                   decoration: BoxDecoration(
-                    color:
-                        (isActive ? accentColor : const Color(0xFFF59E0B))
-                            .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(
+                      colors: [_accent.withValues(alpha: 0.85), _accent],
+                    ),
+                    borderRadius: BorderRadius.circular(9),
                   ),
-                  child: CustomIconWidget(
-                    iconName: 'person',
-                    color:
-                        isActive ? accentColor : const Color(0xFFF59E0B),
-                    size: 20,
+                  child: Center(
+                    child: Text(
+                      _initials(_accountName),
+                      style: GoogleFonts.inter(
+                        fontSize: 9.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(width: 3.w),
+                SizedBox(width: 2.5.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -897,31 +1074,28 @@ class _AgencyBalanceEnquiryScreenState
                       Text(
                         _accountName,
                         style: GoogleFonts.inter(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF1A1D23),
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF111827),
                         ),
                       ),
-                      SizedBox(height: 0.3.h),
+                      SizedBox(height: 0.15.h),
                       Row(
                         children: [
                           Text(
-                            'A/C: $_resolvedAccountNo',
-                            style: GoogleFonts.inter(
-                              fontSize: 8.5.sp,
-                              fontWeight: FontWeight.w500,
+                            _maskAccountNo(_resolvedAccountNo),
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 7.sp,
                               color: isDark
-                                  ? Colors.white60
+                                  ? Colors.white54
                                   : const Color(0xFF64748B),
                             ),
                           ),
                           SizedBox(width: 2.w),
                           Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 2.w,
-                              vertical: 0.2.h,
+                              horizontal: 1.5.w,
+                              vertical: 0.15.h,
                             ),
                             decoration: BoxDecoration(
                               color: isDark
@@ -932,7 +1106,7 @@ class _AgencyBalanceEnquiryScreenState
                             child: Text(
                               _accountType,
                               style: GoogleFonts.inter(
-                                fontSize: 6.5.sp,
+                                fontSize: 6.sp,
                                 fontWeight: FontWeight.w600,
                                 color: isDark
                                     ? Colors.white54
@@ -946,71 +1120,82 @@ class _AgencyBalanceEnquiryScreenState
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 2.5.w,
-                    vertical: 0.5.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.3.h),
                   decoration: BoxDecoration(
-                    color:
-                        isActive ? accentColor : const Color(0xFFF59E0B),
-                    borderRadius: BorderRadius.circular(8),
+                    color: statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    _accountStatus,
-                    style: GoogleFonts.inter(
-                      fontSize: 7.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      SizedBox(width: 1.w),
+                      Text(
+                        _accountStatus,
+                        style: GoogleFonts.inter(
+                          fontSize: 6.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: statusColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 1.5.h),
+            SizedBox(height: 0.9.h),
             GestureDetector(
               onTap: () =>
                   setState(() => _balanceVisible = !_balanceVisible),
               child: Container(
                 width: double.infinity,
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.7.h),
                 decoration: BoxDecoration(
-                  color:
-                      (isActive ? accentColor : const Color(0xFFF59E0B))
-                          .withValues(alpha: 0.1),
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.2)
+                      : Colors.white.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
+                    Icon(
+                      Icons.account_balance_wallet_outlined,
+                      size: 14,
+                      color: isDark ? Colors.white38 : const Color(0xFF64748B),
+                    ),
+                    SizedBox(width: 1.5.w),
                     Text(
-                      'Balance: ',
+                      'Balance',
                       style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
+                        fontSize: 7.sp,
                         fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF64748B),
+                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
                       ),
                     ),
-                    Text(
-                      _balanceVisible ? _accountBalance : '••••••••',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
-                        color: isActive
-                            ? accentColor
-                            : const Color(0xFFF59E0B),
+                    SizedBox(width: 1.5.w),
+                    Expanded(
+                      child: Text(
+                        _balanceVisible ? _accountBalance : '••••••••',
+                        style: GoogleFonts.inter(
+                          fontSize: 8.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF111827),
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    CustomIconWidget(
-                      iconName: _balanceVisible
-                          ? 'visibility'
-                          : 'visibility_off',
-                      color: isDark
-                          ? Colors.white54
-                          : const Color(0xFF64748B),
-                      size: 16,
+                    Icon(
+                      _balanceVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      size: 14,
+                      color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                     ),
                   ],
                 ),
@@ -1102,20 +1287,22 @@ class _AgencyBalanceEnquiryScreenState
           Text(
             'Select Account',
             style: GoogleFonts.inter(
-              fontSize: 9.sp,
+              fontSize: 7.5.sp,
               fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white70 : const Color(0xFF374151),
+              letterSpacing: 0.2,
+              color: isDark ? Colors.white54 : const Color(0xFF64748B),
             ),
           ),
-          SizedBox(height: 0.8.h),
+          SizedBox(height: 0.4.h),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            height: 42,
+            padding: EdgeInsets.symmetric(horizontal: 3.w),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF161B22) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(_fieldRadius),
               border: Border.all(
                 color: _accountVerified
-                    ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+                    ? _accent.withValues(alpha: 0.4)
                     : isDark
                         ? Colors.white.withValues(alpha: 0.08)
                         : const Color(0xFFE5E7EB),
@@ -1125,26 +1312,23 @@ class _AgencyBalanceEnquiryScreenState
               child: DropdownButton<String>(
                 value: _accountVerified ? _resolvedAccountNo : null,
                 isExpanded: true,
+                isDense: true,
                 hint: Text(
-                  'Select account for this transaction',
+                  'Select account',
                   style: GoogleFonts.inter(
-                    fontSize: 10.sp,
-                    color: isDark
-                        ? Colors.white24
-                        : const Color(0xFFD1D5DB),
+                    fontSize: 9.sp,
+                    color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
                   ),
                 ),
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
+                  size: 18,
                   color: _accountVerified
-                      ? const Color(0xFF2E8B8B)
-                      : (isDark
-                            ? Colors.white38
-                            : const Color(0xFF9CA3AF)),
+                      ? _accent
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
                 ),
-                dropdownColor:
-                    isDark ? const Color(0xFF161B22) : Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
+                borderRadius: BorderRadius.circular(_fieldRadius),
                 style: GoogleFonts.inter(
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w500,
@@ -1209,358 +1393,6 @@ class _AgencyBalanceEnquiryScreenState
     );
   }
 
-  // ── Enquiry Type Toggle ────────────────────────────────────
-
-  Widget _buildEnquiryTypeToggle(bool isDark) {
-    return Container(
-      padding: EdgeInsets.all(0.5.w),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _enquiryType = 'balance'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: _enquiryType == 'balance'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: _enquiryType == 'balance'
-                      ? [
-                          BoxShadow(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet_rounded,
-                      size: 16,
-                      color: _enquiryType == 'balance'
-                          ? Colors.white
-                          : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Send Balance',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: _enquiryType == 'balance'
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _enquiryType = 'transactions'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: _enquiryType == 'transactions'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: _enquiryType == 'transactions'
-                      ? [
-                          BoxShadow(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.receipt_long_rounded,
-                      size: 16,
-                      color: _enquiryType == 'transactions'
-                          ? Colors.white
-                          : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Trans. Details',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: _enquiryType == 'transactions'
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Transaction Options ────────────────────────────────────
-
-  Widget _buildTransactionOptions(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Quick count chips
-        Row(
-          children: <Widget>[
-            ...[5, 10, 20].map((count) {
-              final selected = !_useCustomDateRange && _txnCount == count;
-              return Padding(
-                padding: EdgeInsets.only(right: 2.w),
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    _txnCount = count;
-                    _useCustomDateRange = false;
-                  }),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 4.w, vertical: 1.h),
-                    decoration: BoxDecoration(
-                      color: selected
-                          ? const Color(0xFF2E8B8B)
-                          : (isDark
-                                ? const Color(0xFF161B22)
-                                : Colors.white),
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(
-                        color: selected
-                            ? const Color(0xFF2E8B8B)
-                            : (isDark
-                                  ? Colors.white.withValues(alpha: 0.1)
-                                  : const Color(0xFFE5E7EB)),
-                      ),
-                      boxShadow: selected
-                          ? [
-                              BoxShadow(
-                                color: const Color(0xFF2E8B8B)
-                                    .withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Text(
-                      'Last $count',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight:
-                            selected ? FontWeight.w600 : FontWeight.w400,
-                        color: selected
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white54
-                                  : const Color(0xFF6B7280)),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-            GestureDetector(
-              onTap: () => setState(() => _useCustomDateRange = true),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding:
-                    EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-                decoration: BoxDecoration(
-                  color: _useCustomDateRange
-                      ? const Color(0xFF2E8B8B)
-                      : (isDark
-                            ? const Color(0xFF161B22)
-                            : Colors.white),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: _useCustomDateRange
-                        ? const Color(0xFF2E8B8B)
-                        : (isDark
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : const Color(0xFFE5E7EB)),
-                  ),
-                  boxShadow: _useCustomDateRange
-                      ? [
-                          BoxShadow(
-                            color: const Color(0xFF2E8B8B)
-                                .withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.calendar_month_rounded,
-                      size: 13,
-                      color: _useCustomDateRange
-                          ? Colors.white
-                          : (isDark
-                                ? Colors.white54
-                                : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.w),
-                    Text(
-                      'Custom',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: _useCustomDateRange
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: _useCustomDateRange
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white54
-                                  : const Color(0xFF6B7280)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        // Custom date range pickers
-        if (_useCustomDateRange) ...[
-          SizedBox(height: 1.5.h),
-          Row(
-            children: [
-              Expanded(
-                child: _buildDatePickerTile(
-                  isDark: isDark,
-                  label: 'From',
-                  date: _txnStartDate,
-                  onTap: () => _pickDate(context, isStart: true),
-                ),
-              ),
-              SizedBox(width: 3.w),
-              Expanded(
-                child: _buildDatePickerTile(
-                  isDark: isDark,
-                  label: 'To',
-                  date: _txnEndDate,
-                  onTap: () => _pickDate(context, isStart: false),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildDatePickerTile({
-    required bool isDark,
-    required String label,
-    required DateTime? date,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding:
-            EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.4.h),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF161B22) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: date != null
-                ? const Color(0xFF2E8B8B).withValues(alpha: 0.35)
-                : (isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : const Color(0xFFE5E7EB)),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.calendar_today_rounded,
-              size: 15,
-              color: date != null
-                  ? const Color(0xFF2E8B8B)
-                  : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
-            ),
-            SizedBox(width: 2.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.inter(
-                      fontSize: 7.sp,
-                      color: isDark
-                          ? Colors.white38
-                          : const Color(0xFF9CA3AF),
-                    ),
-                  ),
-                  Text(
-                    date != null ? _formatDate(date) : 'Select date',
-                    style: GoogleFonts.inter(
-                      fontSize: 8.5.sp,
-                      fontWeight: date != null
-                          ? FontWeight.w600
-                          : FontWeight.w400,
-                      color: date != null
-                          ? (isDark
-                                ? Colors.white
-                                : const Color(0xFF111827))
-                          : (isDark
-                                ? Colors.white24
-                                : const Color(0xFFD1D5DB)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // ── Destination Phone Field ────────────────────────────────
 
   Widget _buildDestinationPhoneField(bool isDark) {
@@ -1572,10 +1404,10 @@ class _AgencyBalanceEnquiryScreenState
         LengthLimitingTextInputFormatter(12),
       ],
       style: GoogleFonts.inter(
-        fontSize: 10.sp,
+        fontSize: 9.sp,
         fontWeight: FontWeight.w500,
         color: isDark ? Colors.white : const Color(0xFF1A1D23),
-        letterSpacing: 1.2,
+        letterSpacing: 0.8,
       ),
       validator: (v) {
         if (v == null || v.trim().isEmpty) return 'Required';
@@ -1585,23 +1417,24 @@ class _AgencyBalanceEnquiryScreenState
         return null;
       },
       decoration: InputDecoration(
+        isDense: true,
         hintText: '232XXXXXXXXX',
         hintStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
+          fontSize: 9.sp,
           color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
-          letterSpacing: 1.2,
+          letterSpacing: 0.8,
         ),
         prefixIcon: const Icon(
-          Icons.phone_android_rounded,
+          Icons.phone_android_outlined,
           color: Color(0xFF9CA3AF),
-          size: 20,
+          size: 17,
         ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 40),
         filled: true,
-        fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding:
-            EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        contentPadding: _fieldPadding,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -1609,7 +1442,7 @@ class _AgencyBalanceEnquiryScreenState
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -1617,53 +1450,42 @@ class _AgencyBalanceEnquiryScreenState
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(color: _accent, width: 1),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: const BorderSide(color: Color(0xFFDC2626)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1),
         ),
       ),
     );
   }
 
-  // ── SMS Info Box ───────────────────────────────────────────
-
   Widget _buildSmsInfoBox(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.2.h),
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.9.h),
       decoration: BoxDecoration(
-        color: const Color(0xFF2E8B8B)
-            .withValues(alpha: isDark ? 0.08 : 0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF2E8B8B).withValues(alpha: 0.15),
-        ),
+        color: _accent.withValues(alpha: isDark ? 0.08 : 0.05),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _accent.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.sms_rounded,
-            size: 16,
-            color: const Color(0xFF2E8B8B).withValues(alpha: 0.7),
-          ),
-          SizedBox(width: 2.5.w),
+          Icon(Icons.sms_outlined, size: 14, color: _accent.withValues(alpha: 0.8)),
+          SizedBox(width: 2.w),
           Expanded(
             child: Text(
-              'Balance or transaction details will be sent as an SMS to this phone number.',
+              'Balance details will be sent as an SMS to this phone number.',
               style: GoogleFonts.inter(
-                fontSize: 7.5.sp,
+                fontSize: 7.sp,
                 fontWeight: FontWeight.w400,
                 color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                height: 1.4,
+                height: 1.35,
               ),
             ),
           ),
@@ -1671,8 +1493,6 @@ class _AgencyBalanceEnquiryScreenState
       ),
     );
   }
-
-  // ── Submit Button ──────────────────────────────────────────
 
   Widget _buildSubmitButton(bool isDark) {
     final enabled = _canSubmit;
@@ -1682,11 +1502,11 @@ class _AgencyBalanceEnquiryScreenState
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 1.7.h),
+        padding: EdgeInsets.symmetric(vertical: 1.25.h),
         decoration: BoxDecoration(
           gradient: enabled
-              ? const LinearGradient(
-                  colors: [Color(0xFF2E8B8B), Color(0xFF1B6B6B)],
+              ? LinearGradient(
+                  colors: [_accent, _accent.withValues(alpha: 0.85)],
                 )
               : null,
           color: enabled
@@ -1694,13 +1514,13 @@ class _AgencyBalanceEnquiryScreenState
               : (isDark
                     ? const Color(0xFF1E2328)
                     : const Color(0xFFE5E7EB)),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: const Color(0xFF2E8B8B).withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    color: _accent.withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
                 ]
               : null,
@@ -1709,7 +1529,7 @@ class _AgencyBalanceEnquiryScreenState
           child: Text(
             'Continue',
             style: GoogleFonts.inter(
-              fontSize: 10.5.sp,
+              fontSize: 9.5.sp,
               fontWeight: FontWeight.w600,
               color: enabled
                   ? Colors.white

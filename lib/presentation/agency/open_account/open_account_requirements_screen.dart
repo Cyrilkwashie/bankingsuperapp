@@ -69,9 +69,10 @@ class _OpenAccountRequirementsScreenState
 
   // Signature pad
   final List<List<Offset?>> _signatureStrokes = [];
-  List<Offset?> _currentStroke = [];
 
   // Fingerprint
+  final _localAuth = LocalAuthentication();
+  bool _biometricsAvailable = false;
   bool _leftThumbScanning = false;
   bool _rightThumbScanning = false;
   bool _leftThumbScanned = false;
@@ -89,6 +90,19 @@ class _OpenAccountRequirementsScreenState
     _fadeIn =
         CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic);
     _animController.forward();
+    _checkBiometrics();
+  }
+
+  Future<void> _checkBiometrics() async {
+    try {
+      final canCheck = await _localAuth.canCheckBiometrics;
+      final isDeviceSupported = await _localAuth.isDeviceSupported();
+      if (mounted) {
+        setState(() => _biometricsAvailable = canCheck && isDeviceSupported);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _biometricsAvailable = false);
+    }
   }
 
   @override
@@ -104,12 +118,19 @@ class _OpenAccountRequirementsScreenState
   bool get _signatureDone => _signatureStrokes.isNotEmpty;
   bool get _fingerprintsDone => _leftThumbScanned && _rightThumbScanned;
 
-  bool get _canContinue =>
-      _idFrontPhoto != null && _signatureDone && _fingerprintsDone;
+  bool get _canContinue => _idFrontPhoto != null;
 
   Future<void> _scanThumb({required bool isLeft}) async {
     if (isLeft && (_leftThumbScanning || _leftThumbScanned)) return;
     if (!isLeft && (_rightThumbScanning || _rightThumbScanned)) return;
+
+    // If biometrics unavailable on device, show error
+    if (!_biometricsAvailable) {
+      _showError(
+          'Biometric sensor not available on this device. Please ensure fingerprints are enrolled in device settings.');
+      return;
+    }
+
     setState(() {
       if (isLeft) {
         _leftThumbScanning = true;
@@ -118,19 +139,50 @@ class _OpenAccountRequirementsScreenState
       }
       _thumbsMatch = null;
     });
-    await Future.delayed(const Duration(milliseconds: 2200));
+
+    bool authenticated = false;
+    try {
+      authenticated = await _localAuth.authenticate(
+        localizedReason: isLeft
+            ? 'Place the customer\'s LEFT thumb on the sensor'
+            : 'Place the customer\'s RIGHT thumb on the sensor',
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+          stickyAuth: true,
+          sensitiveTransaction: false,
+          useErrorDialogs: true,
+        ),
+      );
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        if (isLeft) { _leftThumbScanning = false; }
+        else { _rightThumbScanning = false; }
+      });
+      _showError(
+          e.code == 'NotEnrolled'
+              ? 'No fingerprints enrolled. Please enroll fingerprints in device settings.'
+              : e.code == 'LockedOut' || e.code == 'PermanentlyLockedOut'
+                  ? 'Too many failed attempts. Biometric sensor temporarily locked.'
+                  : 'Fingerprint scan failed: ${e.message}');
+      return;
+    }
+
     if (!mounted) return;
     setState(() {
       if (isLeft) {
         _leftThumbScanning = false;
-        _leftThumbScanned = true;
+        _leftThumbScanned = authenticated;
       } else {
         _rightThumbScanning = false;
-        _rightThumbScanned = true;
+        _rightThumbScanned = authenticated;
       }
     });
+
+    if (!authenticated) return;
+
     if (_leftThumbScanned && _rightThumbScanned) {
-      await Future.delayed(const Duration(milliseconds: 900));
+      await Future.delayed(const Duration(milliseconds: 700));
       if (!mounted) return;
       setState(() => _thumbsMatch = true);
     }
@@ -503,7 +555,7 @@ class _OpenAccountRequirementsScreenState
 
   void _onContinue() {
     if (!_canContinue) {
-      _showError('Please complete all required fields — ID, signature and fingerprints.');
+      _showError('Please capture the ID document front to continue.');
       return;
     }
     Navigator.of(context).push(
@@ -555,16 +607,32 @@ class _OpenAccountRequirementsScreenState
         opacity: _fadeIn,
         child: Column(
           children: [
-            _buildHeader(isDark),
+            _OpenAccountUi.buildAgencyHeader(
+              context: context,
+              isDark: isDark,
+              title: 'Bio Verification',
+              subtitle: 'Open Account · Step 3 of 4',
+              gradientColors: widget.gradientColors,
+              icon: Icons.fingerprint_rounded,
+            ),
+            _OpenAccountUi.buildWizardStepIndicator(
+              isDark,
+              3,
+              accentColor: widget.accentColor,
+            ),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 4.h),
+                padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 2.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildStepIndicator(isDark, 3, 4),
-                    SizedBox(height: 2.5.h),
+                    _OpenAccountUi.buildIntroTip(
+                      isDark,
+                      'Capture required documents and biometrics. ID front is mandatory to continue.',
+                      accentColor: widget.accentColor,
+                    ),
+                    SizedBox(height: 1.5.h),
 
                     // ── Customer summary banner ─────────────
                     Container(
@@ -882,8 +950,8 @@ class _OpenAccountRequirementsScreenState
                       icon: Icons.draw_rounded,
                       title: 'Customer Signature',
                       subtitle: 'Customer signs directly on screen',
-                      badgeText: 'Required',
-                      badgeColor: const Color(0xFFDC2626),
+                      badgeText: 'Optional',
+                      badgeColor: const Color(0xFF6B7280),
                       isDark: isDark,
                     ),
                     SizedBox(height: 1.5.h),
@@ -898,8 +966,8 @@ class _OpenAccountRequirementsScreenState
                       title: 'Fingerprint Capture',
                       subtitle:
                           'Left & right thumb — biometric verification',
-                      badgeText: 'Required',
-                      badgeColor: const Color(0xFFDC2626),
+                      badgeText: 'Optional',
+                      badgeColor: const Color(0xFF6B7280),
                       isDark: isDark,
                     ),
                     SizedBox(height: 1.5.h),
@@ -939,13 +1007,18 @@ class _OpenAccountRequirementsScreenState
                       onRemove: () => setState(
                           () => _proofOfAddressPhoto = null),
                     ),
-                    SizedBox(height: 2.5.h),
-
-                    // Continue button
-                    _buildContinueButton(isDark),
-                    SizedBox(height: 1.h),
+                    SizedBox(height: 1.5.h),
                   ],
                 ),
+              ),
+            ),
+            _OpenAccountUi.buildStickyActionBar(
+              isDark: isDark,
+              child: _OpenAccountUi.buildPrimaryButton(
+                isDark: isDark,
+                label: 'Review Application',
+                onTap: _canContinue ? _onContinue : null,
+                accentColor: widget.accentColor,
               ),
             ),
           ],
@@ -1191,181 +1264,701 @@ class _OpenAccountRequirementsScreenState
     );
   }
 
-  // ── Signature Pad ─────────────────────────────────────────
+  // ── Signature — tap-to-open modal pad ────────────────────
 
-  Widget _buildSignaturePad(bool isDark, Color cardBg, Color borderColor) {
-    final hasSig = _signatureStrokes.isNotEmpty;
-    return Container(
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: hasSig
-              ? const Color(0xFF059669).withValues(alpha: 0.4)
-              : borderColor,
-          width: hasSig ? 1.5 : 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Canvas
-          ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(15)),
-            child: Container(
-              height: 14.h,
-              width: double.infinity,
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.02)
-                  : const Color(0xFFFAFAFA),
-              child: Stack(
+  Future<void> _openSignatureSheet() async {
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
+
+    // Work on a local copy; only commit on "Done"
+    final List<List<Offset?>> localStrokes =
+        _signatureStrokes.map((s) => List<Offset?>.from(s)).toList();
+    List<Offset?> localCurrent = [];
+    bool penLifted = localStrokes.isNotEmpty; // true if reopening with existing sig
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModal) {
+            final canvasBg = isDark
+                ? const Color(0xFF0D1117)
+                : Colors.white;
+            final linePaint = isDark
+                ? Colors.white.withValues(alpha: 0.85)
+                : const Color(0xFF1B365D);
+            final hasSig = localStrokes.isNotEmpty;
+            return Container(
+              height: MediaQuery.of(ctx).size.height * 0.82,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF161B22)
+                    : const Color(0xFFF8FAFC),
+                borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24)),
+              ),
+              child: Column(
                 children: [
-                  // Baseline
-                  Positioned(
-                    bottom: 28,
-                    left: 16,
-                    right: 16,
-                    child: Container(
-                      height: 1,
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.06)
-                          : const Color(0xFFE5E7EB),
+                  // ── Header ──
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 2.h),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: isDark
+                            ? [
+                                const Color(0xFF162032),
+                                const Color(0xFF0D1117),
+                              ]
+                            : widget.gradientColors,
+                      ),
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(24)),
+                    ),
+                    child: Column(
+                      children: [
+                        // Drag handle
+                        Container(
+                          width: 36,
+                          height: 4,
+                          margin: EdgeInsets.only(bottom: 1.5.h),
+                          decoration: BoxDecoration(
+                            color:
+                                Colors.white.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.white
+                                    .withValues(alpha: 0.12),
+                                borderRadius:
+                                    BorderRadius.circular(11),
+                                border: Border.all(
+                                    color: Colors.white
+                                        .withValues(alpha: 0.08)),
+                              ),
+                              child: const Center(
+                                child: Icon(Icons.draw_rounded,
+                                    color: Colors.white, size: 20),
+                              ),
+                            ),
+                            SizedBox(width: 3.w),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Customer Signature',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Sign within the box below',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 8.sp,
+                                      color: Colors.white
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Clear button
+                            if (hasSig)
+                              GestureDetector(
+                                onTap: () => setModal(() {
+                                  localStrokes.clear();
+                                  localCurrent = [];
+                                  penLifted = false;
+                                }),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 3.w,
+                                      vertical: 0.6.h),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white
+                                        .withValues(alpha: 0.12),
+                                    borderRadius:
+                                        BorderRadius.circular(20),
+                                    border: Border.all(
+                                        color: Colors.white
+                                            .withValues(alpha: 0.15)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                          Icons.refresh_rounded,
+                                          size: 13,
+                                          color: Colors.white),
+                                      SizedBox(width: 1.w),
+                                      Text(
+                                        'Clear',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 7.5.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  if (!hasSig)
-                    Center(
+
+                  // ── Canvas area ──
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const NeverScrollableScrollPhysics(),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.gesture_rounded,
-                            color: isDark
-                                ? Colors.white12
-                                : const Color(0xFFE0E0E0),
-                            size: 32,
-                          ),
-                          SizedBox(height: 0.5.h),
-                          Text(
-                            'Sign here',
-                            style: GoogleFonts.inter(
-                              fontSize: 8.sp,
-                              color: isDark
-                                  ? Colors.white12
-                                  : const Color(0xFFCCCCCC),
+                          // Drawing canvas — full height when drawing, compact after pen lift
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.easeOutCubic,
+                            height: penLifted ? 22.h : 46.h,
+                            margin: EdgeInsets.fromLTRB(4.w, 2.h, 4.w, 0),
+                            decoration: BoxDecoration(
+                              color: canvasBg,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: hasSig
+                                    ? const Color(0xFF059669)
+                                        .withValues(alpha: 0.35)
+                                    : (isDark
+                                        ? Colors.white.withValues(alpha: 0.08)
+                                        : const Color(0xFFE5E7EB)),
+                                width: hasSig ? 1.5 : 1,
+                              ),
                             ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Stack(
+                                children: [
+                                  // Guide line
+                                  Positioned(
+                                    bottom: 28,
+                                    left: 16,
+                                    right: 16,
+                                    child: Container(
+                                      height: 1,
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.07)
+                                          : const Color(0xFFE5E7EB),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 10,
+                                    left: 16,
+                                    child: Text(
+                                      'Sign above this line',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 6.5.sp,
+                                        color: isDark
+                                            ? Colors.white12
+                                            : const Color(0xFFD1D5DB),
+                                      ),
+                                    ),
+                                  ),
+                                  // Empty hint
+                                  if (!hasSig)
+                                    Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.gesture_rounded,
+                                            size: 38,
+                                            color: isDark
+                                                ? Colors.white
+                                                    .withValues(alpha: 0.08)
+                                                : const Color(0xFFE5E7EB),
+                                          ),
+                                          SizedBox(height: 1.h),
+                                          Text(
+                                            'Draw signature here',
+                                            style: GoogleFonts.inter(
+                                              fontSize: 9.sp,
+                                              color: isDark
+                                                  ? Colors.white12
+                                                  : const Color(0xFFD1D5DB),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  // Drawing GestureDetector
+                                  GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onPanStart: (d) => setModal(() {
+                                      localCurrent = [d.localPosition];
+                                      localStrokes.add(localCurrent);
+                                      penLifted = false;
+                                    }),
+                                    onPanUpdate: (d) => setModal(
+                                        () => localCurrent.add(d.localPosition)),
+                                    onPanEnd: (_) => setModal(() {
+                                      localCurrent = [];
+                                      if (localStrokes.isNotEmpty) {
+                                        penLifted = true;
+                                      }
+                                    }),
+                                    child: CustomPaint(
+                                      painter: _SignaturePainter(
+                                          localStrokes, linePaint),
+                                      child: const SizedBox.expand(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // ── Signature preview card (appears after pen lifted) ──
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 380),
+                            curve: Curves.easeOutCubic,
+                            child: penLifted && hasSig
+                                ? Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                        4.w, 2.h, 4.w, 0),
+                                    child: Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.all(3.5.w),
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? const Color(0xFF059669)
+                                                .withValues(alpha: 0.07)
+                                            : const Color(0xFFF0FDF4),
+                                        borderRadius:
+                                            BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: const Color(0xFF059669)
+                                              .withValues(alpha: 0.3),
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.check_circle_rounded,
+                                                color: Color(0xFF059669),
+                                                size: 16,
+                                              ),
+                                              SizedBox(width: 2.w),
+                                              Text(
+                                                'Signature Preview',
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 9.sp,
+                                                  fontWeight:
+                                                      FontWeight.w700,
+                                                  color: const Color(
+                                                      0xFF059669),
+                                                ),
+                                              ),
+                                              const Spacer(),
+                                              Text(
+                                                'Looks good? Tap Save.',
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 7.sp,
+                                                  color: isDark
+                                                      ? Colors.white38
+                                                      : const Color(
+                                                          0xFF6B7280),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 1.2.h),
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: Container(
+                                              height: 10.h,
+                                              width: double.infinity,
+                                              color: isDark
+                                                  ? Colors.black
+                                                      .withValues(alpha: 0.3)
+                                                  : Colors.white,
+                                              child: CustomPaint(
+                                                painter: _SignaturePainter(
+                                                  localStrokes,
+                                                  isDark
+                                                      ? Colors.white
+                                                          .withValues(
+                                                              alpha: 0.9)
+                                                      : const Color(
+                                                          0xFF1B365D),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(height: 1.2.h),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () => setModal(() {
+                                                  localStrokes.clear();
+                                                  localCurrent = [];
+                                                  penLifted = false;
+                                                }),
+                                                child: Container(
+                                                  padding:
+                                                      EdgeInsets.symmetric(
+                                                          horizontal: 3.w,
+                                                          vertical: 0.5.h),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(
+                                                            0xFFDC2626)
+                                                        .withValues(
+                                                            alpha: 0.07),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    border: Border.all(
+                                                      color: const Color(
+                                                              0xFFDC2626)
+                                                          .withValues(
+                                                              alpha: 0.2),
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.refresh_rounded,
+                                                        size: 13,
+                                                        color:
+                                                            Color(0xFFDC2626),
+                                                      ),
+                                                      SizedBox(width: 1.w),
+                                                      Text(
+                                                        'Redraw',
+                                                        style:
+                                                            GoogleFonts.inter(
+                                                          fontSize: 7.5.sp,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: const Color(
+                                                              0xFFDC2626),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
                           ),
                         ],
                       ),
                     ),
-                  // Drawing canvas
-                  GestureDetector(
-                    onPanStart: (d) {
-                      setState(() {
-                        _currentStroke = [d.localPosition];
-                        _signatureStrokes.add(_currentStroke);
-                      });
-                    },
-                    onPanUpdate: (d) {
-                      setState(() {
-                        _currentStroke.add(d.localPosition);
-                      });
-                    },
-                    onPanEnd: (_) {
-                      setState(() => _currentStroke = []);
-                    },
-                    child: CustomPaint(
-                      painter: _SignaturePainter(
-                        _signatureStrokes,
-                        isDark
-                            ? Colors.white.withValues(alpha: 0.85)
-                            : const Color(0xFF1B365D),
-                      ),
-                      child:
-                          const SizedBox.expand(),
+                  ),
+
+                  // ── Action buttons ──
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(4.w, 0, 4.w, 3.h),
+                    child: Row(
+                      children: [
+                        // Cancel
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(ctx).pop(),
+                            child: Container(
+                              padding:
+                                  EdgeInsets.symmetric(vertical: 1.6.h),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.06)
+                                    : const Color(0xFFF3F4F6),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : const Color(0xFFE5E7EB),
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Cancel',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: isDark
+                                        ? Colors.white54
+                                        : const Color(0xFF6B7280),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 3.w),
+                        // Done
+                        Expanded(
+                          flex: 2,
+                          child: GestureDetector(
+                            onTap: () {
+                              // Commit strokes back to parent state
+                              setState(() {
+                                _signatureStrokes.clear();
+                                _signatureStrokes.addAll(
+                                  localStrokes
+                                      .map((s) =>
+                                          List<Offset?>.from(s))
+                                      .toList(),
+                                );
+                              });
+                              Navigator.of(ctx).pop();
+                            },
+                            child: Container(
+                              padding:
+                                  EdgeInsets.symmetric(vertical: 1.6.h),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: hasSig
+                                      ? [
+                                          const Color(0xFF059669),
+                                          const Color(0xFF047857),
+                                        ]
+                                      : [
+                                          widget.accentColor,
+                                          widget.accentColor
+                                              .withValues(alpha: 0.85),
+                                        ],
+                                ),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (hasSig
+                                            ? const Color(0xFF059669)
+                                            : widget.accentColor)
+                                        .withValues(alpha: 0.3),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      hasSig
+                                          ? Icons.check_rounded
+                                          : Icons.draw_rounded,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 2.w),
+                                    Text(
+                                      hasSig
+                                          ? 'Save Signature'
+                                          : 'Skip',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 10.5.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSignaturePad(bool isDark, Color cardBg, Color borderColor) {
+    final hasSig = _signatureStrokes.isNotEmpty;
+    return GestureDetector(
+      onTap: _openSignatureSheet,
+      child: Container(
+        padding: EdgeInsets.all(3.w),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: hasSig
+                ? const Color(0xFF059669).withValues(alpha: 0.4)
+                : borderColor,
+            width: hasSig ? 1.5 : 1,
           ),
-          // Footer row
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: 3.5.w, vertical: 1.h),
-            child: Row(
-              children: [
-                Icon(
-                  hasSig
-                      ? Icons.check_circle_rounded
-                      : Icons.draw_outlined,
-                  size: 16,
-                  color: hasSig
-                      ? const Color(0xFF059669)
-                      : (isDark
-                          ? Colors.white38
-                          : const Color(0xFF9CA3AF)),
-                ),
-                SizedBox(width: 2.w),
-                Expanded(
-                  child: Text(
-                    hasSig
-                        ? 'Signature captured'
-                        : 'Draw signature with finger',
-                    style: GoogleFonts.inter(
-                      fontSize: 8.sp,
-                      fontWeight: FontWeight.w500,
-                      color: hasSig
-                          ? const Color(0xFF059669)
-                          : (isDark
-                              ? Colors.white38
-                              : const Color(0xFF9CA3AF)),
-                    ),
-                  ),
-                ),
-                if (hasSig)
-                  GestureDetector(
-                    onTap: () => setState(() {
-                      _signatureStrokes.clear();
-                      _currentStroke = [];
-                    }),
+        ),
+        child: hasSig
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Mini preview of the saved signature
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 2.5.w, vertical: 0.4.h),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDC2626)
-                            .withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: const Color(0xFFDC2626)
-                              .withValues(alpha: 0.15),
+                      height: 10.h,
+                      width: double.infinity,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.03)
+                          : const Color(0xFFFAFAFA),
+                      child: CustomPaint(
+                        painter: _SignaturePainter(
+                          _signatureStrokes,
+                          isDark
+                              ? Colors.white.withValues(alpha: 0.85)
+                              : const Color(0xFF1B365D),
                         ),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.refresh_rounded,
-                            size: 13,
-                            color: Color(0xFFDC2626),
-                          ),
-                          SizedBox(width: 1.w),
-                          Text(
-                            'Clear',
-                            style: GoogleFonts.inter(
-                              fontSize: 7.sp,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFFDC2626),
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
-              ],
-            ),
-          ),
-        ],
+                  SizedBox(height: 1.h),
+                  Row(
+                    children: [
+                      const Icon(Icons.check_circle_rounded,
+                          size: 15, color: Color(0xFF059669)),
+                      SizedBox(width: 1.5.w),
+                      Expanded(
+                        child: Text(
+                          'Signature saved — tap to redo',
+                          style: GoogleFonts.inter(
+                            fontSize: 8.sp,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF059669),
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => setState(() {
+                          _signatureStrokes.clear();
+                        }),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 2.5.w, vertical: 0.4.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDC2626)
+                                .withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFFDC2626)
+                                  .withValues(alpha: 0.15),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.delete_outline_rounded,
+                                  size: 13, color: Color(0xFFDC2626)),
+                              SizedBox(width: 1.w),
+                              Text(
+                                'Clear',
+                                style: GoogleFonts.inter(
+                                  fontSize: 7.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFDC2626),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: widget.accentColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: Icon(Icons.draw_rounded,
+                          color: widget.accentColor, size: 22),
+                    ),
+                  ),
+                  SizedBox(width: 3.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Tap to Sign',
+                          style: GoogleFonts.inter(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF111827),
+                          ),
+                        ),
+                        SizedBox(height: 0.3.h),
+                        Text(
+                          'Opens a dedicated signing screen',
+                          style: GoogleFonts.inter(
+                            fontSize: 7.5.sp,
+                            color: isDark
+                                ? Colors.white38
+                                : const Color(0xFF9CA3AF),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: widget.accentColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Icon(Icons.arrow_forward_ios_rounded,
+                          size: 15, color: widget.accentColor),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -1477,6 +2070,7 @@ class _OpenAccountRequirementsScreenState
     final scanned = isLeft ? _leftThumbScanned : _rightThumbScanned;
     final label = isLeft ? 'Left Thumb' : 'Right Thumb';
     final icon = isLeft ? Icons.pan_tool_outlined : Icons.back_hand_outlined;
+    final unavailable = !_biometricsAvailable && !scanned;
 
     return GestureDetector(
       onTap: scanned
@@ -1497,14 +2091,22 @@ class _OpenAccountRequirementsScreenState
         decoration: BoxDecoration(
           color: scanned
               ? const Color(0xFF059669).withValues(alpha: isDark ? 0.1 : 0.06)
-              : cardBg,
+              : unavailable
+                  ? (isDark
+                      ? Colors.white.withValues(alpha: 0.02)
+                      : const Color(0xFFF9FAFB))
+                  : cardBg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: scanned
                 ? const Color(0xFF059669).withValues(alpha: 0.4)
                 : scanning
                     ? widget.accentColor.withValues(alpha: 0.5)
-                    : borderColor,
+                    : unavailable
+                        ? (isDark
+                            ? Colors.white.withValues(alpha: 0.04)
+                            : const Color(0xFFE5E7EB))
+                        : borderColor,
             width: scanned || scanning ? 1.5 : 1,
           ),
           boxShadow: scanned
@@ -1547,24 +2149,32 @@ class _OpenAccountRequirementsScreenState
                           : scanning
                               ? widget.accentColor
                                   .withValues(alpha: 0.08)
-                              : (isDark
-                                  ? Colors.white.withValues(alpha: 0.05)
-                                  : const Color(0xFFF3F4F6)),
+                              : unavailable
+                                  ? const Color(0xFFDC2626)
+                                      .withValues(alpha: 0.06)
+                                  : (isDark
+                                      ? Colors.white.withValues(alpha: 0.05)
+                                      : const Color(0xFFF3F4F6)),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: Icon(
                         scanned
                             ? Icons.fingerprint_rounded
-                            : icon,
+                            : unavailable
+                                ? Icons.fingerprint_rounded
+                                : icon,
                         size: 24,
                         color: scanned
                             ? const Color(0xFF059669)
                             : scanning
                                 ? widget.accentColor
-                                : (isDark
-                                    ? Colors.white38
-                                    : const Color(0xFF9CA3AF)),
+                                : unavailable
+                                    ? const Color(0xFFDC2626)
+                                        .withValues(alpha: 0.4)
+                                    : (isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF9CA3AF)),
                       ),
                     ),
                   ),
@@ -1587,16 +2197,20 @@ class _OpenAccountRequirementsScreenState
                   ? 'Captured — tap to redo'
                   : scanning
                       ? 'Scanning…'
-                      : 'Tap to scan',
+                      : unavailable
+                          ? 'Sensor not available'
+                          : 'Tap to scan',
               style: GoogleFonts.inter(
                 fontSize: 7.5.sp,
                 color: scanned
                     ? const Color(0xFF059669)
                     : scanning
                         ? widget.accentColor
-                        : (isDark
-                            ? Colors.white38
-                            : const Color(0xFF9CA3AF)),
+                        : unavailable
+                            ? const Color(0xFFDC2626).withValues(alpha: 0.6)
+                            : (isDark
+                                ? Colors.white38
+                                : const Color(0xFF9CA3AF)),
               ),
             ),
           ],
@@ -1673,252 +2287,6 @@ class _OpenAccountRequirementsScreenState
           ),
         ),
       ],
-    );
-  }
-
-  // ── Shared helpers ────────────────────────────────────────
-
-  Widget _buildStepIndicator(bool isDark, int current, int total) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: Row(
-        children: List.generate(total, (i) {
-          final step = i + 1;
-          final isActive = step == current;
-          final isComplete = step < current;
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 1.w),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          height: 3,
-                          decoration: BoxDecoration(
-                            color: isComplete || isActive
-                                ? widget.accentColor
-                                : (isDark
-                                    ? Colors.white
-                                        .withValues(alpha: 0.08)
-                                    : const Color(0xFFE5E7EB)),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 0.6.h),
-                  Text(
-                    _stepLabel(step),
-                    style: GoogleFonts.inter(
-                      fontSize: 6.sp,
-                      fontWeight:
-                          isActive ? FontWeight.w600 : FontWeight.w400,
-                      color: isActive
-                          ? widget.accentColor
-                          : (isDark
-                              ? Colors.white38
-                              : const Color(0xFF9CA3AF)),
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  String _stepLabel(int step) {
-    switch (step) {
-      case 1:
-        return 'Personal';
-      case 2:
-        return 'ID & Contact';
-      case 3:
-        return 'Documents';
-      case 4:
-        return 'Review';
-      default:
-        return '';
-    }
-  }
-
-  Widget _buildContinueButton(bool isDark) {
-    return GestureDetector(
-      onTap: _canContinue ? _onContinue : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 1.7.h),
-        decoration: BoxDecoration(
-          gradient: _canContinue
-              ? const LinearGradient(
-                  colors: [Color(0xFF2E8B8B), Color(0xFF1B6B6B)])
-              : null,
-          color: _canContinue
-              ? null
-              : (isDark
-                  ? const Color(0xFF1E2328)
-                  : const Color(0xFFE5E7EB)),
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: _canContinue
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF2E8B8B)
-                        .withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Review Application',
-              style: GoogleFonts.inter(
-                fontSize: 10.5.sp,
-                fontWeight: FontWeight.w600,
-                color: _canContinue
-                    ? Colors.white
-                    : (isDark
-                        ? Colors.white24
-                        : const Color(0xFF9CA3AF)),
-              ),
-            ),
-            SizedBox(width: 2.w),
-            Icon(
-              Icons.arrow_forward_rounded,
-              color: _canContinue
-                  ? Colors.white
-                  : (isDark
-                      ? Colors.white24
-                      : const Color(0xFF9CA3AF)),
-              size: 18,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? [const Color(0xFF162032), const Color(0xFF0D1117)]
-              : widget.gradientColors,
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: 5.w, vertical: 1.8.h),
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                        color:
-                            Colors.white.withValues(alpha: 0.08)),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.arrow_back_rounded,
-                        color: Colors.white, size: 19),
-                  ),
-                ),
-              ),
-              SizedBox(width: 3.5.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Bio Verification',
-                      style: GoogleFonts.inter(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    SizedBox(height: 0.2.h),
-                    Text(
-                      'Open Account · Step 3 of 4',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.sp,
-                        color:
-                            Colors.white.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 3.w, vertical: 0.6.h),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                      color:
-                          Colors.white.withValues(alpha: 0.08)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF4ADE80),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Online',
-                      style: GoogleFonts.inter(
-                        fontSize: 7.sp,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

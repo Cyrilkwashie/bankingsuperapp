@@ -59,6 +59,13 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
     return '$day/$month/${d.year}';
   }
 
+  String _maskAccountNo(String no) {
+    if (no.length >= 7) {
+      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
+    }
+    return no;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -69,90 +76,102 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
           : const Color(0xFFF8FAFC),
       body: Column(
         children: [
-          // Header
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [const Color(0xFF162032), const Color(0xFF0D1117)]
-                    : gradientColors,
+          _buildHeader(context, isDark),
+          _StopChequeFlowStepIndicator(
+            currentStep: 3,
+            isDark: isDark,
+            accent: accentColor,
+            success: const Color(0xFF059669),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(5.w, 2.5.h, 5.w, 2.h),
+              child: Column(
+                children: [
+                  _buildChequeIllustration(isDark),
+                  SizedBox(height: 1.5.h),
+                  _buildDetailsCard(isDark),
+                  SizedBox(height: 1.2.h),
+                  _buildChargesCard(isDark),
+                  SizedBox(height: 1.2.h),
+                  _buildWarning(isDark),
+                ],
               ),
             ),
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.8.h),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.08),
-                          ),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.arrow_back_rounded,
-                            color: Colors.white,
-                            size: 19,
-                          ),
-                        ),
-                      ),
+          ),
+          _buildStickyActionBar(context, isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [const Color(0xFF162032), const Color(0xFF0D1117)]
+              : gradientColors,
+        ),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.6.h),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
                     ),
-                    SizedBox(width: 3.5.w),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 19,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 3.5.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
                       'Confirm Request',
                       style: GoogleFonts.inter(
-                        fontSize: 15.sp,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: -0.3,
                       ),
                     ),
+                    SizedBox(height: 0.2.h),
+                    Text(
+                      'Agency Banking · Step 3 of 3',
+                      style: GoogleFonts.inter(
+                        fontSize: 8.sp,
+                        color: Colors.white.withValues(alpha: 0.6),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(5.w, 2.5.h, 5.w, 4.h),
-              child: Column(
-                children: [
-                  // Cheque illustration
-                  _buildChequeIllustration(isDark),
-                  SizedBox(height: 2.5.h),
-
-                  // Details card
-                  _buildDetailsCard(isDark),
-                  SizedBox(height: 1.5.h),
-
-                  // Charges card
-                  _buildChargesCard(isDark),
-                  SizedBox(height: 2.h),
-
-                  // Warning
-                  _buildWarning(isDark),
-                  SizedBox(height: 3.h),
-
-                  // Confirm
-                  _buildConfirmButton(context, isDark),
-                  SizedBox(height: 1.2.h),
-                  _buildCancelButton(context, isDark),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -160,40 +179,36 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
   Widget _buildChequeIllustration(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(5.w),
+      padding: EdgeInsets.all(3.5.w),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accentColor.withValues(alpha: 0.08),
-            const Color(0xFF10B981).withValues(alpha: 0.04),
-          ],
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
         ),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: accentColor.withValues(alpha: 0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          // Cheque visual
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(4.w),
+            padding: EdgeInsets.all(3.5.w),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF161B22) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.06)
                     : const Color(0xFFE5E7EB),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,16 +219,16 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                     Text(
                       'UTB CHEQUE',
                       style: GoogleFonts.inter(
-                        fontSize: 8.sp,
+                        fontSize: 7.5.sp,
                         fontWeight: FontWeight.w700,
                         color: accentColor,
-                        letterSpacing: 1.5,
+                        letterSpacing: 1.2,
                       ),
                     ),
                     Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 2.5.w,
-                        vertical: 0.4.h,
+                        horizontal: 2.w,
+                        vertical: 0.3.h,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF59E0B),
@@ -222,106 +237,80 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                       child: Text(
                         'STOP REQUESTED',
                         style: GoogleFonts.inter(
-                          fontSize: 6.sp,
+                          fontSize: 5.5.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
-                          letterSpacing: 0.5,
+                          letterSpacing: 0.4,
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 1.5.h),
+                SizedBox(height: 1.2.h),
                 Row(
                   children: [
                     Text(
                       'PAY: ',
                       style: GoogleFonts.inter(
-                        fontSize: 7.5.sp,
-                        fontWeight: FontWeight.w400,
-                        color: isDark
-                            ? Colors.white38
-                            : const Color(0xFF9CA3AF),
+                        fontSize: 7.sp,
+                        color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                       ),
                     ),
                     Expanded(
                       child: Text(
                         beneficiaryName.toUpperCase(),
                         style: GoogleFonts.inter(
-                          fontSize: 9.sp,
+                          fontSize: 8.5.sp,
                           fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF1A1D23),
+                          color: isDark ? Colors.white : const Color(0xFF111827),
                         ),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 1.h),
+                SizedBox(height: 0.8.h),
                 Row(
                   children: [
                     Text(
                       'AMOUNT: ',
                       style: GoogleFonts.inter(
-                        fontSize: 7.5.sp,
-                        fontWeight: FontWeight.w400,
-                        color: isDark
-                            ? Colors.white38
-                            : const Color(0xFF9CA3AF),
+                        fontSize: 7.sp,
+                        color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                       ),
                     ),
                     Text(
                       'GH₵ $amount',
                       style: GoogleFonts.inter(
-                        fontSize: 10.sp,
+                        fontSize: 9.5.sp,
                         fontWeight: FontWeight.w700,
                         color: accentColor,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 1.5.h),
-                // Dashed line
-                Row(
-                  children: List.generate(
-                    40,
-                    (i) => Expanded(
-                      child: Container(
-                        height: 1,
-                        color: i.isEven
-                            ? (isDark
-                                  ? Colors.white.withValues(alpha: 0.1)
-                                  : const Color(0xFFE5E7EB))
-                            : Colors.transparent,
-                      ),
-                    ),
-                  ),
+                SizedBox(height: 1.2.h),
+                Divider(
+                  height: 1,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : const Color(0xFFE5E7EB),
                 ),
-                SizedBox(height: 1.h),
+                SizedBox(height: 0.8.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'No: $fromChequeNo – $toChequeNo',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF6B7280),
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 7.sp,
+                        color: isDark ? Colors.white54 : const Color(0xFF6B7280),
                       ),
                     ),
                     Text(
-                      _StopChequeConfirmationScreen._formatDateShort(
-                        dateIssued,
-                      ),
+                      _formatDateShort(dateIssued),
                       style: GoogleFonts.inter(
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF6B7280),
+                        fontSize: 7.sp,
+                        color: isDark ? Colors.white54 : const Color(0xFF6B7280),
                       ),
                     ),
                   ],
@@ -329,41 +318,35 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 1.5.h),
-          // Cancelled stamp overlay icon
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.8.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+          SizedBox(height: 1.2.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.25),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.cancel_rounded,
+                  color: Color(0xFFF59E0B),
+                  size: 14,
+                ),
+                SizedBox(width: 1.5.w),
+                Text(
+                  '$_chequeCount cheque${_chequeCount > 1 ? 's' : ''} to be stopped',
+                  style: GoogleFonts.inter(
+                    fontSize: 7.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFF59E0B),
                   ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.cancel_rounded,
-                      color: Color(0xFFF59E0B),
-                      size: 16,
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      '$_chequeCount cheque${_chequeCount > 1 ? 's' : ''} to be stopped',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.sp,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFF59E0B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -373,10 +356,10 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
   Widget _buildDetailsCard(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(3.5.w),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.06)
@@ -394,20 +377,16 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
               color: isDark ? Colors.white : const Color(0xFF111827),
             ),
           ),
-          SizedBox(height: 1.5.h),
-          _detailRow('Account Number', accountNo, isDark),
+          SizedBox(height: 1.2.h),
+          _detailRow('Account Number', _maskAccountNo(accountNo), isDark, mono: true),
           _divider(isDark),
           _detailRow('Account Name', accountName, isDark),
           _divider(isDark),
-          _detailRow(
-            'Date Issued',
-            _StopChequeConfirmationScreen._formatDate(dateIssued),
-            isDark,
-          ),
+          _detailRow('Date Issued', _formatDate(dateIssued), isDark),
           _divider(isDark),
-          _detailRow('From Cheque No.', fromChequeNo, isDark),
+          _detailRow('From Cheque No.', fromChequeNo, isDark, mono: true),
           _divider(isDark),
-          _detailRow('To Cheque No.', toChequeNo, isDark),
+          _detailRow('To Cheque No.', toChequeNo, isDark, mono: true),
           _divider(isDark),
           _detailRow('Beneficiary', beneficiaryName, isDark),
           _divider(isDark),
@@ -427,12 +406,12 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
   Widget _buildChargesCard(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(3.5.w),
       decoration: BoxDecoration(
         color: isDark
             ? const Color(0xFFF59E0B).withValues(alpha: 0.06)
             : const Color(0xFFFFFBEB),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
         ),
@@ -445,63 +424,23 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
               const Icon(
                 Icons.receipt_long_rounded,
                 color: Color(0xFFF59E0B),
-                size: 20,
+                size: 18,
               ),
               SizedBox(width: 2.w),
               Text(
                 'Charges',
                 style: GoogleFonts.inter(
-                  fontSize: 9.5.sp,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFFD97706),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 1.2.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Fee per cheque',
-                style: GoogleFonts.inter(
-                  fontSize: 8.5.sp,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                ),
-              ),
-              Text(
-                'GH₵ 15.00',
-                style: GoogleFonts.inter(
-                  fontSize: 9.sp,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 0.4.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Number of cheques',
-                style: GoogleFonts.inter(
-                  fontSize: 8.5.sp,
-                  fontWeight: FontWeight.w400,
-                  color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                ),
-              ),
-              Text(
-                '$_chequeCount',
-                style: GoogleFonts.inter(
-                  fontSize: 9.sp,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.white : const Color(0xFF1A1D23),
-                ),
-              ),
-            ],
-          ),
+          SizedBox(height: 1.h),
+          _chargeRow('Fee per cheque', 'GH₵ 15.00', isDark),
+          SizedBox(height: 0.3.h),
+          _chargeRow('Number of cheques', '$_chequeCount', isDark),
           SizedBox(height: 0.8.h),
           Divider(
             color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
@@ -522,7 +461,7 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
               Text(
                 _totalFee,
                 style: GoogleFonts.inter(
-                  fontSize: 11.sp,
+                  fontSize: 10.5.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFFD97706),
                 ),
@@ -534,14 +473,38 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
     );
   }
 
+  Widget _chargeRow(String label, String value, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 8.sp,
+            color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontSize: 8.5.sp,
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.white : const Color(0xFF1A1D23),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _detailRow(
     String label,
     String value,
     bool isDark, {
     Color? valueColor,
+    bool mono = false,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 0.6.h),
+      padding: EdgeInsets.symmetric(vertical: 0.55.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -550,8 +513,7 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
             child: Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 8.sp,
-                fontWeight: FontWeight.w400,
+                fontSize: 7.5.sp,
                 color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
               ),
             ),
@@ -559,13 +521,19 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.inter(
-                fontSize: 9.sp,
-                fontWeight: FontWeight.w500,
-                color:
-                    valueColor ??
-                    (isDark ? Colors.white : const Color(0xFF1A1D23)),
-              ),
+              style: mono
+                  ? GoogleFonts.jetBrainsMono(
+                      fontSize: 7.sp,
+                      fontWeight: FontWeight.w500,
+                      color: valueColor ??
+                          (isDark ? Colors.white : const Color(0xFF111827)),
+                    )
+                  : GoogleFonts.inter(
+                      fontSize: 8.sp,
+                      fontWeight: FontWeight.w600,
+                      color: valueColor ??
+                          (isDark ? Colors.white : const Color(0xFF111827)),
+                    ),
               textAlign: TextAlign.right,
             ),
           ),
@@ -586,34 +554,25 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
   Widget _buildWarning(bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(3.5.w),
+      padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.h),
       decoration: BoxDecoration(
         color: isDark
             ? const Color(0xFFF59E0B).withValues(alpha: 0.06)
             : const Color(0xFFFFFBEB),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.warning_rounded,
-                color: Color(0xFFF59E0B),
-                size: 22,
-              ),
-            ),
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: Color(0xFFF59E0B),
+            size: 18,
           ),
-          SizedBox(width: 3.w),
+          SizedBox(width: 2.5.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,7 +580,7 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                 Text(
                   'Processing Notice',
                   style: GoogleFonts.inter(
-                    fontSize: 9.sp,
+                    fontSize: 8.5.sp,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFFD97706),
                   ),
@@ -631,7 +590,7 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                   'The stop-cheque request will be processed within 24 hours. The charge of $_totalFee will be debited from the account.',
                   style: GoogleFonts.inter(
                     fontSize: 7.5.sp,
-                    fontWeight: FontWeight.w400,
+                    height: 1.35,
                     color: isDark ? Colors.white54 : const Color(0xFF92400E),
                   ),
                 ),
@@ -643,97 +602,108 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildConfirmButton(BuildContext context, bool isDark) {
-    return GestureDetector(
-      onTap: () {
-        showTransactionAuthBottomSheet(
-          context: context,
-          accentColor: accentColor,
-          onAuthenticated: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => _StopChequeSuccessDialog(
-                fromChequeNo: fromChequeNo,
-                toChequeNo: toChequeNo,
-                beneficiaryName: beneficiaryName,
-                amount: amount,
-                totalFee: _totalFee,
-                chequeCount: _chequeCount,
-                accentColor: accentColor,
-                gradientColors: gradientColors,
-              ),
-              ),
-            );
-          },
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 1.7.h),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: gradientColors),
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: accentColor.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.check_circle_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-            SizedBox(width: 2.w),
-            Text(
-              'Confirm & Submit',
-              style: GoogleFonts.inter(
-                fontSize: 10.5.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCancelButton(BuildContext context, bool isDark) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 1.5.h),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF161B22) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
+  Widget _buildStickyActionBar(BuildContext context, bool isDark) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(5.w, 1.h, 5.w, 1.4.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          top: BorderSide(
             color: isDark
-                ? Colors.white.withValues(alpha: 0.08)
+                ? Colors.white.withValues(alpha: 0.06)
                 : const Color(0xFFE5E7EB),
           ),
         ),
-        child: Center(
-          child: Text(
-            'Go Back',
-            style: GoogleFonts.inter(
-              fontSize: 10.sp,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-            ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
           ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: () {
+                showTransactionAuthBottomSheet(
+                  context: context,
+                  accentColor: accentColor,
+                  onAuthenticated: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) => _StopChequeSuccessScreen(
+                          fromChequeNo: fromChequeNo,
+                          toChequeNo: toChequeNo,
+                          beneficiaryName: beneficiaryName,
+                          amount: amount,
+                          totalFee: _totalFee,
+                          chequeCount: _chequeCount,
+                          accentColor: accentColor,
+                          gradientColors: gradientColors,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 1.25.h),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [accentColor, accentColor.withValues(alpha: 0.85)],
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    SizedBox(width: 2.w),
+                    Text(
+                      'Confirm & Submit',
+                      style: GoogleFonts.inter(
+                        fontSize: 9.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 0.8.h),
+            GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 0.6.h),
+                child: Text(
+                  'Go Back',
+                  style: GoogleFonts.inter(
+                    fontSize: 8.5.sp,
+                    fontWeight: FontWeight.w600,
+                    color: accentColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════
-// ── Success Dialog ──
-// ══════════════════════════════════════════════════════════════

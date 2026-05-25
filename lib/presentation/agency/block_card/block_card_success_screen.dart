@@ -1,36 +1,27 @@
-part of 'agency_other_bank_transfer_screen.dart';
+part of 'agency_block_card_screen.dart';
 
-class _TransferSuccessScreen extends StatelessWidget {
-  final String amount;
-  final String senderName;
-  final String beneficiaryName;
-  final String beneficiaryAccountNo;
-  final String beneficiaryBank;
+class _BlockCardSuccessScreen extends StatelessWidget {
+  final String cardType;
+  final String maskedCardNumber;
+  final String accountName;
+  final String reason;
   final Color accentColor;
   final List<Color> gradientColors;
 
-  const _TransferSuccessScreen({
-    required this.amount,
-    required this.senderName,
-    required this.beneficiaryName,
-    required this.beneficiaryAccountNo,
-    required this.beneficiaryBank,
+  const _BlockCardSuccessScreen({
+    required this.cardType,
+    required this.maskedCardNumber,
+    required this.accountName,
+    required this.reason,
     required this.accentColor,
     required this.gradientColors,
   });
 
-  static const Color _success = Color(0xFF059669);
+  static const Color _blocked = Color(0xFFDC2626);
 
   String get _referenceNo {
     final ts = DateTime.now().millisecondsSinceEpoch.toString();
-    return 'OBT${ts.substring(ts.length - 8)}';
-  }
-
-  String _maskAccountNo(String no) {
-    if (no.length >= 7) {
-      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
-    }
-    return no;
+    return 'BLK${ts.substring(ts.length - 8)}';
   }
 
   String _formatTimestamp(DateTime now) {
@@ -61,7 +52,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                   _buildSuccessBadge(isDark),
                   SizedBox(height: 1.8.h),
                   Text(
-                    'Transfer Successful',
+                    'Card Blocked',
                     style: GoogleFonts.inter(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w800,
@@ -71,7 +62,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 0.5.h),
                   Text(
-                    'Funds have been sent to the beneficiary\'s external bank account.',
+                    '$cardType ($maskedCardNumber) for $accountName has been blocked successfully.',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.inter(
                       fontSize: 8.sp,
@@ -80,8 +71,6 @@ class _TransferSuccessScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 2.h),
-                  _buildTransferFlow(isDark),
-                  SizedBox(height: 1.5.h),
                   _buildReceiptCard(isDark, timestamp),
                 ],
               ),
@@ -114,13 +103,13 @@ class _TransferSuccessScreen extends StatelessWidget {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: _success.withValues(alpha: 0.18),
+                  color: _blocked.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(11),
-                  border: Border.all(color: _success.withValues(alpha: 0.28)),
+                  border: Border.all(color: _blocked.withValues(alpha: 0.28)),
                 ),
                 child: const Icon(
-                  Icons.account_balance_rounded,
-                  color: Color(0xFF34D399),
+                  Icons.block_rounded,
+                  color: Color(0xFFFCA5A5),
                   size: 19,
                 ),
               ),
@@ -130,7 +119,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Transaction Complete',
+                      'Block Complete',
                       style: GoogleFonts.inter(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
@@ -139,7 +128,7 @@ class _TransferSuccessScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Other Bank Transfer',
+                      'Block Card · Complete',
                       style: GoogleFonts.inter(
                         fontSize: 7.5.sp,
                         color: Colors.white.withValues(alpha: 0.6),
@@ -148,36 +137,32 @@ class _TransferSuccessScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              _successPill(),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
+                decoration: BoxDecoration(
+                  color: _blocked.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: _blocked.withValues(alpha: 0.28)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.block_rounded, size: 11, color: Color(0xFFFCA5A5)),
+                    SizedBox(width: 1.w),
+                    Text(
+                      'Blocked',
+                      style: GoogleFonts.inter(
+                        fontSize: 6.5.sp,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFCA5A5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _successPill() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
-      decoration: BoxDecoration(
-        color: _success.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _success.withValues(alpha: 0.28)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.check_rounded, size: 11, color: Color(0xFF34D399)),
-          SizedBox(width: 1.w),
-          Text(
-            'Success',
-            style: GoogleFonts.inter(
-              fontSize: 6.5.sp,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF34D399),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -191,7 +176,7 @@ class _TransferSuccessScreen extends StatelessWidget {
           height: 88,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _success.withValues(alpha: isDark ? 0.08 : 0.06),
+            color: _blocked.withValues(alpha: isDark ? 0.08 : 0.06),
           ),
         ),
         Container(
@@ -203,111 +188,22 @@ class _TransferSuccessScreen extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                _success.withValues(alpha: 0.2),
-                _success.withValues(alpha: 0.08),
+                _blocked.withValues(alpha: 0.2),
+                _blocked.withValues(alpha: 0.08),
               ],
             ),
-            border: Border.all(color: _success.withValues(alpha: 0.25)),
+            border: Border.all(color: _blocked.withValues(alpha: 0.25)),
             boxShadow: [
               BoxShadow(
-                color: _success.withValues(alpha: 0.15),
+                color: _blocked.withValues(alpha: 0.15),
                 blurRadius: 20,
                 offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: const Icon(Icons.check_rounded, color: _success, size: 32),
+          child: const Icon(Icons.block_rounded, color: _blocked, size: 32),
         ),
       ],
-    );
-  }
-
-  Widget _buildTransferFlow(bool isDark) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.2.h),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  'From',
-                  style: GoogleFonts.inter(
-                    fontSize: 7.sp,
-                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                  ),
-                ),
-                SizedBox(height: 0.3.h),
-                Text(
-                  senderName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF111827),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.arrow_forward_rounded, color: accentColor, size: 16),
-          ),
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  'To',
-                  style: GoogleFonts.inter(
-                    fontSize: 7.sp,
-                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                  ),
-                ),
-                SizedBox(height: 0.3.h),
-                Text(
-                  beneficiaryName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 8.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : const Color(0xFF111827),
-                  ),
-                ),
-                SizedBox(height: 0.2.h),
-                Text(
-                  beneficiaryBank,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 6.5.sp,
-                    color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -338,30 +234,28 @@ class _TransferSuccessScreen extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 1.8.h),
               decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(color: _success, width: 3),
-                ),
+                border: Border(left: BorderSide(color: _blocked, width: 3)),
                 gradient: LinearGradient(
                   colors: [
-                    accentColor.withValues(alpha: isDark ? 0.1 : 0.05),
-                    accentColor.withValues(alpha: isDark ? 0.03 : 0.01),
+                    _blocked.withValues(alpha: isDark ? 0.1 : 0.05),
+                    _blocked.withValues(alpha: isDark ? 0.03 : 0.01),
                   ],
                 ),
               ),
               child: Column(
                 children: [
                   Text(
-                    amount,
-                    style: GoogleFonts.inter(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w800,
+                    maskedCardNumber,
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
                       color: isDark ? Colors.white : const Color(0xFF111827),
-                      letterSpacing: -0.5,
+                      letterSpacing: 1.5,
                     ),
                   ),
                   SizedBox(height: 0.3.h),
                   Text(
-                    'Transferred',
+                    cardType,
                     style: GoogleFonts.inter(
                       fontSize: 7.5.sp,
                       fontWeight: FontWeight.w500,
@@ -375,21 +269,30 @@ class _TransferSuccessScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.5.h),
               child: Column(
                 children: [
-                  _buildReceiptRow('Beneficiary Bank', beneficiaryBank, isDark),
-                  Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
-                  _buildReceiptRow('Beneficiary Account', _maskAccountNo(beneficiaryAccountNo), isDark, mono: true),
-                  Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
+                  _buildReceiptRow('Account Holder', accountName, isDark),
+                  _divider(isDark),
+                  _buildReceiptRow('Reason', reason, isDark, valueColor: _blocked),
+                  _divider(isDark),
                   _buildReceiptRow('Reference', _referenceNo, isDark, mono: true),
-                  Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
+                  _divider(isDark),
                   _buildReceiptRow('Date & Time', timestamp, isDark),
-                  Divider(height: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
-                  _buildReceiptRow('Status', 'Completed', isDark, valueColor: _success),
+                  _divider(isDark),
+                  _buildReceiptRow('Processing', '24–48 hours', isDark),
+                  _divider(isDark),
+                  _buildReceiptRow('Status', 'Blocked', isDark, valueColor: _blocked),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _divider(bool isDark) {
+    return Divider(
+      height: 1,
+      color: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6),
     );
   }
 
@@ -421,12 +324,14 @@ class _TransferSuccessScreen extends StatelessWidget {
                   ? GoogleFonts.jetBrainsMono(
                       fontSize: 7.sp,
                       fontWeight: FontWeight.w500,
-                      color: valueColor ?? (isDark ? Colors.white : const Color(0xFF111827)),
+                      color: valueColor ??
+                          (isDark ? Colors.white : const Color(0xFF111827)),
                     )
                   : GoogleFonts.inter(
                       fontSize: 8.sp,
                       fontWeight: FontWeight.w600,
-                      color: valueColor ?? (isDark ? Colors.white : const Color(0xFF111827)),
+                      color: valueColor ??
+                          (isDark ? Colors.white : const Color(0xFF111827)),
                     ),
               textAlign: TextAlign.right,
             ),
@@ -492,7 +397,7 @@ class _TransferSuccessScreen extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 0.6.h),
                 child: Text(
-                  'New Transfer',
+                  'Block Another Card',
                   style: GoogleFonts.inter(
                     fontSize: 8.5.sp,
                     fontWeight: FontWeight.w600,

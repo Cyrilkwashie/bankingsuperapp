@@ -259,7 +259,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                         Text(
                           'All Services',
                           style: GoogleFonts.inter(
-                            fontSize: 15.sp,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                             letterSpacing: -0.3,
@@ -494,6 +494,10 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
           }
           if (service.label == 'Open Account') {
             Navigator.of(context).pushNamed(AppRoutes.agencyOpenAccount);
+            return;
+          }
+          if (service.label == 'Reverse Txn') {
+            Navigator.of(context).pushNamed(AppRoutes.agencyReverseTransaction);
             return;
           }
           ScaffoldMessenger.of(context).showSnackBar(

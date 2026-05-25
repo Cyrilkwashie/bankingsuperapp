@@ -1,9 +1,5 @@
 part of 'agency_balance_enquiry_screen.dart';
 
-// ══════════════════════════════════════════════════════════════
-// ── Balance Enquiry Confirmation Screen ──
-// ══════════════════════════════════════════════════════════════
-
 class _BalanceConfirmationScreen extends StatefulWidget {
   final String accountNo;
   final String accountName;
@@ -78,14 +74,17 @@ class _BalanceConfirmationScreenState
     if (widget.txnCount != null) {
       return 'Last ${widget.txnCount} transactions';
     }
-    final from = widget.txnStartDate != null ? _formatDate(widget.txnStartDate!) : '—';
-    final to = widget.txnEndDate != null ? _formatDate(widget.txnEndDate!) : '—';
+    final from = widget.txnStartDate != null
+        ? _formatDate(widget.txnStartDate!)
+        : '—';
+    final to =
+        widget.txnEndDate != null ? _formatDate(widget.txnEndDate!) : '—';
     return 'Transactions: $from – $to';
   }
 
   String _maskAccountNo(String no) {
     if (no.length >= 7) {
-      return '${no.substring(0, 3)}****${no.substring(no.length - 3)}';
+      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
     }
     return no;
   }
@@ -96,9 +95,7 @@ class _BalanceConfirmationScreenState
       accentColor: widget.accentColor,
       title: 'Authorize Enquiry',
       subtitle: 'Enter your 4-digit transaction PIN or use biometrics',
-      onAuthenticated: () {
-        _sendAfterAuth();
-      },
+      onAuthenticated: _sendAfterAuth,
     );
   }
 
@@ -127,75 +124,54 @@ class _BalanceConfirmationScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: Column(
           children: [
             _buildHeader(isDark),
+            _AgencyBalanceEnquiryScreenState.buildFlowStepIndicator(3, isDark),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(5.w, 3.h, 5.w, 4.h),
+                padding: EdgeInsets.fromLTRB(5.w, 2.5.h, 5.w, 2.h),
                 child: Column(
                   children: [
-                    // Top icon
-                    Container(
-                      width: 76,
-                      height: 76,
-                      decoration: BoxDecoration(
-                        color: widget.accentColor.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: widget.accentColor.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          widget.enquiryType == 'balance'
-                              ? Icons.account_balance_wallet_rounded
-                              : Icons.receipt_long_rounded,
-                          color: widget.accentColor,
-                          size: 32,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
                     Text(
                       'Confirm & Send',
                       style: GoogleFonts.inter(
-                        fontSize: 16.sp,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
                         color: isDark ? Colors.white : const Color(0xFF111827),
                       ),
                     ),
-                    SizedBox(height: 0.6.h),
+                    SizedBox(height: 0.5.h),
                     Text(
-                      'Review the details below before sending the SMS to the customer.',
+                      'Review details before dispatching SMS to customer.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
+                        fontSize: 8.sp,
                         color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                        height: 1.45,
+                        height: 1.4,
                       ),
                     ),
-                    SizedBox(height: 3.h),
-
-                    // ── Summary card ──
+                    SizedBox(height: 2.h),
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(4.5.w),
+                      padding: EdgeInsets.all(4.w),
                       decoration: BoxDecoration(
                         color: isDark ? const Color(0xFF161B22) : Colors.white,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: widget.accentColor.withValues(alpha: 0.15),
+                          color: widget.accentColor.withValues(alpha: 0.12),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-                            blurRadius: 16,
-                            offset: const Offset(0, 4),
+                            color: Colors.black
+                                .withValues(alpha: isDark ? 0.15 : 0.04),
+                            blurRadius: 12,
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
@@ -206,12 +182,6 @@ class _BalanceConfirmationScreenState
                             icon: Icons.person_rounded,
                             label: 'Account Holder',
                             value: widget.accountName,
-                            valueStyle: GoogleFonts.inter(
-                              fontSize: 10.5.sp,
-                              fontWeight: FontWeight.w600,
-                              color:
-                                  isDark ? Colors.white : const Color(0xFF111827),
-                            ),
                           ),
                           _divider(isDark),
                           _confirmRow(
@@ -219,13 +189,7 @@ class _BalanceConfirmationScreenState
                             icon: Icons.tag_rounded,
                             label: 'Account Number',
                             value: _maskAccountNo(widget.accountNo),
-                            valueStyle: GoogleFonts.jetBrainsMono(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
-                              color:
-                                  isDark ? Colors.white : const Color(0xFF111827),
-                              letterSpacing: 1.2,
-                            ),
+                            mono: true,
                           ),
                           _divider(isDark),
                           _confirmRow(
@@ -237,16 +201,10 @@ class _BalanceConfirmationScreenState
                           _divider(isDark),
                           _confirmRow(
                             isDark: isDark,
-                            icon: widget.enquiryType == 'balance'
-                                ? Icons.account_balance_wallet_rounded
-                                : Icons.receipt_long_rounded,
+                            icon: Icons.account_balance_wallet_rounded,
                             label: 'Enquiry Type',
                             value: _enquiryLabel,
-                            valueStyle: GoogleFonts.inter(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
-                              color: widget.accentColor,
-                            ),
+                            accent: true,
                           ),
                           _divider(isDark),
                           _confirmRow(
@@ -261,163 +219,129 @@ class _BalanceConfirmationScreenState
                             icon: Icons.phone_android_rounded,
                             label: 'Deliver To',
                             value: widget.destinationPhone,
-                            valueStyle: GoogleFonts.jetBrainsMono(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF059669),
-                              letterSpacing: 0.8,
-                            ),
+                            mono: true,
+                            accent: true,
                           ),
                         ],
                       ),
                     ),
-
-                    SizedBox(height: 2.h),
-
-                    // SMS charge note
+                    SizedBox(height: 1.5.h),
                     Container(
-                      padding: EdgeInsets.all(3.5.w),
+                      padding: EdgeInsets.all(3.w),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF59E0B).withValues(alpha: 0.07),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                          color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
                         ),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
-                            Icons.sms_rounded,
-                            color: Color(0xFFF59E0B),
-                            size: 18,
-                          ),
-                          SizedBox(width: 3.w),
+                          const Icon(Icons.sms_outlined,
+                              color: Color(0xFFF59E0B), size: 16),
+                          SizedBox(width: 2.5.w),
                           Expanded(
                             child: Text(
-                              'Standard SMS charges may apply. The customer will receive this information on their mobile number.',
+                              'Standard SMS charges may apply.',
                               style: GoogleFonts.inter(
-                                fontSize: 7.5.sp,
+                                fontSize: 7.sp,
                                 color: isDark
                                     ? Colors.white54
                                     : const Color(0xFF6B7280),
-                                height: 1.45,
+                                height: 1.4,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-
-                    SizedBox(height: 3.5.h),
-
-                    // Confirm button
-                    GestureDetector(
-                      onTap: _isSending ? null : _onConfirmTap,
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 1.8.h),
-                        decoration: BoxDecoration(
-                          gradient: !_isSending
-                              ? LinearGradient(colors: [
-                                  widget.accentColor,
-                                  widget.accentColor.withValues(alpha: 0.85),
-                                ])
-                              : null,
-                          color: _isSending
-                              ? (isDark
-                                      ? const Color(0xFF1E2328)
-                                      : const Color(0xFFE5E7EB))
-                              : null,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: !_isSending
-                              ? [
-                                  BoxShadow(
-                                    color:
-                                        widget.accentColor.withValues(alpha: 0.35),
-                                    blurRadius: 14,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: Center(
-                          child: _isSending
-                              ? Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    SizedBox(width: 3.w),
-                                    Text(
-                                      'Sending…',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 10.5.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark
-                                            ? Colors.white38
-                                            : const Color(0xFF9CA3AF),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.send_rounded,
-                                        size: 18, color: Colors.white),
-                                    SizedBox(width: 2.w),
-                                    Text(
-                                      'Send $_enquiryLabel',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 10.5.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 1.5.h),
-
-                    // Go back
-                    GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF161B22) : Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.08)
-                                : const Color(0xFFE5E7EB),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Go Back',
-                            style: GoogleFonts.inter(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w500,
-                              color: isDark
-                                  ? Colors.white54
-                                  : const Color(0xFF6B7280),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
+                ),
+              ),
+            ),
+            _buildStickyActions(isDark),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStickyActions(bool isDark) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(5.w, 1.h, 5.w, 1.4.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            GestureDetector(
+              onTap: _isSending ? null : _onConfirmTap,
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 1.25.h),
+                decoration: BoxDecoration(
+                  gradient: !_isSending
+                      ? LinearGradient(
+                          colors: [
+                            widget.accentColor,
+                            widget.accentColor.withValues(alpha: 0.85),
+                          ],
+                        )
+                      : null,
+                  color: _isSending
+                      ? (isDark
+                            ? const Color(0xFF1E2328)
+                            : const Color(0xFFE5E7EB))
+                      : null,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: _isSending
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.lock_outline_rounded,
+                                size: 16, color: Colors.white),
+                            SizedBox(width: 1.5.w),
+                            Text(
+                              'Authorize & Send',
+                              style: GoogleFonts.inter(
+                                fontSize: 9.5.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+            SizedBox(height: 0.8.h),
+            GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Text(
+                'Go Back',
+                style: GoogleFonts.inter(
+                  fontSize: 8.5.sp,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white54 : const Color(0xFF6B7280),
                 ),
               ),
             ),
@@ -432,25 +356,26 @@ class _BalanceConfirmationScreenState
     required IconData icon,
     required String label,
     required String value,
-    TextStyle? valueStyle,
+    bool mono = false,
+    bool accent = false,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 1.2.h),
+      padding: EdgeInsets.symmetric(vertical: 0.9.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
               color: widget.accentColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(9),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
-              child: Icon(icon, color: widget.accentColor, size: 16),
+              child: Icon(icon, color: widget.accentColor, size: 14),
             ),
           ),
-          SizedBox(width: 3.w),
+          SizedBox(width: 2.5.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,19 +383,32 @@ class _BalanceConfirmationScreenState
                 Text(
                   label,
                   style: GoogleFonts.inter(
-                    fontSize: 7.5.sp,
+                    fontSize: 7.sp,
                     color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                   ),
                 ),
-                SizedBox(height: 0.3.h),
+                SizedBox(height: 0.2.h),
                 Text(
                   value,
-                  style: valueStyle ??
-                      GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white : const Color(0xFF374151),
-                      ),
+                  style: mono
+                      ? GoogleFonts.jetBrainsMono(
+                          fontSize: 8.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: accent
+                              ? widget.accentColor
+                              : (isDark
+                                    ? Colors.white
+                                    : const Color(0xFF111827)),
+                        )
+                      : GoogleFonts.inter(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w600,
+                          color: accent
+                              ? widget.accentColor
+                              : (isDark
+                                    ? Colors.white
+                                    : const Color(0xFF111827)),
+                        ),
                 ),
               ],
             ),
@@ -480,15 +418,13 @@ class _BalanceConfirmationScreenState
     );
   }
 
-  Widget _divider(bool isDark) {
-    return Divider(
-      height: 0,
-      thickness: 1,
-      color: isDark
-          ? Colors.white.withValues(alpha: 0.05)
-          : const Color(0xFFF3F4F6),
-    );
-  }
+  Widget _divider(bool isDark) => Divider(
+        height: 0,
+        thickness: 1,
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : const Color(0xFFF3F4F6),
+      );
 
   Widget _buildHeader(bool isDark) {
     return Container(
@@ -515,8 +451,9 @@ class _BalanceConfirmationScreenState
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
-                    border:
-                        Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                   ),
                   child: const Center(
                     child: Icon(Icons.arrow_back_rounded,
@@ -525,6 +462,18 @@ class _BalanceConfirmationScreenState
                 ),
               ),
               SizedBox(width: 3.5.w),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Center(
+                  child: Icon(Icons.send_outlined, color: Colors.white, size: 20),
+                ),
+              ),
+              SizedBox(width: 3.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -532,7 +481,7 @@ class _BalanceConfirmationScreenState
                     Text(
                       'Confirm Dispatch',
                       style: GoogleFonts.inter(
-                        fontSize: 15.sp,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: -0.3,
@@ -540,7 +489,7 @@ class _BalanceConfirmationScreenState
                     ),
                     SizedBox(height: 0.2.h),
                     Text(
-                      'Balance Enquiry · Step 3 of 3',
+                      'Balance Enquiry · Step 3 of 4',
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
                         color: Colors.white.withValues(alpha: 0.6),
@@ -552,10 +501,11 @@ class _BalanceConfirmationScreenState
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.6.h),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
+                  color: const Color(0xFF059669).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
-                  border:
-                      Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                  border: Border.all(
+                    color: const Color(0xFF059669).withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

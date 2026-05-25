@@ -20,6 +20,14 @@ class AgencySameBankTransferScreen extends StatefulWidget {
 class _AgencySameBankTransferScreenState
     extends State<AgencySameBankTransferScreen>
     with SingleTickerProviderStateMixin {
+  static const Color _accent = Color(0xFF2E8B8B);
+  static const List<Color> _gradient = [Color(0xFF1B365D), Color(0xFF2E8B8B)];
+  static const Color _success = Color(0xFF059669);
+  static const double _fieldRadius = 10;
+
+  EdgeInsets get _fieldPadding =>
+      EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 0.95.h);
+
   final _formKey = GlobalKey<FormState>();
   final _senderController = TextEditingController();
   final _beneficiaryController = TextEditingController();
@@ -300,27 +308,29 @@ class _AgencySameBankTransferScreenState
         ? _resolvedSenderAccountNo
         : _resolvedBeneficiaryAccountNo;
     return Padding(
-      padding: EdgeInsets.only(top: 1.2.h),
+      padding: EdgeInsets.only(top: 1.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Select Account',
             style: GoogleFonts.inter(
-              fontSize: 9.sp,
+              fontSize: 7.5.sp,
               fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white70 : const Color(0xFF374151),
+              letterSpacing: 0.2,
+              color: isDark ? Colors.white54 : const Color(0xFF64748B),
             ),
           ),
-          SizedBox(height: 0.8.h),
+          SizedBox(height: 0.4.h),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            height: 42,
+            padding: EdgeInsets.symmetric(horizontal: 3.w),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF161B22) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(_fieldRadius),
               border: Border.all(
                 color: isVerified
-                    ? const Color(0xFF2E8B8B).withValues(alpha: 0.5)
+                    ? _accent.withValues(alpha: 0.4)
                     : isDark
                     ? Colors.white.withValues(alpha: 0.08)
                     : const Color(0xFFE5E7EB),
@@ -330,23 +340,25 @@ class _AgencySameBankTransferScreenState
               child: DropdownButton<String>(
                 value: isVerified ? resolvedNo : null,
                 isExpanded: true,
+                isDense: true,
                 hint: Text(
-                  'Select account for this transaction',
+                  'Select account',
                   style: GoogleFonts.inter(
-                    fontSize: 10.sp,
+                    fontSize: 9.sp,
                     color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
                   ),
                 ),
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
+                  size: 18,
                   color: isVerified
-                      ? const Color(0xFF2E8B8B)
+                      ? _accent
                       : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
                 ),
                 dropdownColor: isDark ? const Color(0xFF161B22) : Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(_fieldRadius),
                 style: GoogleFonts.inter(
-                  fontSize: 10.sp,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.w500,
                   color: isDark ? Colors.white : const Color(0xFF1A1D23),
                 ),
@@ -366,16 +378,14 @@ class _AgencySameBankTransferScreenState
                             Icon(
                               Icons.account_balance_rounded,
                               size: 16,
-                              color: const Color(
-                                0xFF2E8B8B,
-                              ).withValues(alpha: 0.6),
+                              color: _accent.withValues(alpha: 0.6),
                             ),
                             SizedBox(width: 2.w),
                             Expanded(
                               child: Text(
-                                '${acct['name']} \u2022 ${acct['type'] ?? 'Savings'}',
+                                '${acct['name']} • ${acct['type'] ?? 'Savings'}',
                                 style: GoogleFonts.inter(
-                                  fontSize: 9.5.sp,
+                                  fontSize: 9.sp,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -386,7 +396,7 @@ class _AgencySameBankTransferScreenState
                         Text(
                           maskedNo,
                           style: GoogleFonts.jetBrainsMono(
-                            fontSize: 7.5.sp,
+                            fontSize: 7.sp,
                             color: isDark
                                 ? Colors.white54
                                 : const Color(0xFF6B7280),
@@ -570,8 +580,8 @@ class _AgencySameBankTransferScreenState
           transferredBy: _transferredByController.text.trim(),
           narration: _narrationController.text.trim(),
           fixedNarration: _fixedNarration,
-          accentColor: const Color(0xFF2E8B8B),
-          gradientColors: const [Color(0xFF1B365D), Color(0xFF2E8B8B)],
+          accentColor: _accent,
+          gradientColors: _gradient,
         ),
       ),
     );
@@ -590,220 +600,163 @@ class _AgencySameBankTransferScreenState
         child: Column(
           children: [
             _buildHeader(isDark),
+            _buildStepIndicator(1, isDark),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 4.h),
+                padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 2.h),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Sender Section
-                      _buildSectionHeader('Sender Details', isDark),
+                      _buildIntroTip(isDark),
                       SizedBox(height: 1.5.h),
-                      _buildLookupTypeToggle(
-                        isDark,
-                        _senderLookupType,
-                        _onSenderLookupTypeChanged,
-                      ),
-                      SizedBox(height: 1.5.h),
-                      _buildFieldLabel(
-                        _senderLookupType == 'account'
-                            ? "Sender's Account Number"
-                            : "Sender's Phone Number",
-                        isDark,
-                      ),
-                      SizedBox(height: 0.8.h),
-                      _buildAccountField(
-                        controller: _senderController,
-                        onChanged: _onSenderChanged,
-                        isPhone: _senderLookupType == 'phone',
-                        isVerified: _senderVerified,
-                        isNotFound: _senderNotFound,
-                        isLoading: _isLookingUpSender,
+                      _buildSectionCard(
                         isDark: isDark,
-                      ),
-                      if (_isLookingUpSender) _buildLookupLoader(isDark),
-                      if (_senderPhoneAccountsList.length > 1)
-                        _buildAccountSelectionDropdown(isDark, isSender: true),
-                      if (_senderVerified)
-                        _buildAccountInfoCard(
-                          isDark,
-                          _senderName,
-                          _senderStatus,
-                          _resolvedSenderAccountNo,
-                          showBalance: true,
-                          balance: _senderBalance,
-                          balanceVisible: _senderBalanceVisible,
-                          onToggleBalance: () => setState(
-                            () =>
-                                _senderBalanceVisible = !_senderBalanceVisible,
-                          ),
-                        ),
-                      if (_senderNotFound)
-                        _buildNotFoundCard(
-                          isDark,
-                          _senderLookupType == 'phone',
-                        ),
-
-                      SizedBox(height: 2.5.h),
-
-                      // Beneficiary Section
-                      _buildSectionHeader('Beneficiary Details', isDark),
-                      SizedBox(height: 1.5.h),
-                      _buildLookupTypeToggle(
-                        isDark,
-                        _beneficiaryLookupType,
-                        _onBeneficiaryLookupTypeChanged,
-                      ),
-                      SizedBox(height: 1.5.h),
-                      _buildFieldLabel(
-                        _beneficiaryLookupType == 'account'
-                            ? "Beneficiary's Account Number"
-                            : "Beneficiary's Phone Number",
-                        isDark,
-                      ),
-                      SizedBox(height: 0.8.h),
-                      _buildAccountField(
-                        controller: _beneficiaryController,
-                        onChanged: _onBeneficiaryChanged,
-                        isPhone: _beneficiaryLookupType == 'phone',
-                        isVerified: _beneficiaryVerified,
-                        isNotFound: _beneficiaryNotFound,
-                        isLoading: _isLookingUpBeneficiary,
-                        isDark: isDark,
-                      ),
-                      if (_isLookingUpBeneficiary) _buildLookupLoader(isDark),
-                      if (_beneficiaryPhoneAccountsList.length > 1)
-                        _buildAccountSelectionDropdown(isDark, isSender: false),
-                      if (_beneficiaryVerified)
-                        _buildAccountInfoCard(
-                          isDark,
-                          _beneficiaryName,
-                          _beneficiaryStatus,
-                          _resolvedBeneficiaryAccountNo,
-                          showBalance: false,
-                        ),
-                      if (_beneficiaryNotFound)
-                        _buildNotFoundCard(
-                          isDark,
-                          _beneficiaryLookupType == 'phone',
-                        ),
-
-                      SizedBox(height: 2.5.h),
-
-                      // Transfer Details
-                      _buildSectionHeader('Transfer Details', isDark),
-                      SizedBox(height: 1.5.h),
-
-                      _buildFieldLabel('Amount (GH₵)', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _amountController,
-                        hint: '0.00',
-                        isDark: isDark,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d+\.?\d{0,2}'),
-                          ),
-                        ],
-                        prefixText: 'GH₵  ',
-                        validator: (v) {
-                          if (v == null || v.isEmpty) return 'Enter amount';
-                          final amount = double.tryParse(v);
-                          if (amount == null || amount <= 0) {
-                            return 'Enter a valid amount';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 2.h),
-
-                      _buildFieldLabel('Funds Transferred By', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _transferredByController,
-                        hint: 'Name of sender',
-                        isDark: isDark,
-                        textCapitalization: TextCapitalization.words,
-                        onChanged: (_) => setState(() {}),
-                        validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Enter sender name'
-                            : null,
-                      ),
-                      SizedBox(height: 2.h),
-
-                      _buildFieldLabel('Narration', isDark),
-                      SizedBox(height: 0.8.h),
-                      _buildTextField(
-                        controller: _narrationController,
-                        hint: 'Optional narration',
-                        isDark: isDark,
-                        maxLines: 2,
-                      ),
-                      SizedBox(height: 1.2.h),
-
-                      // System narration
-                      if (_fixedNarration.isNotEmpty) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 4.w,
-                            vertical: 1.2.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF2E8B8B,
-                            ).withValues(alpha: isDark ? 0.08 : 0.05),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(
-                                0xFF2E8B8B,
-                              ).withValues(alpha: 0.15),
+                        title: 'Sender Details',
+                        subtitle: 'Account sending the funds',
+                        icon: Icons.person_outline_rounded,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLookupTypeToggle(
+                              isDark,
+                              _senderLookupType,
+                              _onSenderLookupTypeChanged,
                             ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Transaction Description',
-                                style: GoogleFonts.inter(
-                                  fontSize: 7.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF2E8B8B),
+                            SizedBox(height: 1.3.h),
+                            _buildFieldLabel(
+                              _senderLookupType == 'account'
+                                  ? "Sender's Account Number"
+                                  : "Sender's Phone Number",
+                              isDark,
+                            ),
+                            SizedBox(height: 0.4.h),
+                            _buildAccountField(
+                              controller: _senderController,
+                              onChanged: _onSenderChanged,
+                              isPhone: _senderLookupType == 'phone',
+                              isVerified: _senderVerified,
+                              isNotFound: _senderNotFound,
+                              isLoading: _isLookingUpSender,
+                              isDark: isDark,
+                            ),
+                            if (_isLookingUpSender) _buildLookupLoader(isDark),
+                            if (_senderPhoneAccountsList.length > 1)
+                              _buildAccountSelectionDropdown(isDark, isSender: true),
+                            if (_senderVerified)
+                              _buildAccountInfoCard(
+                                isDark,
+                                _senderName,
+                                _senderStatus,
+                                _resolvedSenderAccountNo,
+                                showBalance: true,
+                                balance: _senderBalance,
+                                balanceVisible: _senderBalanceVisible,
+                                onToggleBalance: () => setState(
+                                  () => _senderBalanceVisible = !_senderBalanceVisible,
                                 ),
                               ),
-                              SizedBox(height: 0.3.h),
-                              Text(
-                                _fixedNarration,
-                                style: GoogleFonts.inter(
-                                  fontSize: 8.5.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark
-                                      ? Colors.white70
-                                      : const Color(0xFF1A1D23),
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                            ],
-                          ),
+                            if (_senderNotFound)
+                              _buildNotFoundCard(isDark, _senderLookupType == 'phone'),
+                          ],
                         ),
-                        SizedBox(height: 3.h),
-                      ],
-
-                      if (_fixedNarration.isEmpty) SizedBox(height: 2.h),
-
-                      _buildSubmitButton(isDark),
-                      SizedBox(height: 2.h),
+                      ),
+                      SizedBox(height: 1.5.h),
+                      _buildSectionCard(
+                        isDark: isDark,
+                        title: 'Beneficiary Details',
+                        subtitle: 'Account receiving the funds',
+                        icon: Icons.person_add_outlined,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLookupTypeToggle(
+                              isDark,
+                              _beneficiaryLookupType,
+                              _onBeneficiaryLookupTypeChanged,
+                            ),
+                            SizedBox(height: 1.3.h),
+                            _buildFieldLabel(
+                              _beneficiaryLookupType == 'account'
+                                  ? "Beneficiary's Account Number"
+                                  : "Beneficiary's Phone Number",
+                              isDark,
+                            ),
+                            SizedBox(height: 0.4.h),
+                            _buildAccountField(
+                              controller: _beneficiaryController,
+                              onChanged: _onBeneficiaryChanged,
+                              isPhone: _beneficiaryLookupType == 'phone',
+                              isVerified: _beneficiaryVerified,
+                              isNotFound: _beneficiaryNotFound,
+                              isLoading: _isLookingUpBeneficiary,
+                              isDark: isDark,
+                            ),
+                            if (_isLookingUpBeneficiary) _buildLookupLoader(isDark),
+                            if (_beneficiaryPhoneAccountsList.length > 1)
+                              _buildAccountSelectionDropdown(isDark, isSender: false),
+                            if (_beneficiaryVerified)
+                              _buildAccountInfoCard(
+                                isDark,
+                                _beneficiaryName,
+                                _beneficiaryStatus,
+                                _resolvedBeneficiaryAccountNo,
+                              ),
+                            if (_beneficiaryNotFound)
+                              _buildNotFoundCard(isDark, _beneficiaryLookupType == 'phone'),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 1.5.h),
+                      _buildSectionCard(
+                        isDark: isDark,
+                        title: 'Transfer Details',
+                        subtitle: 'Amount and transfer information',
+                        icon: Icons.swap_horiz_rounded,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildFieldLabel('Amount', isDark),
+                            SizedBox(height: 0.4.h),
+                            _buildAmountField(isDark),
+                            SizedBox(height: 1.3.h),
+                            _buildFieldLabel('Funds Transferred By', isDark),
+                            SizedBox(height: 0.4.h),
+                            _buildTextField(
+                              controller: _transferredByController,
+                              hint: 'Name of person initiating transfer',
+                              isDark: isDark,
+                              textCapitalization: TextCapitalization.words,
+                              onChanged: (_) => setState(() {}),
+                              validator: (v) => v == null || v.trim().isEmpty
+                                  ? 'Required'
+                                  : null,
+                            ),
+                            SizedBox(height: 1.3.h),
+                            _buildFieldLabel('Narration (optional)', isDark),
+                            SizedBox(height: 0.4.h),
+                            _buildTextField(
+                              controller: _narrationController,
+                              hint: 'Add a note for this transfer',
+                              isDark: isDark,
+                              maxLines: 2,
+                            ),
+                            if (_fixedNarration.isNotEmpty) ...[
+                              SizedBox(height: 1.2.h),
+                              _buildSystemNarrationBanner(isDark),
+                            ],
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 1.5.h),
                     ],
                   ),
                 ),
               ),
             ),
+            _buildStickyActionBar(isDark),
           ],
         ),
       ),
@@ -818,7 +771,7 @@ class _AgencySameBankTransferScreenState
           end: Alignment.bottomRight,
           colors: isDark
               ? [const Color(0xFF162032), const Color(0xFF0D1117)]
-              : [const Color(0xFF1B365D), const Color(0xFF2E8B8B)],
+              : _gradient,
         ),
       ),
       child: SafeArea(
@@ -849,6 +802,25 @@ class _AgencySameBankTransferScreenState
                 ),
               ),
               SizedBox(width: 3.5.w),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(13),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.swap_horiz_rounded,
+                    color: Colors.white,
+                    size: 21,
+                  ),
+                ),
+              ),
+              SizedBox(width: 3.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -856,7 +828,7 @@ class _AgencySameBankTransferScreenState
                     Text(
                       'Same Bank Transfer',
                       style: GoogleFonts.inter(
-                        fontSize: 15.sp,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: -0.3,
@@ -864,7 +836,7 @@ class _AgencySameBankTransferScreenState
                     ),
                     SizedBox(height: 0.2.h),
                     Text(
-                      'Agency Banking',
+                      'Agency Banking · Step 1 of 3',
                       style: GoogleFonts.inter(
                         fontSize: 8.sp,
                         fontWeight: FontWeight.w400,
@@ -913,27 +885,367 @@ class _AgencySameBankTransferScreenState
     );
   }
 
-  Widget _buildSectionHeader(String title, bool isDark) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 16,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2E8B8B),
-            borderRadius: BorderRadius.circular(2),
+  Widget _buildStepIndicator(int currentStep, bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : const Color(0xFFE5E7EB),
           ),
         ),
-        SizedBox(width: 2.w),
+      ),
+      child: Row(
+        children: [
+          _stepDot(1, currentStep, 'Details', isDark),
+          Expanded(
+            child: Container(
+              height: 2,
+              margin: EdgeInsets.symmetric(horizontal: 2.w),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2),
+                gradient: currentStep >= 2
+                    ? LinearGradient(colors: [_accent, _accent.withValues(alpha: 0.5)])
+                    : null,
+                color: currentStep >= 2
+                    ? null
+                    : (isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : const Color(0xFFE5E7EB)),
+              ),
+            ),
+          ),
+          _stepDot(2, currentStep, 'Verify', isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _stepDot(int step, int current, String label, bool isDark) {
+    final isActive = step <= current;
+    final isCurrent = step == current;
+    return Column(
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isActive
+                ? (isCurrent ? _accent : _success)
+                : (isDark ? const Color(0xFF1E2328) : const Color(0xFFF3F4F6)),
+            border: Border.all(
+              color: isActive
+                  ? Colors.transparent
+                  : (isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : const Color(0xFFD1D5DB)),
+            ),
+            boxShadow: isCurrent
+                ? [
+                    BoxShadow(
+                      color: _accent.withValues(alpha: 0.35),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: isActive && step < current
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
+                : Text(
+                    '$step',
+                    style: GoogleFonts.inter(
+                      fontSize: 8.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isActive
+                          ? Colors.white
+                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                    ),
+                  ),
+          ),
+        ),
+        SizedBox(height: 0.5.h),
         Text(
-          title,
+          label,
           style: GoogleFonts.inter(
-            fontSize: 10.sp,
-            fontWeight: FontWeight.w700,
-            color: isDark ? Colors.white : const Color(0xFF111827),
+            fontSize: 7.sp,
+            fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w500,
+            color: isCurrent
+                ? _accent
+                : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildIntroTip(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 1.h),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            _accent.withValues(alpha: isDark ? 0.12 : 0.06),
+            _accent.withValues(alpha: isDark ? 0.04 : 0.02),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _accent.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline_rounded, color: _accent, size: 15),
+          SizedBox(width: 2.5.w),
+          Expanded(
+            child: Text(
+              'Verify sender and beneficiary accounts, enter the amount, then confirm with OTP.',
+              style: GoogleFonts.inter(
+                fontSize: 7.5.sp,
+                height: 1.35,
+                color: isDark ? Colors.white60 : const Color(0xFF64748B),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required bool isDark,
+    required String title,
+    String? subtitle,
+    IconData? icon,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(3.5.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.12 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (icon != null) ...[
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: _accent.withValues(alpha: isDark ? 0.15 : 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: _accent, size: 15),
+                ),
+                SizedBox(width: 2.5.w),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: 9.5.sp,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF111827),
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      SizedBox(height: 0.1.h),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.inter(
+                          fontSize: 7.sp,
+                          color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 1.3.h),
+          child,
+        ],
+      ),
+    );
+  }
+
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+  }
+
+  String _maskAccountNo(String no) {
+    if (no.length >= 7) {
+      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
+    }
+    return no;
+  }
+
+  Widget _buildSystemNarrationBanner(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.9.h),
+      decoration: BoxDecoration(
+        color: _accent.withValues(alpha: isDark ? 0.1 : 0.05),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _accent.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.auto_awesome_rounded, color: _accent, size: 16),
+          SizedBox(width: 2.5.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Transaction Description',
+                  style: GoogleFonts.inter(
+                    fontSize: 7.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _accent,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                SizedBox(height: 0.3.h),
+                Text(
+                  _fixedNarration,
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 7.5.sp,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white70 : const Color(0xFF374151),
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmountField(bool isDark) {
+    return TextFormField(
+      controller: _amountController,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+      ],
+      style: GoogleFonts.inter(
+        fontSize: 11.sp,
+        fontWeight: FontWeight.w600,
+        color: isDark ? Colors.white : const Color(0xFF111827),
+        letterSpacing: -0.2,
+      ),
+      validator: (v) {
+        if (v == null || v.isEmpty) return 'Enter amount';
+        final amount = double.tryParse(v);
+        if (amount == null || amount <= 0) return 'Enter a valid amount';
+        return null;
+      },
+      decoration: InputDecoration(
+        isDense: true,
+        hintText: '0.00',
+        prefixText: 'GH₵  ',
+        prefixStyle: GoogleFonts.inter(
+          fontSize: 9.sp,
+          fontWeight: FontWeight.w600,
+          color: _accent,
+        ),
+        hintStyle: GoogleFonts.inter(
+          fontSize: 9.sp,
+          fontWeight: FontWeight.w500,
+          color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
+        ),
+        filled: true,
+        fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        contentPadding: _fieldPadding,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(color: _accent, width: 1),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: const BorderSide(color: Color(0xFFDC2626)),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStickyActionBar(bool isDark) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(5.w, 1.h, 5.w, 1.4.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : const Color(0xFFE5E7EB),
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: _buildSubmitButton(isDark),
+      ),
     );
   }
 
@@ -941,9 +1253,10 @@ class _AgencySameBankTransferScreenState
     return Text(
       label,
       style: GoogleFonts.inter(
-        fontSize: 9.sp,
+        fontSize: 7.5.sp,
         fontWeight: FontWeight.w600,
-        color: isDark ? Colors.white70 : const Color(0xFF374151),
+        letterSpacing: 0.2,
+        color: isDark ? Colors.white54 : const Color(0xFF64748B),
       ),
     );
   }
@@ -954,121 +1267,73 @@ class _AgencySameBankTransferScreenState
     ValueChanged<String> onChanged,
   ) {
     return Container(
-      padding: EdgeInsets.all(0.5.w),
+      padding: EdgeInsets.all(0.4.w),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.08)
-              : const Color(0xFFE5E7EB),
-        ),
+        color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged('account'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: currentType == 'account'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: currentType == 'account'
-                      ? [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF2E8B8B,
-                            ).withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.account_balance_rounded,
-                      size: 16,
-                      color: currentType == 'account'
-                          ? Colors.white
-                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Account No.',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: currentType == 'account'
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged('phone'),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                decoration: BoxDecoration(
-                  color: currentType == 'phone'
-                      ? const Color(0xFF2E8B8B)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: currentType == 'phone'
-                      ? [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF2E8B8B,
-                            ).withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.phone_rounded,
-                      size: 16,
-                      color: currentType == 'phone'
-                          ? Colors.white
-                          : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Phone No.',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w600,
-                        color: currentType == 'phone'
-                            ? Colors.white
-                            : (isDark
-                                  ? Colors.white38
-                                  : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          _lookupTab('account', currentType, Icons.account_balance_rounded, 'Account No.', isDark, onChanged),
+          _lookupTab('phone', currentType, Icons.phone_rounded, 'Phone No.', isDark, onChanged),
         ],
+      ),
+    );
+  }
+
+  Widget _lookupTab(
+    String type,
+    String currentType,
+    IconData icon,
+    String label,
+    bool isDark,
+    ValueChanged<String> onChanged,
+  ) {
+    final selected = currentType == type;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onChanged(type),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.symmetric(vertical: 0.85.h),
+          decoration: BoxDecoration(
+            color: selected ? _accent : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: _accent.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 13,
+                color: selected
+                    ? Colors.white
+                    : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+              ),
+              SizedBox(width: 1.2.w),
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 7.5.sp,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected
+                      ? Colors.white
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1097,32 +1362,34 @@ class _AgencySameBankTransferScreenState
         LengthLimitingTextInputFormatter(maxLength),
       ],
       style: GoogleFonts.inter(
-        fontSize: 10.sp,
+        fontSize: 9.sp,
         fontWeight: FontWeight.w500,
         color: isDark ? Colors.white : const Color(0xFF1A1D23),
-        letterSpacing: 1.2,
+        letterSpacing: 0.8,
       ),
       validator: (v) {
         if (v == null || v.length < maxLength) return validationMsg;
         return null;
       },
       decoration: InputDecoration(
+        isDense: true,
         hintText: hintText,
         hintStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
+          fontSize: 9.sp,
           color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
-          letterSpacing: 1.2,
+          letterSpacing: 0.8,
         ),
         filled: true,
-        fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        contentPadding: _fieldPadding,
         prefixIcon: Icon(
-          isPhone ? Icons.phone_rounded : Icons.account_balance_rounded,
+          isPhone ? Icons.phone_outlined : Icons.account_balance_outlined,
           color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-          size: 20,
+          size: 17,
         ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 40),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -1130,55 +1397,59 @@ class _AgencySameBankTransferScreenState
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isVerified
-                ? const Color(0xFF059669).withValues(alpha: 0.5)
+                ? _success.withValues(alpha: 0.45)
                 : isNotFound
-                ? const Color(0xFFDC2626).withValues(alpha: 0.5)
+                ? const Color(0xFFDC2626).withValues(alpha: 0.45)
                 : isDark
                 ? Colors.white.withValues(alpha: 0.08)
                 : const Color(0xFFE5E7EB),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(color: _accent, width: 1),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: const BorderSide(color: Color(0xFFDC2626)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1),
         ),
         suffixIcon: isLoading
             ? Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 child: SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 16,
+                  height: 16,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: isDark ? Colors.white38 : const Color(0xFF2E8B8B),
+                    strokeWidth: 1.5,
+                    color: isDark ? Colors.white38 : _accent,
                   ),
                 ),
               )
             : isVerified
-            ? const Icon(
-                Icons.check_circle_rounded,
-                color: Color(0xFF059669),
-                size: 22,
+            ? const Padding(
+                padding: EdgeInsets.only(right: 4),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF059669),
+                  size: 18,
+                ),
               )
             : null,
+        suffixIconConstraints: const BoxConstraints(minWidth: 36),
       ),
     );
   }
 
   Widget _buildLookupLoader(bool isDark) {
     return Padding(
-      padding: EdgeInsets.only(top: 1.2.h),
+      padding: EdgeInsets.only(top: 1.h),
       child: Row(
         children: [
           SizedBox(
@@ -1186,7 +1457,7 @@ class _AgencySameBankTransferScreenState
             height: 14,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: isDark ? Colors.white38 : const Color(0xFF2E8B8B),
+              color: isDark ? Colors.white38 : _accent,
             ),
           ),
           SizedBox(width: 2.5.w),
@@ -1214,59 +1485,45 @@ class _AgencySameBankTransferScreenState
     VoidCallback? onToggleBalance,
   }) {
     final isActive = status == 'Active';
-    const accentColor = Color(0xFF2E8B8B);
+    final statusColor = isActive ? _success : const Color(0xFFF59E0B);
 
     return Padding(
-      padding: EdgeInsets.only(top: 1.2.h),
-      child: Container(
+      padding: EdgeInsets.only(top: 1.h),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
         width: double.infinity,
-        padding: EdgeInsets.all(4.w),
+        padding: EdgeInsets.all(3.w),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isActive
-                ? [
-                    accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(
-                      0xFF10B981,
-                    ).withValues(alpha: isDark ? 0.08 : 0.04),
-                  ]
-                : [
-                    const Color(
-                      0xFFF59E0B,
-                    ).withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(
-                      0xFFFBBF24,
-                    ).withValues(alpha: isDark ? 0.08 : 0.04),
-                  ],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isActive
-                ? accentColor.withValues(alpha: 0.3)
-                : const Color(0xFFF59E0B).withValues(alpha: 0.3),
-          ),
+          color: statusColor.withValues(alpha: isDark ? 0.08 : 0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: statusColor.withValues(alpha: 0.18)),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(2.w),
+                  width: 34,
+                  height: 34,
                   decoration: BoxDecoration(
-                    color: (isActive ? accentColor : const Color(0xFFF59E0B))
-                        .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(
+                      colors: [_accent.withValues(alpha: 0.85), _accent],
+                    ),
+                    borderRadius: BorderRadius.circular(9),
                   ),
-                  child: CustomIconWidget(
-                    iconName: 'person',
-                    color: isActive ? accentColor : const Color(0xFFF59E0B),
-                    size: 20,
+                  child: Center(
+                    child: Text(
+                      _initials(name),
+                      style: GoogleFonts.inter(
+                        fontSize: 9.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(width: 3.w),
+                SizedBox(width: 2.5.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1274,90 +1531,99 @@ class _AgencySameBankTransferScreenState
                       Text(
                         name,
                         style: GoogleFonts.inter(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF1A1D23),
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF111827),
                         ),
                       ),
-                      SizedBox(height: 0.3.h),
+                      SizedBox(height: 0.15.h),
                       Text(
-                        'A/C: $accountNo',
-                        style: GoogleFonts.inter(
-                          fontSize: 8.5.sp,
-                          fontWeight: FontWeight.w500,
-                          color: isDark
-                              ? Colors.white60
-                              : const Color(0xFF64748B),
+                        _maskAccountNo(accountNo),
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 7.sp,
+                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
                         ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 2.5.w,
-                    vertical: 0.5.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.3.h),
                   decoration: BoxDecoration(
-                    color: isActive ? accentColor : const Color(0xFFF59E0B),
-                    borderRadius: BorderRadius.circular(8),
+                    color: statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    status,
-                    style: GoogleFonts.inter(
-                      fontSize: 7.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      SizedBox(width: 1.w),
+                      Text(
+                        status,
+                        style: GoogleFonts.inter(
+                          fontSize: 6.5.sp,
+                          fontWeight: FontWeight.w600,
+                          color: statusColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
             if (showBalance) ...[
-              SizedBox(height: 1.5.h),
+              SizedBox(height: 0.9.h),
               GestureDetector(
                 onTap: onToggleBalance,
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                  padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.7.h),
                   decoration: BoxDecoration(
-                    color: (isActive ? accentColor : const Color(0xFFF59E0B))
-                        .withValues(alpha: 0.1),
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.2)
+                        : Colors.white.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
+                      Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 14,
+                        color: isDark ? Colors.white38 : const Color(0xFF64748B),
+                      ),
+                      SizedBox(width: 1.5.w),
                       Text(
-                        'Balance: ',
+                        'Balance',
                         style: GoogleFonts.inter(
-                          fontSize: 8.5.sp,
+                          fontSize: 7.sp,
                           fontWeight: FontWeight.w500,
-                          color: isDark
-                              ? Colors.white54
-                              : const Color(0xFF64748B),
+                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
                         ),
                       ),
-                      Text(
-                        balanceVisible ? balance : '••••••••',
-                        style: GoogleFonts.inter(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isActive
-                              ? accentColor
-                              : const Color(0xFFF59E0B),
+                      SizedBox(width: 1.5.w),
+                      Expanded(
+                        child: Text(
+                          balanceVisible ? balance : '••••••••',
+                          style: GoogleFonts.inter(
+                            fontSize: 8.5.sp,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : const Color(0xFF111827),
+                          ),
                         ),
                       ),
-                      const Spacer(),
-                      CustomIconWidget(
-                        iconName: balanceVisible
-                            ? 'visibility'
-                            : 'visibility_off',
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF64748B),
-                        size: 16,
+                      Icon(
+                        balanceVisible
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        size: 14,
+                        color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                       ),
                     ],
                   ),
@@ -1372,13 +1638,13 @@ class _AgencySameBankTransferScreenState
 
   Widget _buildNotFoundCard(bool isDark, bool isPhone) {
     return Padding(
-      padding: EdgeInsets.only(top: 1.2.h),
+      padding: EdgeInsets.only(top: 1.h),
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.all(3.5.w),
+        padding: EdgeInsets.all(3.w),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF2D0F0F) : const Color(0xFFFEF2F2),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: const Color(0xFFDC2626).withValues(alpha: 0.2),
           ),
@@ -1386,21 +1652,21 @@ class _AgencySameBankTransferScreenState
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: const Color(0xFFDC2626).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: const Center(
                 child: Icon(
                   Icons.person_off_rounded,
                   color: Color(0xFFDC2626),
-                  size: 18,
+                  size: 16,
                 ),
               ),
             ),
-            SizedBox(width: 3.w),
+            SizedBox(width: 2.5.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1408,7 +1674,7 @@ class _AgencySameBankTransferScreenState
                   Text(
                     'Account Not Found',
                     style: GoogleFonts.inter(
-                      fontSize: 9.sp,
+                      fontSize: 8.5.sp,
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFFDC2626),
                     ),
@@ -1419,7 +1685,7 @@ class _AgencySameBankTransferScreenState
                         ? 'No account linked to this phone number.'
                         : 'No account matches this number.',
                     style: GoogleFonts.inter(
-                      fontSize: 7.5.sp,
+                      fontSize: 7.sp,
                       fontWeight: FontWeight.w400,
                       color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
                     ),
@@ -1454,27 +1720,28 @@ class _AgencySameBankTransferScreenState
       onChanged: onChanged,
       validator: validator,
       style: GoogleFonts.inter(
-        fontSize: 10.sp,
+        fontSize: 9.sp,
         fontWeight: FontWeight.w500,
         color: isDark ? Colors.white : const Color(0xFF1A1D23),
       ),
       decoration: InputDecoration(
+        isDense: true,
         hintText: hint,
         prefixText: prefixText,
         prefixStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
+          fontSize: 9.sp,
           fontWeight: FontWeight.w600,
           color: isDark ? Colors.white54 : const Color(0xFF6B7280),
         ),
         hintStyle: GoogleFonts.inter(
-          fontSize: 10.sp,
+          fontSize: 9.sp,
           color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
         ),
         filled: true,
-        fillColor: isDark ? const Color(0xFF161B22) : Colors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.6.h),
+        fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        contentPadding: _fieldPadding,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -1482,7 +1749,7 @@ class _AgencySameBankTransferScreenState
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: BorderSide(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
@@ -1490,16 +1757,16 @@ class _AgencySameBankTransferScreenState
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF2E8B8B), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: BorderSide(color: _accent, width: 1),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(_fieldRadius),
           borderSide: const BorderSide(color: Color(0xFFDC2626)),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1.5),
+          borderRadius: BorderRadius.circular(_fieldRadius),
+          borderSide: const BorderSide(color: Color(0xFFDC2626), width: 1),
         ),
       ),
     );
@@ -1513,42 +1780,50 @@ class _AgencySameBankTransferScreenState
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 1.7.h),
+        padding: EdgeInsets.symmetric(vertical: 1.25.h),
         decoration: BoxDecoration(
           gradient: enabled
-              ? const LinearGradient(
-                  colors: [Color(0xFF2E8B8B), Color(0xFF1B6B6B)],
+              ? LinearGradient(
+                  colors: [_accent, _accent.withValues(alpha: 0.85)],
                 )
               : null,
           color: enabled
               ? null
               : (isDark ? const Color(0xFF1E2328) : const Color(0xFFE5E7EB)),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: const Color(0xFF2E8B8B).withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    color: _accent.withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
                 ]
               : null,
         ),
-        child: Center(
-          child: Text(
-            'Continue',
-            style: GoogleFonts.inter(
-              fontSize: 10.5.sp,
-              fontWeight: FontWeight.w600,
-              color: enabled
-                  ? Colors.white
-                  : (isDark ? Colors.white24 : const Color(0xFF9CA3AF)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Continue',
+              style: GoogleFonts.inter(
+                fontSize: 9.5.sp,
+                fontWeight: FontWeight.w600,
+                color: enabled
+                    ? Colors.white
+                    : (isDark ? Colors.white24 : const Color(0xFF9CA3AF)),
+              ),
             ),
-          ),
+            if (enabled) ...[
+              SizedBox(width: 1.5.w),
+              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16),
+            ],
+          ],
         ),
       ),
     );
   }
+
 }
 
 // ══════════════════════════════════════════════════════════════
