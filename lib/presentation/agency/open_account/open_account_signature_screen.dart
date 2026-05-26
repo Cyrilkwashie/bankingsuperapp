@@ -19,7 +19,6 @@ class _OpenAccountSignatureScreen extends StatefulWidget {
 class _OpenAccountSignatureScreenState extends State<_OpenAccountSignatureScreen> {
   late List<List<Offset?>> _localStrokes;
   List<Offset?> _localCurrent = [];
-  bool _penLifted = false;
 
   @override
   void initState() {
@@ -27,7 +26,6 @@ class _OpenAccountSignatureScreenState extends State<_OpenAccountSignatureScreen
     _localStrokes = widget.initialStrokes
         .map((stroke) => List<Offset?>.from(stroke))
         .toList();
-    _penLifted = _localStrokes.isNotEmpty;
   }
 
   bool get _hasSig => _localStrokes.isNotEmpty;
@@ -36,7 +34,6 @@ class _OpenAccountSignatureScreenState extends State<_OpenAccountSignatureScreen
     setState(() {
       _localStrokes.clear();
       _localCurrent = [];
-      _penLifted = false;
     });
   }
 
@@ -131,10 +128,8 @@ class _OpenAccountSignatureScreenState extends State<_OpenAccountSignatureScreen
                     ],
                   ),
                   SizedBox(height: 0.8.h),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutCubic,
-                    height: _penLifted && _hasSig ? 32.h : 42.h,
+                  Container(
+                    height: 42.h,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: canvasBg,
@@ -213,16 +208,10 @@ class _OpenAccountSignatureScreenState extends State<_OpenAccountSignatureScreen
                             onPanStart: (d) => setState(() {
                               _localCurrent = [d.localPosition];
                               _localStrokes.add(_localCurrent);
-                              _penLifted = false;
                             }),
                             onPanUpdate: (d) =>
                                 setState(() => _localCurrent.add(d.localPosition)),
-                            onPanEnd: (_) => setState(() {
-                              _localCurrent = [];
-                              if (_localStrokes.isNotEmpty) {
-                                _penLifted = true;
-                              }
-                            }),
+                            onPanEnd: (_) => setState(() => _localCurrent = []),
                             child: CustomPaint(
                               painter: _SignaturePainter(_localStrokes, linePaint),
                               child: const SizedBox.expand(),
@@ -232,74 +221,6 @@ class _OpenAccountSignatureScreenState extends State<_OpenAccountSignatureScreen
                       ),
                     ),
                   ),
-                  if (_penLifted && _hasSig) ...[
-                    SizedBox(height: 1.2.h),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(3.w),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF059669).withValues(alpha: 0.07)
-                            : const Color(0xFFF0FDF4),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFF059669).withValues(alpha: 0.28),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.check_circle_rounded,
-                                color: Color(0xFF059669),
-                                size: 15,
-                              ),
-                              SizedBox(width: 2.w),
-                              Text(
-                                'Preview',
-                                style: GoogleFonts.inter(
-                                  fontSize: 8.5.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF059669),
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                'Looks good? Tap Save Signature.',
-                                style: GoogleFonts.inter(
-                                  fontSize: 6.5.sp,
-                                  color: isDark
-                                      ? Colors.white38
-                                      : const Color(0xFF6B7280),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 0.9.h),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              height: 9.h,
-                              width: double.infinity,
-                              color: isDark
-                                  ? Colors.black.withValues(alpha: 0.3)
-                                  : Colors.white,
-                              child: CustomPaint(
-                                painter: _SignaturePainter(
-                                  _localStrokes,
-                                  isDark
-                                      ? Colors.white.withValues(alpha: 0.9)
-                                      : const Color(0xFF1B365D),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),

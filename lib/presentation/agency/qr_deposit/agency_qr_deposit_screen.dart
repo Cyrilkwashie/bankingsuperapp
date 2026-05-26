@@ -195,13 +195,32 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
     });
   }
 
+  void _resetForm() {
+    _amountController.clear();
+    _depositorNameController.clear();
+    _depositorTelController.clear();
+    _narrationController.clear();
+    _formKey.currentState?.reset();
+
+    setState(() {
+      _isScanning = false;
+      _accountVerified = false;
+      _floatVisible = false;
+      _balanceVisible = false;
+      _scannedAccountNo = '';
+      _accountName = '';
+      _accountStatus = '';
+      _accountBalance = '';
+    });
+  }
+
   String get _fixedNarration {
     final name = _depositorNameController.text.trim();
     if (name.isEmpty) return '';
     return 'UTB XPRESS E-CASH ISSUE BY ${name.toUpperCase()}';
   }
 
-  void _onSubmit() {
+  Future<void> _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     if (!_accountVerified) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -220,7 +239,7 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
       return;
     }
 
-    Navigator.of(context).push(
+    final result = await Navigator.of(context).push<String>(
       MaterialPageRoute(
         builder: (_) => _QrDepositReceiptScreen(
           accountNo: _scannedAccountNo,
@@ -236,6 +255,9 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
         ),
       ),
     );
+
+    if (!mounted || result != 'new_deposit') return;
+    _resetForm();
   }
 
   @override

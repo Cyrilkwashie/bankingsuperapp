@@ -424,13 +424,37 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
     });
   }
 
+  void _resetForm() {
+    _debounce?.cancel();
+    _accountController.clear();
+    _amountController.clear();
+    _depositorNameController.clear();
+    _depositorTelController.clear();
+    _narrationController.clear();
+    _formKey.currentState?.reset();
+
+    setState(() {
+      _isLookingUp = false;
+      _accountVerified = false;
+      _accountNotFound = false;
+      _balanceVisible = false;
+      _accountName = '';
+      _accountStatus = '';
+      _accountBalance = '';
+      _resolvedAccountNo = '';
+      _phoneAccountsList = [];
+      _phoneForAccounts = '';
+      _lookupType = 'account';
+    });
+  }
+
   String get _fixedNarration {
     final name = _depositorNameController.text.trim();
     if (name.isEmpty) return '';
     return 'UTB XPRESS E-CASH ISSUE BY ${name.toUpperCase()}';
   }
 
-  void _onSubmit() {
+  Future<void> _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     if (!_accountVerified) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -450,7 +474,7 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
     }
 
     // Navigate to receipt / confirmation
-    Navigator.of(context).push(
+    final result = await Navigator.of(context).push<String>(
       MaterialPageRoute(
         builder: (_) => _DepositReceiptScreen(
           accountNo: _lookupType == 'phone'
@@ -468,6 +492,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
         ),
       ),
     );
+
+    if (!mounted || result != 'new_deposit') return;
+    _resetForm();
   }
 
   @override

@@ -14,7 +14,26 @@ class AgentHeaderCard extends StatefulWidget {
 }
 
 class _AgentHeaderCardState extends State<AgentHeaderCard> {
-  bool _balanceVisible = true;
+  bool _balanceVisible = false;
+
+  Future<void> _toggleBalanceVisibility() async {
+    if (_balanceVisible) {
+      setState(() => _balanceVisible = false);
+      return;
+    }
+
+    showTransactionAuthBottomSheet(
+      context: context,
+      accentColor: AppTheme.secondaryTealLight,
+      title: 'View Account Balance',
+      subtitle: 'Enter your 4-digit transaction PIN or use biometrics',
+      onAuthenticated: () {
+        if (!mounted) return;
+        HapticFeedback.mediumImpact();
+        setState(() => _balanceVisible = true);
+      },
+    );
+  }
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -191,7 +210,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
             ),
             SizedBox(width: 2.w),
             GestureDetector(
-              onTap: () => setState(() => _balanceVisible = !_balanceVisible),
+              onTap: _toggleBalanceVisibility,
               child: Icon(
                 _balanceVisible
                     ? Icons.visibility_outlined
@@ -203,17 +222,20 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
           ],
         ),
         SizedBox(height: 0.6.h),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: Text(
-            _balanceVisible ? 'GH₵ 1,440,840.36' : 'GH₵ ••••••',
-            key: ValueKey(_balanceVisible),
-            style: GoogleFonts.inter(
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: -0.5,
-              height: 1.1,
+        GestureDetector(
+          onTap: _balanceVisible ? null : _toggleBalanceVisibility,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Text(
+              _balanceVisible ? 'GH₵ 1,440,840.36' : 'GH₵ ••••••',
+              key: ValueKey(_balanceVisible),
+              style: GoogleFonts.inter(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: -0.5,
+                height: 1.1,
+              ),
             ),
           ),
         ),

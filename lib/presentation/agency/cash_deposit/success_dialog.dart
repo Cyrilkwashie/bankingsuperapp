@@ -100,7 +100,7 @@ class _SuccessDialog extends StatelessWidget {
               Navigator.of(context).pop();
               Navigator.of(context).pop();
             },
-            onSecondary: () => Navigator.of(context).pop(),
+            onSecondary: () => Navigator.of(context).pop('new_deposit'),
           ),
         ],
       ),
