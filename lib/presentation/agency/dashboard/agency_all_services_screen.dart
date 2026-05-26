@@ -138,7 +138,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     // Compute scroll offsets for tap-to-scroll
     final gridWidth = 100.w - 8.w;
     final cellWidth = gridWidth / 4;
-    final cellHeight = cellWidth / 0.78;
+    final cellHeight = cellWidth / 1.08;
     final headerH = 7.2.h;
     List<double> offsets = [];
     double cumulative = 0;
@@ -197,13 +197,14 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                           ),
                         ),
                         SliverPadding(
-                          padding: EdgeInsets.symmetric(horizontal: 4.w),
+                          padding: EdgeInsets.fromLTRB(4.w, 0, 4.w, 0.35.h),
                           sliver: SliverGrid(
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 4,
-                                  childAspectRatio: 0.78,
+                                  childAspectRatio: 1.08,
                                   mainAxisSpacing: 0,
+                                  crossAxisSpacing: 0,
                                 ),
                             delegate: SliverChildBuilderDelegate(
                               (context, index) => _buildServiceItem(
@@ -220,7 +221,7 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                       ];
                     }),
 
-                  SliverToBoxAdapter(child: SizedBox(height: 60.h)),
+                  SliverToBoxAdapter(child: SizedBox(height: 8.h)),
                 ],
               ),
             ),
@@ -521,28 +522,28 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: isDark ? 0.12 : 0.08),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
                 child: CustomIconWidget(
                   iconName: service.icon,
                   color: color,
-                  size: 23,
+                  size: 19,
                 ),
               ),
             ),
-            SizedBox(height: 0.8.h),
+            SizedBox(height: 0.25.h),
             Text(
               service.label,
               style: GoogleFonts.inter(
-                fontSize: 7.5.sp,
+                fontSize: 6.8.sp,
                 fontWeight: FontWeight.w500,
                 color: isDark ? Colors.white70 : const Color(0xFF374151),
-                height: 1.2,
+                height: 1.15,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
