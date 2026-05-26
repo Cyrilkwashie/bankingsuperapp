@@ -3,6 +3,7 @@ export 'package:google_fonts/google_fonts.dart';
 export '../routes/app_routes.dart';
 export '../widgets/custom_icon_widget.dart';
 export '../widgets/custom_image_widget.dart';
+export '../widgets/dismiss_keyboard_on_tap.dart';
 export '../widgets/transaction_auth_bottom_sheet.dart';
 export '../widgets/agency_date_picker.dart';
 export '../widgets/agency_otp_verification.dart';

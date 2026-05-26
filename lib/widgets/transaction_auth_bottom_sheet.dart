@@ -186,10 +186,11 @@ class _TransactionAuthSheetState extends State<_TransactionAuthSheet>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Padding(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
+    return DismissKeyboardOnTap(
+      child: Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF161B22) : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -571,6 +572,7 @@ class _TransactionAuthSheetState extends State<_TransactionAuthSheet>
           ),
         ),
       ),
+    ),
     );
   }
 }

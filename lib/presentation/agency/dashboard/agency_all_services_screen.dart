@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -133,7 +135,9 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     final rowGap = 2.h;
     final titleMenuGap = 0.6.h;
     final sectionGap = 3.5.h;
-    final headerH = 4.8.h;
+    final headerH = math.max(4.8.h, 52.0);
+    final collapsedHeaderH = math.max(4.h, 44.0);
+    final pinnedHeaderCount = categories.length;
     List<double> offsets = [];
     double cumulative = 0;
     for (final cat in categories) {
@@ -151,56 +155,82 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
           children: [
             _buildHeader(isDark),
             Expanded(
-              child: CustomScrollView(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  // ── Empty State ──
-                  if (categories.isEmpty)
-                    SliverToBoxAdapter(child: _buildEmptyState(isDark)),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Extra room so the sentinel header can push every pinned title off screen.
+                  final trailingScrollHeight =
+                      pinnedHeaderCount * collapsedHeaderH +
+                      collapsedHeaderH +
+                      constraints.maxHeight * 0.45;
 
-                  // ── Sticky Category Sections ──
-                  if (categories.isNotEmpty)
-                    ...categories.asMap().entries.expand((entry) {
-                      final i = entry.key;
-                      final cat = entry.value;
-                      return [
+                  return CustomScrollView(
+                    controller: _scrollController,
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    slivers: [
+                      if (categories.isEmpty)
+                        SliverToBoxAdapter(child: _buildEmptyState(isDark)),
+
+                      if (categories.isNotEmpty)
+                        ...categories.asMap().entries.expand((entry) {
+                          final i = entry.key;
+                          final cat = entry.value;
+                          return [
+                            SliverPersistentHeader(
+                              pinned: true,
+                              delegate: _CategoryHeaderDelegate(
+                                title: cat.title,
+                                accentColor: cat.color,
+                                categoryIcon: cat.icon,
+                                isDark: isDark,
+                                scaffoldBg: scaffoldBg,
+                                expandedHeight: headerH,
+                                collapsedHeight: collapsedHeaderH,
+                                onTap: () {
+                                  if (!_scrollController.hasClients) return;
+                                  final target =
+                                      (offsets[i] - i * collapsedHeaderH)
+                                          .clamp(
+                                            0.0,
+                                            _scrollController
+                                                .position.maxScrollExtent,
+                                          );
+                                  _scrollController.animateTo(
+                                    target,
+                                    duration:
+                                        const Duration(milliseconds: 350),
+                                    curve: Curves.easeOutCubic,
+                                  );
+                                },
+                              ),
+                            ),
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding:
+                                    EdgeInsets.fromLTRB(4.w, 0.6.h, 4.w, 0),
+                                child:
+                                    _buildCategoryServicesGrid(cat, isDark),
+                              ),
+                            ),
+                          ];
+                        }),
+
+                      if (categories.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: trailingScrollHeight),
+                        ),
                         SliverPersistentHeader(
                           pinned: true,
-                          delegate: _CategoryHeaderDelegate(
-                            title: cat.title,
-                            accentColor: cat.color,
-                            categoryIcon: cat.icon,
-                            isDark: isDark,
+                          delegate: _ScrollEndHeaderDelegate(
+                            height: collapsedHeaderH,
                             scaffoldBg: scaffoldBg,
-                            expandedHeight: 4.8.h,
-                            collapsedHeight: 4.h,
-                            onTap: () {
-                              final collapsedH = 4.h;
-                              final target = (offsets[i] - i * collapsedH)
-                                  .clamp(
-                                    0.0,
-                                    _scrollController.position.maxScrollExtent,
-                                  );
-                              _scrollController.animateTo(
-                                target,
-                                duration: const Duration(milliseconds: 350),
-                                curve: Curves.easeOutCubic,
-                              );
-                            },
                           ),
                         ),
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(4.w, 0.6.h, 4.w, 0),
-                            child: _buildCategoryServicesGrid(cat, isDark),
-                          ),
-                        ),
-                      ];
-                    }),
-
-                  SliverToBoxAdapter(child: SizedBox(height: 8.h)),
-                ],
+                      ],
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -600,7 +630,8 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    final range = math.max(maxExtent - minExtent, 1.0);
+    final progress = (shrinkOffset / range).clamp(0.0, 1.0);
     final isPinned = overlapsContent || progress > 0.05;
 
     // Subtle tint of accent color when pinned
@@ -690,6 +721,38 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
         isDark != oldDelegate.isDark ||
         scaffoldBg != oldDelegate.scaffoldBg;
   }
+}
+
+// ── Trailing pinned header pushes the last category header off screen ──
+class _ScrollEndHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double height;
+  final Color scaffoldBg;
+
+  _ScrollEndHeaderDelegate({
+    required this.height,
+    required this.scaffoldBg,
+  });
+
+  @override
+  double get maxExtent => math.max(height, 1.0);
+
+  @override
+  double get minExtent => math.max(height, 1.0);
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox.expand(
+      child: ColoredBox(color: scaffoldBg),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _ScrollEndHeaderDelegate oldDelegate) =>
+      height != oldDelegate.height || scaffoldBg != oldDelegate.scaffoldBg;
 }
 
 class _ServiceCategory {

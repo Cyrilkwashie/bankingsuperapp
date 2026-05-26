@@ -1,8 +1,10 @@
 part of 'agency_open_account_screen.dart';
 
 // ══════════════════════════════════════════════════════════════
-// ── Step 3 – Bio Verification & Documents ──
+// ── Step 3 – Documents & Verification ──
 // ══════════════════════════════════════════════════════════════
+
+enum _DocumentCaptureSource { scan, upload }
 
 class _OpenAccountRequirementsScreen extends StatefulWidget {
   final String accountType;
@@ -70,15 +72,6 @@ class _OpenAccountRequirementsScreenState
   // Signature pad
   final List<List<Offset?>> _signatureStrokes = [];
 
-  // Fingerprint
-  final _localAuth = LocalAuthentication();
-  bool _biometricsAvailable = false;
-  bool _leftThumbScanning = false;
-  bool _rightThumbScanning = false;
-  bool _leftThumbScanned = false;
-  bool _rightThumbScanned = false;
-  bool? _thumbsMatch; // null = not checked, true = match, false = no match
-
   late AnimationController _animController;
   late Animation<double> _fadeIn;
 
@@ -90,19 +83,6 @@ class _OpenAccountRequirementsScreenState
     _fadeIn =
         CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic);
     _animController.forward();
-    _checkBiometrics();
-  }
-
-  Future<void> _checkBiometrics() async {
-    try {
-      final canCheck = await _localAuth.canCheckBiometrics;
-      final isDeviceSupported = await _localAuth.isDeviceSupported();
-      if (mounted) {
-        setState(() => _biometricsAvailable = canCheck && isDeviceSupported);
-      }
-    } catch (_) {
-      if (mounted) setState(() => _biometricsAvailable = false);
-    }
   }
 
   @override
@@ -116,77 +96,11 @@ class _OpenAccountRequirementsScreenState
           .where((f) => f != null)
           .length;
   bool get _signatureDone => _signatureStrokes.isNotEmpty;
-  bool get _fingerprintsDone => _leftThumbScanned && _rightThumbScanned;
 
-  bool get _canContinue => _idFrontPhoto != null;
-
-  Future<void> _scanThumb({required bool isLeft}) async {
-    if (isLeft && (_leftThumbScanning || _leftThumbScanned)) return;
-    if (!isLeft && (_rightThumbScanning || _rightThumbScanned)) return;
-
-    // If biometrics unavailable on device, show error
-    if (!_biometricsAvailable) {
-      _showError(
-          'Biometric sensor not available on this device. Please ensure fingerprints are enrolled in device settings.');
-      return;
-    }
-
-    setState(() {
-      if (isLeft) {
-        _leftThumbScanning = true;
-      } else {
-        _rightThumbScanning = true;
-      }
-      _thumbsMatch = null;
-    });
-
-    bool authenticated = false;
-    try {
-      authenticated = await _localAuth.authenticate(
-        localizedReason: isLeft
-            ? 'Place the customer\'s LEFT thumb on the sensor'
-            : 'Place the customer\'s RIGHT thumb on the sensor',
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          stickyAuth: true,
-          sensitiveTransaction: false,
-          useErrorDialogs: true,
-        ),
-      );
-    } on PlatformException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        if (isLeft) { _leftThumbScanning = false; }
-        else { _rightThumbScanning = false; }
-      });
-      _showError(
-          e.code == 'NotEnrolled'
-              ? 'No fingerprints enrolled. Please enroll fingerprints in device settings.'
-              : e.code == 'LockedOut' || e.code == 'PermanentlyLockedOut'
-                  ? 'Too many failed attempts. Biometric sensor temporarily locked.'
-                  : 'Fingerprint scan failed: ${e.message}');
-      return;
-    }
-
-    if (!mounted) return;
-    setState(() {
-      if (isLeft) {
-        _leftThumbScanning = false;
-        _leftThumbScanned = authenticated;
-      } else {
-        _rightThumbScanning = false;
-        _rightThumbScanned = authenticated;
-      }
-    });
-
-    if (!authenticated) return;
-
-    if (_leftThumbScanned && _rightThumbScanned) {
-      await Future.delayed(const Duration(milliseconds: 700));
-      if (!mounted) return;
-      setState(() => _thumbsMatch = true);
-    }
-  }
+  bool get _canContinue =>
+      _passportPhoto != null &&
+      _idFrontPhoto != null &&
+      _idBackPhoto != null;
 
   // ── Passport — camera only (live photo) ───────────────────
 
@@ -216,7 +130,7 @@ class _OpenAccountRequirementsScreenState
     required IconData headerIcon,
     required ValueChanged<File> onCaptured,
   }) async {
-    final source = await showModalBottomSheet<ImageSource>(
+    final source = await showModalBottomSheet<_DocumentCaptureSource>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -342,30 +256,30 @@ class _OpenAccountRequirementsScreenState
                       EdgeInsets.fromLTRB(4.w, 2.5.h, 4.w, 2.h),
                   child: Column(
                     children: [
-                      // Camera option
+                      // Scan option
                       _buildSourceTile(
-                        icon: Icons.camera_alt_rounded,
+                        icon: Icons.document_scanner_outlined,
                         iconBg: widget.accentColor,
-                        title: 'Take Photo',
+                        title: 'Scan Document',
                         subtitle:
-                            'Use your camera to capture the document',
+                            'Use your camera to scan the document',
                         isDark: isDark,
                         surfaceDim: surfaceDim,
                         onTap: () =>
-                            Navigator.pop(ctx, ImageSource.camera),
+                            Navigator.pop(ctx, _DocumentCaptureSource.scan),
                       ),
                       SizedBox(height: 1.2.h),
-                      // Gallery option
+                      // File upload option
                       _buildSourceTile(
-                        icon: Icons.photo_library_rounded,
+                        icon: Icons.upload_file_rounded,
                         iconBg: const Color(0xFF7C3AED),
-                        title: 'Upload from Gallery',
+                        title: 'Upload from Files',
                         subtitle:
-                            'Select an existing photo from your device',
+                            'Choose a PDF or image from your device',
                         isDark: isDark,
                         surfaceDim: surfaceDim,
                         onTap: () =>
-                            Navigator.pop(ctx, ImageSource.gallery),
+                            Navigator.pop(ctx, _DocumentCaptureSource.upload),
                       ),
                       SizedBox(height: 1.5.h),
                       // Tip row
@@ -413,9 +327,14 @@ class _OpenAccountRequirementsScreenState
 
     if (source == null) return;
 
+    if (source == _DocumentCaptureSource.upload) {
+      await _pickDocumentFromFiles(onCaptured);
+      return;
+    }
+
     try {
       final xFile = await _picker.pickImage(
-        source: source,
+        source: ImageSource.camera,
         preferredCameraDevice: CameraDevice.rear,
         imageQuality: 85,
         maxWidth: 1400,
@@ -426,9 +345,34 @@ class _OpenAccountRequirementsScreenState
       }
     } catch (e) {
       if (!mounted) return;
-      _showError('Could not capture image. Please try again.');
+      _showError('Could not scan document. Please try again.');
     }
   }
+
+  Future<void> _pickDocumentFromFiles(ValueChanged<File> onCaptured) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: const ['jpg', 'jpeg', 'png', 'heic', 'pdf'],
+        allowMultiple: false,
+        withData: false,
+      );
+      final path = result?.files.single.path;
+      if (path != null && mounted) {
+        onCaptured(File(path));
+      }
+    } on MissingPluginException {
+      if (!mounted) return;
+      _showError(
+        'File upload is not ready yet. Stop the app completely, then run it again.',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      _showError('Could not open files. Please try again.');
+    }
+  }
+
+  bool _isPdfFile(File file) => file.path.toLowerCase().endsWith('.pdf');
 
   Widget _buildSourceTile({
     required IconData icon,
@@ -555,7 +499,11 @@ class _OpenAccountRequirementsScreenState
 
   void _onContinue() {
     if (!_canContinue) {
-      _showError('Please capture the ID document front to continue.');
+      final missing = <String>[];
+      if (_passportPhoto == null) missing.add('customer photo');
+      if (_idFrontPhoto == null) missing.add('ID front');
+      if (_idBackPhoto == null) missing.add('ID back');
+      _showError('Please provide ${missing.join(', ')} to continue.');
       return;
     }
     Navigator.of(context).push(
@@ -580,11 +528,10 @@ class _OpenAccountRequirementsScreenState
           email: widget.email,
           address: widget.address,
           city: widget.city,
-          hasIdCopy: _idFrontPhoto != null,
+          hasIdCopy: _idFrontPhoto != null && _idBackPhoto != null,
           hasPassportPhoto: _passportPhoto != null,
           hasProofOfAddress: _proofOfAddressPhoto != null,
           hasSignature: _signatureDone,
-          hasFingerprints: _fingerprintsDone,
           accentColor: widget.accentColor,
           gradientColors: widget.gradientColors,
         ),
@@ -610,10 +557,10 @@ class _OpenAccountRequirementsScreenState
             _OpenAccountUi.buildAgencyHeader(
               context: context,
               isDark: isDark,
-              title: 'Bio Verification',
+              title: 'Documents & Verification',
               subtitle: 'Open Account · Step 3 of 4',
               gradientColors: widget.gradientColors,
-              icon: Icons.fingerprint_rounded,
+              icon: Icons.description_rounded,
             ),
             _OpenAccountUi.buildWizardStepIndicator(
               isDark,
@@ -629,7 +576,7 @@ class _OpenAccountRequirementsScreenState
                   children: [
                     _OpenAccountUi.buildIntroTip(
                       isDark,
-                      'Capture required documents and biometrics. ID front is mandatory to continue.',
+                      'Capture the customer photo and both sides of the ID document to continue. Supporting documents can be scanned or uploaded from files.',
                       accentColor: widget.accentColor,
                     ),
                     SizedBox(height: 1.5.h),
@@ -739,8 +686,8 @@ class _OpenAccountRequirementsScreenState
                       icon: Icons.person_rounded,
                       title: 'Customer Photograph',
                       subtitle: 'Front-facing photo of the customer',
-                      badgeText: 'Optional',
-                      badgeColor: const Color(0xFF6B7280),
+                      badgeText: 'Required',
+                      badgeColor: const Color(0xFFDC2626),
                       isDark: isDark,
                     ),
                     SizedBox(height: 1.5.h),
@@ -926,7 +873,6 @@ class _OpenAccountRequirementsScreenState
                             isDark: isDark,
                             cardBg: cardBg,
                             borderColor: borderColor,
-                            isOptional: true,
                             onCapture: () => _captureDocumentPhoto(
                               title: 'ID Back Side',
                               description:
@@ -959,28 +905,12 @@ class _OpenAccountRequirementsScreenState
                     SizedBox(height: 2.5.h),
 
                     // ════════════════════════════════════════
-                    // ── SECTION 4: Fingerprint Capture ────────
-                    // ════════════════════════════════════════
-                    _buildSectionHeader(
-                      icon: Icons.fingerprint_rounded,
-                      title: 'Fingerprint Capture',
-                      subtitle:
-                          'Left & right thumb — biometric verification',
-                      badgeText: 'Optional',
-                      badgeColor: const Color(0xFF6B7280),
-                      isDark: isDark,
-                    ),
-                    SizedBox(height: 1.5.h),
-                    _buildFingerprintSection(isDark, cardBg, borderColor),
-                    SizedBox(height: 2.5.h),
-
-                    // ════════════════════════════════════════
-                    // ── SECTION 5: Supporting Documents ──────
+                    // ── SECTION 4: Supporting Documents ──────
                     // ════════════════════════════════════════
                     _buildSectionHeader(
                       icon: Icons.folder_open_rounded,
                       title: 'Supporting Documents',
-                      subtitle: 'Optional but recommended',
+                      subtitle: 'Scan or upload from files',
                       badgeText: 'Optional',
                       badgeColor: const Color(0xFF6B7280),
                       isDark: isDark,
@@ -1077,7 +1007,37 @@ class _OpenAccountRequirementsScreenState
                     ? Stack(
                         fit: StackFit.expand,
                         children: [
-                          Image.file(file, fit: BoxFit.cover),
+                          if (_isPdfFile(file))
+                            Container(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.04)
+                                  : const Color(0xFFF3F4F6),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.picture_as_pdf_rounded,
+                                      color: const Color(0xFFDC2626),
+                                      size: 28,
+                                    ),
+                                    SizedBox(height: 0.4.h),
+                                    Text(
+                                      'PDF uploaded',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 7.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark
+                                            ? Colors.white54
+                                            : const Color(0xFF6B7280),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          else
+                            Image.file(file, fit: BoxFit.cover),
                           Positioned.fill(
                             child: DecoratedBox(
                               decoration: BoxDecoration(
@@ -1115,7 +1075,7 @@ class _OpenAccountRequirementsScreenState
                                 MainAxisAlignment.center,
                             children: [
                               Icon(
-                                Icons.add_a_photo_outlined,
+                                Icons.document_scanner_outlined,
                                 color: isDark
                                     ? Colors.white24
                                     : const Color(0xFFD1D5DB),
@@ -1123,7 +1083,7 @@ class _OpenAccountRequirementsScreenState
                               ),
                               SizedBox(height: 0.5.h),
                               Text(
-                                'Capture',
+                                'Scan / Upload',
                                 style: GoogleFonts.inter(
                                   fontSize: 7.sp,
                                   fontWeight: FontWeight.w500,
@@ -1439,262 +1399,6 @@ class _OpenAccountRequirementsScreenState
                   ),
                 ],
               ),
-      ),
-    );
-  }
-
-  // ── Fingerprint Section ───────────────────────────────────
-
-  Widget _buildFingerprintSection(
-      bool isDark, Color cardBg, Color borderColor) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildThumbCard(
-                isLeft: true,
-                isDark: isDark,
-                cardBg: cardBg,
-                borderColor: borderColor,
-              ),
-            ),
-            SizedBox(width: 3.w),
-            Expanded(
-              child: _buildThumbCard(
-                isLeft: false,
-                isDark: isDark,
-                cardBg: cardBg,
-                borderColor: borderColor,
-              ),
-            ),
-          ],
-        ),
-        if (_leftThumbScanned && _rightThumbScanned) ...[
-          SizedBox(height: 1.5.h),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-                horizontal: 4.w, vertical: 1.2.h),
-            decoration: BoxDecoration(
-              color: _thumbsMatch == null
-                  ? widget.accentColor.withValues(alpha: 0.07)
-                  : _thumbsMatch!
-                      ? const Color(0xFF059669).withValues(alpha: 0.08)
-                      : const Color(0xFFDC2626).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _thumbsMatch == null
-                    ? widget.accentColor.withValues(alpha: 0.2)
-                    : _thumbsMatch!
-                        ? const Color(0xFF059669).withValues(alpha: 0.25)
-                        : const Color(0xFFDC2626).withValues(alpha: 0.25),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (_thumbsMatch == null)
-                  SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(
-                          widget.accentColor),
-                    ),
-                  )
-                else
-                  Icon(
-                    _thumbsMatch!
-                        ? Icons.verified_rounded
-                        : Icons.cancel_rounded,
-                    size: 16,
-                    color: _thumbsMatch!
-                        ? const Color(0xFF059669)
-                        : const Color(0xFFDC2626),
-                  ),
-                SizedBox(width: 2.w),
-                Text(
-                  _thumbsMatch == null
-                      ? 'Verifying biometric match…'
-                      : _thumbsMatch!
-                          ? 'Fingerprints matched — verified'
-                          : 'Fingerprints do not match — rescan',
-                  style: GoogleFonts.inter(
-                    fontSize: 8.5.sp,
-                    fontWeight: FontWeight.w600,
-                    color: _thumbsMatch == null
-                        ? widget.accentColor
-                        : _thumbsMatch!
-                            ? const Color(0xFF059669)
-                            : const Color(0xFFDC2626),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildThumbCard({
-    required bool isLeft,
-    required bool isDark,
-    required Color cardBg,
-    required Color borderColor,
-  }) {
-    final scanning = isLeft ? _leftThumbScanning : _rightThumbScanning;
-    final scanned = isLeft ? _leftThumbScanned : _rightThumbScanned;
-    final label = isLeft ? 'Left Thumb' : 'Right Thumb';
-    final icon = isLeft ? Icons.pan_tool_outlined : Icons.back_hand_outlined;
-    final unavailable = !_biometricsAvailable && !scanned;
-
-    return GestureDetector(
-      onTap: scanned
-          ? () => setState(() {
-                if (isLeft) {
-                  _leftThumbScanned = false;
-                  _leftThumbScanning = false;
-                } else {
-                  _rightThumbScanned = false;
-                  _rightThumbScanning = false;
-                }
-                _thumbsMatch = null;
-              })
-          : () => _scanThumb(isLeft: isLeft),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 3.w),
-        decoration: BoxDecoration(
-          color: scanned
-              ? const Color(0xFF059669).withValues(alpha: isDark ? 0.1 : 0.06)
-              : unavailable
-                  ? (isDark
-                      ? Colors.white.withValues(alpha: 0.02)
-                      : const Color(0xFFF9FAFB))
-                  : cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: scanned
-                ? const Color(0xFF059669).withValues(alpha: 0.4)
-                : scanning
-                    ? widget.accentColor.withValues(alpha: 0.5)
-                    : unavailable
-                        ? (isDark
-                            ? Colors.white.withValues(alpha: 0.04)
-                            : const Color(0xFFE5E7EB))
-                        : borderColor,
-            width: scanned || scanning ? 1.5 : 1,
-          ),
-          boxShadow: scanned
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF059669).withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ]
-              : null,
-        ),
-        child: Column(
-          children: [
-            // Fingerprint icon / scan ring
-            SizedBox(
-              width: 56,
-              height: 56,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (scanning)
-                    SizedBox(
-                      width: 54,
-                      height: 54,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        valueColor: AlwaysStoppedAnimation(
-                            widget.accentColor),
-                        strokeCap: StrokeCap.round,
-                      ),
-                    ),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: scanned
-                          ? const Color(0xFF059669)
-                              .withValues(alpha: 0.12)
-                          : scanning
-                              ? widget.accentColor
-                                  .withValues(alpha: 0.08)
-                              : unavailable
-                                  ? const Color(0xFFDC2626)
-                                      .withValues(alpha: 0.06)
-                                  : (isDark
-                                      ? Colors.white.withValues(alpha: 0.05)
-                                      : const Color(0xFFF3F4F6)),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Icon(
-                        scanned
-                            ? Icons.fingerprint_rounded
-                            : unavailable
-                                ? Icons.fingerprint_rounded
-                                : icon,
-                        size: 24,
-                        color: scanned
-                            ? const Color(0xFF059669)
-                            : scanning
-                                ? widget.accentColor
-                                : unavailable
-                                    ? const Color(0xFFDC2626)
-                                        .withValues(alpha: 0.4)
-                                    : (isDark
-                                        ? Colors.white38
-                                        : const Color(0xFF9CA3AF)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 1.h),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 9.sp,
-                fontWeight: FontWeight.w700,
-                color:
-                    isDark ? Colors.white : const Color(0xFF111827),
-              ),
-            ),
-            SizedBox(height: 0.4.h),
-            Text(
-              scanned
-                  ? 'Captured — tap to redo'
-                  : scanning
-                      ? 'Scanning…'
-                      : unavailable
-                          ? 'Sensor not available'
-                          : 'Tap to scan',
-              style: GoogleFonts.inter(
-                fontSize: 7.5.sp,
-                color: scanned
-                    ? const Color(0xFF059669)
-                    : scanning
-                        ? widget.accentColor
-                        : unavailable
-                            ? const Color(0xFFDC2626).withValues(alpha: 0.6)
-                            : (isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

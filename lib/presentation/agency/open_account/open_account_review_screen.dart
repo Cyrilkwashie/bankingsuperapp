@@ -28,7 +28,6 @@ class _OpenAccountReviewScreen extends StatefulWidget {
   final bool hasPassportPhoto;
   final bool hasProofOfAddress;
   final bool hasSignature;
-  final bool hasFingerprints;
   final Color accentColor;
   final List<Color> gradientColors;
 
@@ -56,7 +55,6 @@ class _OpenAccountReviewScreen extends StatefulWidget {
     required this.hasPassportPhoto,
     required this.hasProofOfAddress,
     required this.hasSignature,
-    required this.hasFingerprints,
     required this.accentColor,
     required this.gradientColors,
   });
@@ -232,13 +230,6 @@ class _OpenAccountReviewScreenState
                                 'Signature',
                                 _docStatus(widget.hasSignature),
                                 valueColor: widget.hasSignature
-                                    ? _OpenAccountUi.success
-                                    : null,
-                              ),
-                              _OpenAccountSummaryRow(
-                                'Fingerprints',
-                                _docStatus(widget.hasFingerprints),
-                                valueColor: widget.hasFingerprints
                                     ? _OpenAccountUi.success
                                     : null,
                               ),

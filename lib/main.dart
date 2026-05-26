@@ -72,11 +72,13 @@ class _MyAppState extends State<MyApp> {
           themeMode: themeProvider.themeMode,
           // 🚨 CRITICAL: NEVER REMOVE OR MODIFY
           builder: (context, child) {
-            return MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(textScaler: TextScaler.linear(1.0)),
-              child: child!,
+            return DismissKeyboardOnTap(
+              child: MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: TextScaler.linear(1.0)),
+                child: child!,
+              ),
             );
           },
           // 🚨 END CRITICAL SECTION

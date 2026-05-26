@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:local_auth/local_auth.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';

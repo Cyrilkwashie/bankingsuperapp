@@ -31,21 +31,6 @@ class _ReverseTxn {
     required this.time,
     required this.date,
   });
-
-  IconData get typeIcon {
-    switch (type) {
-      case 'Cash Deposit':
-        return Icons.add_circle_outline_rounded;
-      case 'Cash Withdrawal':
-        return Icons.remove_circle_outline_rounded;
-      case 'Same Bank Transfer':
-        return Icons.account_balance_rounded;
-      case 'QR Deposit':
-        return Icons.qr_code_scanner_rounded;
-      default:
-        return Icons.receipt_long_outlined;
-    }
-  }
 }
 
 class AgencyReverseTransactionScreen extends StatefulWidget {
@@ -74,7 +59,6 @@ class _AgencyReverseTransactionScreenState
   late AnimationController _animController;
   late Animation<double> _fadeIn;
 
-  String _lookupMode = 'reference';
   bool _isLookingUp = false;
   bool _referenceNotFound = false;
   _ReverseTxn? _selectedTxn;
@@ -133,49 +117,6 @@ class _AgencyReverseTransactionScreenState
     ),
   };
 
-  static const _mockRecentTransactions = [
-    _ReverseTxn(
-      reference: 'AGY-REF-001',
-      type: 'Cash Deposit',
-      customer: 'Kwame Asante',
-      accountNo: '0012345678',
-      amount: '1,500.00',
-      phone: '232501234567',
-      time: '09:15 AM',
-      date: '25 May 2026',
-    ),
-    _ReverseTxn(
-      reference: 'AGY-REF-002',
-      type: 'Cash Withdrawal',
-      customer: 'Ama Mensah',
-      accountNo: '0023456789',
-      amount: '800.00',
-      phone: '232502345678',
-      time: '10:42 AM',
-      date: '25 May 2026',
-    ),
-    _ReverseTxn(
-      reference: 'AGY-REF-003',
-      type: 'Same Bank Transfer',
-      customer: 'Kofi Adjei',
-      accountNo: '0034567890',
-      amount: '2,250.00',
-      phone: '232503456789',
-      time: '11:08 AM',
-      date: '25 May 2026',
-    ),
-    _ReverseTxn(
-      reference: 'AGY-REF-004',
-      type: 'QR Deposit',
-      customer: 'Abena Osei',
-      accountNo: '0045678901',
-      amount: '350.00',
-      phone: '232504567890',
-      time: '12:30 PM',
-      date: '25 May 2026',
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -194,15 +135,6 @@ class _AgencyReverseTransactionScreenState
     _narrationController.dispose();
     _debounce?.cancel();
     super.dispose();
-  }
-
-  void _onLookupModeChanged(String mode) {
-    setState(() {
-      _lookupMode = mode;
-      _referenceController.clear();
-      _selectedTxn = null;
-      _referenceNotFound = false;
-    });
   }
 
   void _onReferenceChanged(String value) {
@@ -238,13 +170,6 @@ class _AgencyReverseTransactionScreenState
       } else {
         _referenceNotFound = true;
       }
-    });
-  }
-
-  void _selectRecentTxn(_ReverseTxn txn) {
-    setState(() {
-      _selectedTxn = txn;
-      _referenceNotFound = false;
     });
   }
 
@@ -437,16 +362,11 @@ class _AgencyReverseTransactionScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildLookupModeToggle(isDark),
-                            SizedBox(height: 1.3.h),
-                            if (_lookupMode == 'reference') ...[
-                              _buildFieldLabel('Transaction Reference', isDark),
-                              SizedBox(height: 0.4.h),
-                              _buildReferenceField(isDark),
-                              if (_isLookingUp) _buildLookupLoader(isDark),
-                              if (_referenceNotFound) _buildNotFoundCard(isDark),
-                            ] else
-                              _buildRecentList(isDark),
+                            _buildFieldLabel('Transaction Reference', isDark),
+                            SizedBox(height: 0.4.h),
+                            _buildReferenceField(isDark),
+                            if (_isLookingUp) _buildLookupLoader(isDark),
+                            if (_referenceNotFound) _buildNotFoundCard(isDark),
                             if (_selectedTxn != null) ...[
                               SizedBox(height: 1.3.h),
                               _buildTxnDetailCard(_selectedTxn!, isDark),
@@ -717,72 +637,6 @@ class _AgencyReverseTransactionScreenState
     );
   }
 
-  Widget _buildLookupModeToggle(bool isDark) {
-    return Container(
-      padding: EdgeInsets.all(0.4.w),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          _lookupTab('reference', Icons.tag_rounded, 'Reference', isDark),
-          _lookupTab('recent', Icons.history_rounded, 'Recent', isDark),
-        ],
-      ),
-    );
-  }
-
-  Widget _lookupTab(String mode, IconData icon, String label, bool isDark) {
-    final selected = _lookupMode == mode;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onLookupModeChanged(mode),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          padding: EdgeInsets.symmetric(vertical: 0.85.h),
-          decoration: BoxDecoration(
-            color: selected ? _success : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: _success.withValues(alpha: 0.3),
-                      blurRadius: 6,
-                      offset: const Offset(0, 1),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 13,
-                color: selected
-                    ? Colors.white
-                    : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
-              ),
-              SizedBox(width: 1.2.w),
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 7.5.sp,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildFieldLabel(String label, bool isDark) {
     return Text(
       label,
@@ -895,7 +749,7 @@ class _AgencyReverseTransactionScreenState
             SizedBox(width: 2.w),
             Expanded(
               child: Text(
-                'Transaction not found. Check the reference or try Recent.',
+                'Transaction not found. Check the reference and try again.',
                 style: GoogleFonts.inter(
                   fontSize: 7.5.sp,
                   color: isDark ? Colors.white54 : const Color(0xFF991B1B),
@@ -905,104 +759,6 @@ class _AgencyReverseTransactionScreenState
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildRecentList(bool isDark) {
-    return Column(
-      children: _mockRecentTransactions.map((txn) {
-        final selected = _selectedTxn?.reference == txn.reference;
-        return Padding(
-          padding: EdgeInsets.only(bottom: 1.h),
-          child: GestureDetector(
-            onTap: () => _selectRecentTxn(txn),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.all(3.w),
-              decoration: BoxDecoration(
-                color: selected
-                    ? _accent.withValues(alpha: isDark ? 0.12 : 0.06)
-                    : (isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC)),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: selected
-                      ? _accent.withValues(alpha: 0.4)
-                      : (isDark
-                            ? Colors.white.withValues(alpha: 0.08)
-                            : const Color(0xFFE5E7EB)),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: _accent.withValues(alpha: isDark ? 0.15 : 0.08),
-                      borderRadius: BorderRadius.circular(9),
-                    ),
-                    child: Icon(txn.typeIcon, color: _accent, size: 17),
-                  ),
-                  SizedBox(width: 2.5.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          txn.type,
-                          style: GoogleFonts.inter(
-                            fontSize: 8.5.sp,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : const Color(0xFF111827),
-                          ),
-                        ),
-                        Text(
-                          txn.customer,
-                          style: GoogleFonts.inter(
-                            fontSize: 7.sp,
-                            color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'GH₵ ${txn.amount}',
-                        style: GoogleFonts.inter(
-                          fontSize: 8.5.sp,
-                          fontWeight: FontWeight.w700,
-                          color: _accent,
-                        ),
-                      ),
-                      Text(
-                        txn.reference,
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 6.sp,
-                          color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                        ),
-                      ),
-                      Text(
-                        txn.time,
-                        style: GoogleFonts.inter(
-                          fontSize: 6.5.sp,
-                          color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (selected) ...[
-                    SizedBox(width: 2.w),
-                    Icon(Icons.check_circle_rounded, color: _success, size: 18),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 
