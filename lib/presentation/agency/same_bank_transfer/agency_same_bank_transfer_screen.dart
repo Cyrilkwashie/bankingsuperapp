@@ -42,7 +42,6 @@ class _AgencySameBankTransferScreenState
   bool _isLookingUpSender = false;
   bool _senderVerified = false;
   bool _senderNotFound = false;
-  bool _senderBalanceVisible = false;
   String _senderName = '';
   String _senderStatus = '';
   String _senderBalance = '';
@@ -651,12 +650,6 @@ class _AgencySameBankTransferScreenState
                                 _senderName,
                                 _senderStatus,
                                 _resolvedSenderAccountNo,
-                                showBalance: true,
-                                balance: _senderBalance,
-                                balanceVisible: _senderBalanceVisible,
-                                onToggleBalance: () => setState(
-                                  () => _senderBalanceVisible = !_senderBalanceVisible,
-                                ),
                               ),
                             if (_senderNotFound)
                               _buildNotFoundCard(isDark, _senderLookupType == 'phone'),
@@ -1478,12 +1471,7 @@ class _AgencySameBankTransferScreenState
     bool isDark,
     String name,
     String status,
-    String accountNo, {
-    bool showBalance = false,
-    String balance = '',
-    bool balanceVisible = false,
-    VoidCallback? onToggleBalance,
-  }) {
+    String accountNo) {
     final isActive = status == 'Active';
     final statusColor = isActive ? _success : const Color(0xFFF59E0B);
 
@@ -1578,58 +1566,6 @@ class _AgencySameBankTransferScreenState
                 ),
               ],
             ),
-            if (showBalance) ...[
-              SizedBox(height: 0.9.h),
-              GestureDetector(
-                onTap: onToggleBalance,
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.7.h),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.black.withValues(alpha: 0.2)
-                        : Colors.white.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.account_balance_wallet_outlined,
-                        size: 14,
-                        color: isDark ? Colors.white38 : const Color(0xFF64748B),
-                      ),
-                      SizedBox(width: 1.5.w),
-                      Text(
-                        'Balance',
-                        style: GoogleFonts.inter(
-                          fontSize: 7.sp,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                        ),
-                      ),
-                      SizedBox(width: 1.5.w),
-                      Expanded(
-                        child: Text(
-                          balanceVisible ? balance : '••••••••',
-                          style: GoogleFonts.inter(
-                            fontSize: 8.5.sp,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : const Color(0xFF111827),
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        balanceVisible
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                        size: 14,
-                        color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),

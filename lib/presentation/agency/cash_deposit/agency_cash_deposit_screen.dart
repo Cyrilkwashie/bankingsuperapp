@@ -50,7 +50,6 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
   bool _isLookingUp = false;
   bool _accountVerified = false;
   bool _accountNotFound = false;
-  bool _balanceVisible = false;
   String _accountName = '';
   String _accountStatus = '';
   String _accountBalance = '';
@@ -455,7 +454,6 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
       _isLookingUp = false;
       _accountVerified = false;
       _accountNotFound = false;
-      _balanceVisible = false;
       _accountName = '';
       _accountStatus = '';
       _accountBalance = '';
@@ -1437,56 +1435,6 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                   ),
                 ),
               ],
-            ),
-            SizedBox(height: 0.9.h),
-            GestureDetector(
-              onTap: () => setState(() => _balanceVisible = !_balanceVisible),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.7.h),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.black.withValues(alpha: 0.2)
-                      : Colors.white.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet_outlined,
-                      size: 14,
-                      color: isDark ? Colors.white38 : const Color(0xFF64748B),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Balance',
-                      style: GoogleFonts.inter(
-                        fontSize: 7.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                      ),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Expanded(
-                      child: Text(
-                        _balanceVisible ? _accountBalance : '••••••••',
-                        style: GoogleFonts.inter(
-                          fontSize: 8.5.sp,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF111827),
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      _balanceVisible
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      size: 14,
-                      color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),

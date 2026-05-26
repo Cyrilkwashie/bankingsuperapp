@@ -34,7 +34,6 @@ class _AgencyChequeBookScreenState extends State<AgencyChequeBookScreen>
   bool _isLookingUp = false;
   bool _accountVerified = false;
   bool _accountNotFound = false;
-  bool _balanceVisible = false;
   String _accountName = '';
   String _accountStatus = '';
   String _accountBalance = '';
@@ -1205,49 +1204,6 @@ class _AgencyChequeBookScreenState extends State<AgencyChequeBookScreen>
                   ),
                 ),
               ],
-            ),
-            SizedBox(height: 1.5.h),
-            GestureDetector(
-              onTap: () => setState(() => _balanceVisible = !_balanceVisible),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
-                decoration: BoxDecoration(
-                  color: (isActive ? _accent : const Color(0xFFF59E0B))
-                      .withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      'Balance: ',
-                      style: GoogleFonts.inter(
-                        fontSize: 8.5.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.white54
-                            : const Color(0xFF64748B),
-                      ),
-                    ),
-                    Text(
-                      _balanceVisible ? _accountBalance : '••••••••',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
-                        color: isActive ? _accent : const Color(0xFFF59E0B),
-                      ),
-                    ),
-                    const Spacer(),
-                    CustomIconWidget(
-                      iconName: _balanceVisible
-                          ? 'visibility'
-                          : 'visibility_off',
-                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                      size: 16,
-                    ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
