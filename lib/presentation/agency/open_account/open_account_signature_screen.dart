@@ -28,7 +28,9 @@ class _OpenAccountSignatureScreenState extends State<_OpenAccountSignatureScreen
         .toList();
   }
 
-  bool get _hasSig => _localStrokes.isNotEmpty;
+  bool get _hasSig => _localStrokes.any(
+        (stroke) => stroke.any((point) => point != null),
+      );
 
   void _clearSignature() {
     setState(() {
@@ -154,67 +156,81 @@ class _OpenAccountSignatureScreenState extends State<_OpenAccountSignatureScreen
                       borderRadius: BorderRadius.circular(13),
                       child: Stack(
                         children: [
+                          Positioned.fill(
+                            child: CustomPaint(
+                              willChange: true,
+                              painter: OpenAccountSignaturePainter(
+                                strokes: _localStrokes,
+                                color: linePaint,
+                              ),
+                            ),
+                          ),
                           Positioned(
                             bottom: 28,
                             left: 16,
                             right: 16,
-                            child: Container(
-                              height: 1,
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.07)
-                                  : const Color(0xFFE5E7EB),
+                            child: IgnorePointer(
+                              child: Container(
+                                height: 1,
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.07)
+                                    : const Color(0xFFE5E7EB),
+                              ),
                             ),
                           ),
                           Positioned(
                             bottom: 10,
                             left: 16,
-                            child: Text(
-                              'Sign above this line',
-                              style: GoogleFonts.inter(
-                                fontSize: 6.5.sp,
-                                color: isDark
-                                    ? Colors.white12
-                                    : const Color(0xFFD1D5DB),
+                            child: IgnorePointer(
+                              child: Text(
+                                'Sign above this line',
+                                style: GoogleFonts.inter(
+                                  fontSize: 6.5.sp,
+                                  color: isDark
+                                      ? Colors.white12
+                                      : const Color(0xFFD1D5DB),
+                                ),
                               ),
                             ),
                           ),
                           if (!_hasSig)
-                            Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.gesture_rounded,
-                                    size: 36,
-                                    color: isDark
-                                        ? Colors.white.withValues(alpha: 0.08)
-                                        : const Color(0xFFE5E7EB),
-                                  ),
-                                  SizedBox(height: 1.h),
-                                  Text(
-                                    'Draw signature here',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 8.5.sp,
+                            IgnorePointer(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.gesture_rounded,
+                                      size: 36,
                                       color: isDark
-                                          ? Colors.white12
-                                          : const Color(0xFFD1D5DB),
+                                          ? Colors.white.withValues(alpha: 0.08)
+                                          : const Color(0xFFE5E7EB),
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(height: 1.h),
+                                    Text(
+                                      'Draw signature here',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 8.5.sp,
+                                        color: isDark
+                                            ? Colors.white12
+                                            : const Color(0xFFD1D5DB),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onPanStart: (d) => setState(() {
-                              _localCurrent = [d.localPosition];
-                              _localStrokes.add(_localCurrent);
-                            }),
-                            onPanUpdate: (d) =>
-                                setState(() => _localCurrent.add(d.localPosition)),
-                            onPanEnd: (_) => setState(() => _localCurrent = []),
-                            child: CustomPaint(
-                              painter: _SignaturePainter(_localStrokes, linePaint),
-                              child: const SizedBox.expand(),
+                          Positioned.fill(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onPanStart: (d) => setState(() {
+                                _localCurrent = [d.localPosition];
+                                _localStrokes.add(_localCurrent);
+                              }),
+                              onPanUpdate: (d) => setState(() {
+                                _localCurrent.add(d.localPosition);
+                              }),
+                              onPanEnd: (_) => setState(() => _localCurrent = []),
                             ),
                           ),
                         ],

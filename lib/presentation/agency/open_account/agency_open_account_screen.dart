@@ -9,6 +9,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
 import '../cash_deposit/agency_cash_deposit_screen.dart';
+import 'widgets/open_account_signature_painter.dart';
 
 part 'open_account_personal_screen.dart';
 part 'open_account_id_contact_screen.dart';
