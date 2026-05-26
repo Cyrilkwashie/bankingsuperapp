@@ -41,7 +41,7 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
           Text(
             'User ID',
             style: GoogleFonts.inter(
-              fontSize: 9.5.sp,
+              fontSize: 8.5.sp,
               fontWeight: FontWeight.w600,
               color: isLight
                   ? const Color(0xFF374151)
@@ -49,11 +49,11 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
               letterSpacing: 0.2,
             ),
           ),
-          SizedBox(height: 0.8.h),
+          SizedBox(height: 0.45.h),
           TextFormField(
             controller: userIdController,
             style: GoogleFonts.inter(
-              fontSize: 10.5.sp,
+              fontSize: 9.5.sp,
               fontWeight: FontWeight.w500,
               color: isLight
                   ? const Color(0xFF1A1D23)
@@ -68,13 +68,13 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
                 (v == null || v.isEmpty) ? 'Please enter your user ID' : null,
           ),
 
-          SizedBox(height: 2.h),
+          SizedBox(height: 1.2.h),
 
           // ── Password ─────────────────────
           Text(
             'Password',
             style: GoogleFonts.inter(
-              fontSize: 9.5.sp,
+              fontSize: 8.5.sp,
               fontWeight: FontWeight.w600,
               color: isLight
                   ? const Color(0xFF374151)
@@ -82,12 +82,12 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
               letterSpacing: 0.2,
             ),
           ),
-          SizedBox(height: 0.8.h),
+          SizedBox(height: 0.45.h),
           TextFormField(
             controller: passwordController,
             obscureText: !isPasswordVisible,
             style: GoogleFonts.inter(
-              fontSize: 10.5.sp,
+              fontSize: 9.5.sp,
               fontWeight: FontWeight.w500,
               color: isLight
                   ? const Color(0xFF1A1D23)
@@ -105,17 +105,17 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
                   color: isLight
                       ? const Color(0xFF9CA3AF)
                       : const Color(0xFF6B7280),
-                  size: 20,
+                  size: 18,
                 ),
                 onPressed: onPasswordVisibilityToggle,
-                splashRadius: 20,
+                splashRadius: 18,
               ),
             ),
             validator: (v) =>
                 (v == null || v.isEmpty) ? 'Please enter your password' : null,
           ),
 
-          SizedBox(height: 1.2.h),
+          SizedBox(height: 0.7.h),
 
           // ── Forgot Password ─────────────────────
           Align(
@@ -138,12 +138,12 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 2.5.h),
+          SizedBox(height: 1.4.h),
 
           // ── Sign In Button ─────────────────────
           SizedBox(
             width: double.infinity,
-            height: 6.5.h,
+            height: 5.h,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -156,7 +156,7 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                 ),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 boxShadow: isLoading
                     ? []
                     : [
@@ -175,7 +175,7 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
                   shadowColor: Colors.transparent,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   padding: EdgeInsets.zero,
                 ),
@@ -196,13 +196,13 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
                           Text(
                             'Sign In',
                             style: GoogleFonts.inter(
-                              fontSize: 11.sp,
+                              fontSize: 10.sp,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.3,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward_rounded, size: 20),
+                          const Icon(Icons.arrow_forward_rounded, size: 18),
                         ],
                       ),
               ),
@@ -222,23 +222,24 @@ class SmartBranchLoginFormWidget extends StatelessWidget {
     return InputDecoration(
       hintText: hintText,
       hintStyle: GoogleFonts.inter(
-        fontSize: 10.sp,
+        fontSize: 9.sp,
         fontWeight: FontWeight.w400,
         color: isLight ? const Color(0xFFB0B8C4) : const Color(0xFF4B5563),
       ),
       prefixIcon: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 12),
+        padding: const EdgeInsets.only(left: 12, right: 8),
         child: Icon(
           prefixIcon,
-          size: 20,
+          size: 18,
           color: isLight ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
         ),
       ),
-      prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+      prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: isLight ? const Color(0xFFF9FAFB) : const Color(0xFF141824),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide(

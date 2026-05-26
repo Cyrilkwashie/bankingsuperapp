@@ -60,44 +60,42 @@ class _AgencyBankingDashboardScreenState
   }
 
   Widget _buildBody(bool isDark) {
-    return RefreshIndicator(
-      color: Colors.white,
-      onRefresh: () async {
-        await Future.delayed(const Duration(seconds: 1));
-      },
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Gradient header area (no SafeArea — gradient bleeds to status bar)
-            AgentHeaderCard(isDark: isDark),
-            // White content area
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 2.5.h),
-                  QuickActionsGrid(
-                    isDark: isDark,
-                    onViewAll: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const AgencyAllServicesScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 2.5.h),
-                  RecentTransactionsWidget(isDark: isDark),
-                  SizedBox(height: 2.h),
-                ],
-              ),
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AgentHeaderCard(isDark: isDark),
+        Padding(
+          padding: EdgeInsets.fromLTRB(5.w, 2.5.h, 5.w, 0),
+          child: QuickActionsGrid(
+            isDark: isDark,
+            onViewAll: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const AgencyAllServicesScreen(),
+                ),
+              );
+            },
+          ),
         ),
-      ),
+        SizedBox(height: 2.5.h),
+        Expanded(
+          child: RefreshIndicator(
+            color: const Color(0xFF2E8B8B),
+            onRefresh: () async {
+              await Future.delayed(const Duration(seconds: 1));
+            },
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              padding: EdgeInsets.fromLTRB(5.w, 0, 5.w, 2.h),
+              children: [
+                RecentTransactionsWidget(isDark: isDark),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

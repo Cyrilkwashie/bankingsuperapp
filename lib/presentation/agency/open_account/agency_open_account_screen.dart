@@ -13,6 +13,7 @@ import '../cash_deposit/agency_cash_deposit_screen.dart';
 part 'open_account_personal_screen.dart';
 part 'open_account_id_contact_screen.dart';
 part 'open_account_requirements_screen.dart';
+part 'open_account_signature_screen.dart';
 part 'open_account_review_screen.dart';
 part 'open_account_success_screen.dart';
 

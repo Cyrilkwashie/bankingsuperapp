@@ -67,17 +67,17 @@ class SmartBranchBiometricSectionWidget extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 2.h),
+        SizedBox(height: 1.2.h),
         Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onBiometricLogin,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 1.8.h),
+              padding: EdgeInsets.symmetric(vertical: 1.2.h),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: brandColor.withValues(alpha: 0.3),
                   width: 1.5,
@@ -96,14 +96,14 @@ class SmartBranchBiometricSectionWidget extends StatelessWidget {
                     child: Icon(
                       Icons.fingerprint_rounded,
                       color: brandColor,
-                      size: 22,
+                      size: 18,
                     ),
                   ),
                   SizedBox(width: 3.w),
                   Text(
                     'Use Biometric Login',
                     style: GoogleFonts.inter(
-                      fontSize: 10.5.sp,
+                      fontSize: 9.5.sp,
                       fontWeight: FontWeight.w600,
                       color: brandColor,
                       letterSpacing: 0.1,

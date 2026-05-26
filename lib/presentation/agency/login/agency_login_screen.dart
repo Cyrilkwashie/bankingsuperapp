@@ -167,7 +167,7 @@ class _AgencyLoginScreenState extends State<AgencyLoginScreen>
             children: [
               _buildHeroHeader(isLight),
               Transform.translate(
-                offset: const Offset(0, -36),
+                offset: const Offset(0, -28),
                 child: _buildMainCard(isLight),
               ),
               _buildFooter(isLight),
@@ -184,7 +184,7 @@ class _AgencyLoginScreenState extends State<AgencyLoginScreen>
       width: double.infinity,
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 1.5.h,
-        bottom: 7.h,
+        bottom: 5.h,
         left: 6.w,
         right: 6.w,
       ),
@@ -319,12 +319,12 @@ class _AgencyLoginScreenState extends State<AgencyLoginScreen>
               ],
             ),
             child: Padding(
-              padding: EdgeInsets.all(6.w),
+              padding: EdgeInsets.fromLTRB(5.w, 4.w, 5.w, 4.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AgencySecurityBadgeWidget(pulseController: _pulseController),
-                  SizedBox(height: 3.h),
+                  SizedBox(height: 1.8.h),
                   AnimatedBuilder(
                     animation: _shakeAnimation,
                     builder: (context, child) => Transform.translate(
@@ -346,7 +346,7 @@ class _AgencyLoginScreenState extends State<AgencyLoginScreen>
                     ),
                   ),
                   if (_biometricAvailable) ...[
-                    SizedBox(height: 2.5.h),
+                    SizedBox(height: 1.5.h),
                     AgencyBiometricSectionWidget(
                       onBiometricLogin: _handleBiometricLogin,
                       brandColor: _brandPrimary,
