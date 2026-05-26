@@ -24,7 +24,6 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
   final List<_ServiceCategory> _categories = const [
     _ServiceCategory(
       title: 'Cash Services',
-      subtitle: 'Deposits & withdrawals',
       color: Color(0xFF10B981),
       icon: 'account_balance_wallet',
       services: [
@@ -34,7 +33,6 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     ),
     _ServiceCategory(
       title: 'Transfers',
-      subtitle: 'Move money seamlessly',
       color: Color(0xFF6366F1),
       icon: 'swap_horiz',
       services: [
@@ -44,7 +42,6 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     ),
     _ServiceCategory(
       title: 'QR Services',
-      subtitle: 'Scan & pay instantly',
       color: Color(0xFF8B5CF6),
       icon: 'qr_code_scanner',
       services: [
@@ -54,7 +51,6 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     ),
     _ServiceCategory(
       title: 'Account Services',
-      subtitle: 'Manage customer accounts',
       color: Color(0xFF0EA5E9),
       icon: 'person',
       services: [
@@ -65,7 +61,6 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     ),
     _ServiceCategory(
       title: 'Requests',
-      subtitle: 'Cards, cheques & more',
       color: Color(0xFFF59E0B),
       icon: 'credit_card',
       services: [
@@ -78,7 +73,6 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     ),
     _ServiceCategory(
       title: 'Agent Tools',
-      subtitle: 'Operational utilities',
       color: Color(0xFF64748B),
       icon: 'build',
       services: [_ServiceItem(icon: 'undo', label: 'Reverse Txn')],
@@ -117,7 +111,6 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
           if (filtered.isEmpty) return null;
           return _ServiceCategory(
             title: cat.title,
-            subtitle: cat.subtitle,
             color: cat.color,
             icon: cat.icon,
             services: filtered,
@@ -136,16 +129,18 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
         : const Color(0xFFF8FAFC);
 
     // Compute scroll offsets for tap-to-scroll
-    final gridWidth = 100.w - 8.w;
-    final cellWidth = gridWidth / 4;
-    final cellHeight = cellWidth / 1.08;
-    final headerH = 7.2.h;
+    final rowH = 9.h;
+    final rowGap = 2.h;
+    final titleMenuGap = 0.6.h;
+    final sectionGap = 3.5.h;
+    final headerH = 4.8.h;
     List<double> offsets = [];
     double cumulative = 0;
     for (final cat in categories) {
       offsets.add(cumulative);
       final rows = (cat.services.length / 4).ceil();
-      cumulative += headerH + rows * cellHeight;
+      final betweenRowGap = rows > 1 ? (rows - 1) * rowGap : 0.0;
+      cumulative += headerH + titleMenuGap + rows * rowH + betweenRowGap + sectionGap;
     }
 
     return Scaffold(
@@ -174,15 +169,14 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                           pinned: true,
                           delegate: _CategoryHeaderDelegate(
                             title: cat.title,
-                            subtitle: cat.subtitle,
                             accentColor: cat.color,
                             categoryIcon: cat.icon,
                             isDark: isDark,
                             scaffoldBg: scaffoldBg,
-                            expandedHeight: 7.2.h,
-                            collapsedHeight: 5.4.h,
+                            expandedHeight: 4.8.h,
+                            collapsedHeight: 4.h,
                             onTap: () {
-                              final collapsedH = 5.4.h;
+                              final collapsedH = 4.h;
                               final target = (offsets[i] - i * collapsedH)
                                   .clamp(
                                     0.0,
@@ -196,26 +190,10 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
                             },
                           ),
                         ),
-                        SliverPadding(
-                          padding: EdgeInsets.fromLTRB(4.w, 0, 4.w, 0.35.h),
-                          sliver: SliverGrid(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
-                                  childAspectRatio: 1.08,
-                                  mainAxisSpacing: 0,
-                                  crossAxisSpacing: 0,
-                                ),
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) => _buildServiceItem(
-                                context,
-                                cat.services[index],
-                                cat.color,
-                                isDark,
-                                index,
-                              ),
-                              childCount: cat.services.length,
-                            ),
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(4.w, 0.6.h, 4.w, 0),
+                            child: _buildCategoryServicesGrid(cat, isDark),
                           ),
                         ),
                       ];
@@ -418,6 +396,38 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
     );
   }
 
+  Widget _buildCategoryServicesGrid(_ServiceCategory category, bool isDark) {
+    const crossAxisCount = 4;
+    final rows = (category.services.length / crossAxisCount).ceil();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var row = 0; row < rows; row++) ...[
+          if (row > 0) SizedBox(height: 2.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(crossAxisCount, (col) {
+              final index = row * crossAxisCount + col;
+              return Expanded(
+                child: index < category.services.length
+                    ? _buildServiceItem(
+                        context,
+                        category.services[index],
+                        category.color,
+                        isDark,
+                        index,
+                      )
+                    : const SizedBox.shrink(),
+              );
+            }),
+          ),
+        ],
+        SizedBox(height: 3.5.h),
+      ],
+    );
+  }
+
   // ── Service Item ──
   Widget _buildServiceItem(
     BuildContext context,
@@ -559,7 +569,6 @@ class _AgencyAllServicesScreenState extends State<AgencyAllServicesScreen>
 // ── Sticky Category Header Delegate ──
 class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String title;
-  final String subtitle;
   final Color accentColor;
   final String categoryIcon;
   final bool isDark;
@@ -570,7 +579,6 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   _CategoryHeaderDelegate({
     required this.title,
-    required this.subtitle,
     required this.accentColor,
     required this.categoryIcon,
     required this.isDark,
@@ -639,36 +647,17 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
               ),
               SizedBox(width: 3.w),
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.inter(
-                        fontSize: (10.5 - 0.5 * progress).sp,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white : const Color(0xFF111827),
-                        letterSpacing: -0.2,
-                      ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: (10.5 - 0.5 * progress).sp,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF111827),
+                      letterSpacing: -0.2,
                     ),
-                    if (progress < 0.7) ...[
-                      SizedBox(height: 0.15.h),
-                      Opacity(
-                        opacity: (1 - progress * 1.5).clamp(0.0, 1.0),
-                        child: Text(
-                          subtitle,
-                          style: GoogleFonts.inter(
-                            fontSize: 7.5.sp,
-                            fontWeight: FontWeight.w400,
-                            color: isDark
-                                ? Colors.white38
-                                : const Color(0xFF9CA3AF),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
               // Small icon badge
@@ -697,7 +686,6 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant _CategoryHeaderDelegate oldDelegate) {
     return title != oldDelegate.title ||
-        subtitle != oldDelegate.subtitle ||
         accentColor != oldDelegate.accentColor ||
         isDark != oldDelegate.isDark ||
         scaffoldBg != oldDelegate.scaffoldBg;
@@ -706,14 +694,12 @@ class _CategoryHeaderDelegate extends SliverPersistentHeaderDelegate {
 
 class _ServiceCategory {
   final String title;
-  final String subtitle;
   final Color color;
   final String icon;
   final List<_ServiceItem> services;
 
   const _ServiceCategory({
     required this.title,
-    required this.subtitle,
     required this.color,
     required this.icon,
     required this.services,
