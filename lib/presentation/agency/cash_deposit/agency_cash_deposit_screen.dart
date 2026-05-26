@@ -202,10 +202,27 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
     super.dispose();
   }
 
+  String _phoneDigits(String value) => value.replaceAll(RegExp(r'\D'), '');
+
+  String _normalizePhoneNumber(String input) {
+    final digits = _phoneDigits(input);
+    if (digits.isEmpty) return digits;
+
+    if (digits.startsWith('232')) return digits;
+    if (digits.startsWith('0') && digits.length >= 10) {
+      return '232${digits.substring(1)}';
+    }
+    if (digits.length >= 9) return '232$digits';
+
+    return digits;
+  }
+
   void _onAccountChanged(String value) {
     _debounce?.cancel();
-    final minLength = _lookupType == 'account' ? 10 : 12;
-    if (value.length < minLength) {
+    final minLength = _lookupType == 'account' ? 10 : 9;
+    final inputLength =
+        _lookupType == 'account' ? value.length : _phoneDigits(value).length;
+    if (inputLength < minLength) {
       setState(() {
         _accountVerified = false;
         _accountNotFound = false;
@@ -233,7 +250,8 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
     String accountNo = input;
 
     if (_lookupType == 'phone') {
-      final phoneAccounts = _mockPhoneAccounts[input];
+      final normalizedPhone = _normalizePhoneNumber(input);
+      final phoneAccounts = _mockPhoneAccounts[normalizedPhone];
       if (phoneAccounts != null && phoneAccounts.isNotEmpty) {
         if (phoneAccounts.length == 1) {
           // Single account - auto-select
@@ -254,7 +272,7 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                 .map((e) => Map<String, String>.from(e))
                 .toList();
 
-            _phoneForAccounts = input;
+            _phoneForAccounts = normalizedPhone;
           });
 
           return;
@@ -578,16 +596,22 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
                             SizedBox(height: 0.4.h),
                             _buildTextField(
                               controller: _depositorTelController,
-                              hint: '232XXXXXXXX',
+                              hint: 'Phone number',
                               isDark: isDark,
                               keyboardType: TextInputType.phone,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(12),
+                                LengthLimitingTextInputFormatter(15),
                               ],
-                              validator: (v) => v == null || v.trim().length < 12
-                                  ? 'Invalid phone'
-                                  : null,
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) {
+                                  return 'Required';
+                                }
+                                if (_phoneDigits(v).length < 9) {
+                                  return 'Enter a valid phone number';
+                                }
+                                return null;
+                              },
                             ),
                             SizedBox(height: 1.3.h),
                             _buildFieldLabel('Narration (optional)', isDark),
@@ -1113,10 +1137,9 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
   // ── Account Number / Phone Field ──
   Widget _buildAccountField(bool isDark) {
     final isPhone = _lookupType == 'phone';
-    final maxLength = isPhone ? 12 : 10;
-    final hintText = isPhone ? '232XXXXXXXXX' : '00 XXXX XXXX';
+    final hintText = isPhone ? 'Phone number' : '00 XXXX XXXX';
     final validationMsg = isPhone
-        ? 'Enter valid phone number (232XXXXXXXXX)'
+        ? 'Enter a valid phone number'
         : 'Enter 10-digit account number';
 
     return TextFormField(
@@ -1125,7 +1148,8 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
       keyboardType: TextInputType.number,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(maxLength),
+        if (!isPhone) LengthLimitingTextInputFormatter(10),
+        if (isPhone) LengthLimitingTextInputFormatter(15),
       ],
       style: GoogleFonts.inter(
         fontSize: 9.sp,
@@ -1134,7 +1158,14 @@ class _AgencyCashDepositScreenState extends State<AgencyCashDepositScreen>
         letterSpacing: 0.8,
       ),
       validator: (v) {
-        if (v == null || v.length < maxLength) return validationMsg;
+        if (v == null || v.trim().isEmpty) {
+          return isPhone ? 'Enter phone number' : validationMsg;
+        }
+        if (isPhone) {
+          if (_phoneDigits(v).length < 9) return validationMsg;
+          return null;
+        }
+        if (v.length < 10) return validationMsg;
         return null;
       },
       decoration: InputDecoration(

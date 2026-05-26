@@ -333,11 +333,17 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
                               keyboardType: TextInputType.phone,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(12),
+                                LengthLimitingTextInputFormatter(15),
                               ],
-                              validator: (v) => v == null || v.trim().length < 12
-                                  ? 'Invalid phone'
-                                  : null,
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) {
+                                  return 'Required';
+                                }
+                                if (v.replaceAll(RegExp(r'\D'), '').length < 9) {
+                                  return 'Enter a valid phone number';
+                                }
+                                return null;
+                              },
                             ),
                             SizedBox(height: 1.3.h),
                             _buildFieldLabel('Narration (optional)', isDark),
