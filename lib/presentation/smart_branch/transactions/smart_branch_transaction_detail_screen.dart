@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../core/activity_helpers.dart';
 import '../../../core/app_export.dart';
 
 class SmartBranchTransactionDetailScreen extends StatelessWidget {
@@ -18,12 +19,10 @@ class SmartBranchTransactionDetailScreen extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final isSuccess = transaction['status'] == 'success';
     final isPending = transaction['status'] == 'pending';
-    final isDeposit = transaction['type'] == 'deposit';
-    final statusColor = isSuccess
-        ? const Color(0xFF10B981)
-        : isPending
-        ? const Color(0xFFF59E0B)
-        : const Color(0xFFEF4444);
+    final isMonetary = ActivityHelpers.isMonetary(transaction);
+    final statusColor = ActivityHelpers.statusColor(transaction);
+    final gradientStart = ActivityHelpers.headerGradientStart(transaction);
+    final gradientEnd = ActivityHelpers.headerGradientEnd(transaction);
 
     return Scaffold(
       backgroundColor: isDark
@@ -35,9 +34,7 @@ class SmartBranchTransactionDetailScreen extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 16.h,
             pinned: true,
-            backgroundColor: isDeposit
-                ? const Color(0xFF0891B2)
-                : const Color(0xFFDC2626),
+            backgroundColor: gradientStart,
             leading: IconButton(
               icon: const Icon(
                 Icons.arrow_back_ios_new,
@@ -62,9 +59,7 @@ class SmartBranchTransactionDetailScreen extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: isDeposit
-                        ? [const Color(0xFF0891B2), const Color(0xFF06B6D4)]
-                        : [const Color(0xFFDC2626), const Color(0xFFEF4444)],
+                    colors: [gradientStart, gradientEnd],
                   ),
                 ),
                 child: SafeArea(
@@ -78,24 +73,24 @@ class SmartBranchTransactionDetailScreen extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          isDeposit ? Icons.south_west : Icons.north_east,
+                          ActivityHelpers.headerIcon(transaction),
                           color: Colors.white,
                           size: 20,
                         ),
                       ),
                       SizedBox(height: 0.8.h),
                       Text(
-                        '${isDeposit ? '+' : '-'}GH\u20B5 ${transaction['amount'] ?? 0}',
+                        ActivityHelpers.headerPrimaryText(transaction),
                         style: GoogleFonts.inter(
-                          fontSize: 12.sp,
+                          fontSize: isMonetary ? 12.sp : 10.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 0.3.h),
                       Text(
-                        (transaction['type'] as String?)?.toUpperCase() ??
-                            'TRANSACTION',
+                        ActivityHelpers.headerSecondaryText(transaction),
                         style: GoogleFonts.inter(
                           fontSize: 8.sp,
                           fontWeight: FontWeight.w500,
@@ -173,12 +168,12 @@ class SmartBranchTransactionDetailScreen extends StatelessWidget {
                     // Transaction Details Card
                     _buildCard(
                       icon: Icons.receipt_long_outlined,
-                      title: 'Transaction Details',
+                      title: 'Activity Details',
                       isDark: isDark,
                       children: [
                         _buildRow(
-                          'Transaction ID',
-                          transaction['id'] ?? 'N/A',
+                          'Activity ID',
+                          transaction['id'] ?? transaction['reference'] ?? 'N/A',
                           isDark: isDark,
                           copyable: true,
                         ),
@@ -193,32 +188,62 @@ class SmartBranchTransactionDetailScreen extends StatelessWidget {
                           transaction['date'] ?? 'N/A',
                           isDark: isDark,
                         ),
+                        if (transaction['teller'] != null)
+                          _buildRow(
+                            'Teller',
+                            transaction['teller'],
+                            isDark: isDark,
+                          ),
+                        if (transaction['detail'] != null)
+                          _buildRow(
+                            'Details',
+                            transaction['detail'],
+                            isDark: isDark,
+                          ),
                       ],
                     ),
 
-                    // Amount Card
-                    _buildCard(
-                      icon: Icons.account_balance_wallet_outlined,
-                      title: 'Amount Breakdown',
-                      isDark: isDark,
-                      children: [
-                        _buildRow(
-                          'Amount',
-                          'GH\u20B5 ${transaction['amount'] ?? 0}',
-                          isDark: isDark,
-                        ),
-                        _buildRow(
-                          'Fee',
-                          'GH\u20B5 ${transaction['fee'] ?? 0}',
-                          isDark: isDark,
-                        ),
-                        _buildTotalRow(
-                          'Total',
-                          'GH\u20B5 ${((transaction['amount'] ?? 0) + (transaction['fee'] ?? 0)).toStringAsFixed(2)}',
-                          isDark: isDark,
-                        ),
-                      ],
-                    ),
+                    if (isMonetary)
+                      _buildCard(
+                        icon: Icons.account_balance_wallet_outlined,
+                        title: 'Amount Breakdown',
+                        isDark: isDark,
+                        children: [
+                          _buildRow(
+                            'Amount',
+                            'GH\u20B5 ${transaction['amount'] ?? 0}',
+                            isDark: isDark,
+                          ),
+                          _buildRow(
+                            'Fee',
+                            'GH\u20B5 ${transaction['fee'] ?? 0}',
+                            isDark: isDark,
+                          ),
+                          _buildTotalRow(
+                            'Total',
+                            'GH\u20B5 ${((transaction['amount'] ?? 0) + (transaction['fee'] ?? 0)).toStringAsFixed(2)}',
+                            isDark: isDark,
+                          ),
+                        ],
+                      )
+                    else
+                      _buildCard(
+                        icon: Icons.info_outline,
+                        title: 'Service Details',
+                        isDark: isDark,
+                        children: [
+                          _buildRow(
+                            'Service',
+                            ActivityHelpers.labelFor(transaction),
+                            isDark: isDark,
+                          ),
+                          _buildRow(
+                            'Summary',
+                            transaction['detail'] ?? 'N/A',
+                            isDark: isDark,
+                          ),
+                        ],
+                      ),
 
                     // Customer Card
                     _buildCard(
@@ -228,7 +253,10 @@ class SmartBranchTransactionDetailScreen extends StatelessWidget {
                       children: [
                         _buildRow(
                           'Name',
-                          transaction['customer'] ?? 'N/A',
+                          ActivityHelpers.personName(
+                            transaction,
+                            fallback: 'N/A',
+                          ),
                           isDark: isDark,
                         ),
                       ],

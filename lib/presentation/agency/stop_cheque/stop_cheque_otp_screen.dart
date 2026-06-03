@@ -4,9 +4,9 @@ class _StopChequeOtpScreen extends StatelessWidget {
   final String customerPhone;
   final String accountNo;
   final String accountName;
-  final DateTime dateIssued;
   final String fromChequeNo;
   final String toChequeNo;
+  final bool isRangeStop;
   final String beneficiaryName;
   final String amount;
   final String reason;
@@ -17,9 +17,9 @@ class _StopChequeOtpScreen extends StatelessWidget {
     required this.customerPhone,
     required this.accountNo,
     required this.accountName,
-    required this.dateIssued,
     required this.fromChequeNo,
     required this.toChequeNo,
+    required this.isRangeStop,
     required this.beneficiaryName,
     required this.amount,
     required this.reason,
@@ -44,9 +44,9 @@ class _StopChequeOtpScreen extends StatelessWidget {
             builder: (_) => _StopChequeConfirmationScreen(
               accountNo: accountNo,
               accountName: accountName,
-              dateIssued: dateIssued,
               fromChequeNo: fromChequeNo,
               toChequeNo: toChequeNo,
+              isRangeStop: isRangeStop,
               beneficiaryName: beneficiaryName,
               amount: amount,
               reason: reason,

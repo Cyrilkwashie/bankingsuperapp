@@ -110,6 +110,7 @@ class _OpenAccountIdContactScreenState
       _selectedIdType.isNotEmpty &&
       _idNumberCtrl.text.trim().isNotEmpty &&
       _phoneCtrl.text.trim().isNotEmpty &&
+      _emailCtrl.text.trim().isNotEmpty &&
       _addressCtrl.text.trim().isNotEmpty &&
       _selectedCity.isNotEmpty;
 
@@ -330,16 +331,25 @@ class _OpenAccountIdContactScreenState
                             ),
                             SizedBox(height: 1.3.h),
                             _OpenAccountUi.buildFieldLabel(
-                                'Email Address', isDark),
+                                'Email Address *', isDark),
                             SizedBox(height: 0.4.h),
                             _OpenAccountUi.buildTextField(
                               controller: _emailCtrl,
-                              hint: 'Optional',
+                              hint: 'e.g. name@email.com',
                               icon: Icons.email_outlined,
                               isDark: isDark,
                               accentColor: widget.accentColor,
-                              required: false,
                               keyboardType: TextInputType.emailAddress,
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) {
+                                  return 'Required';
+                                }
+                                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                                    .hasMatch(v.trim())) {
+                                  return 'Enter a valid email';
+                                }
+                                return null;
+                              },
                               onChanged: (_) => setState(() {}),
                             ),
                             SizedBox(height: 1.3.h),

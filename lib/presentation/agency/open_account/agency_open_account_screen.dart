@@ -1192,6 +1192,15 @@ class _AgencyOpenAccountScreenState extends State<AgencyOpenAccountScreen>
                           ),
                           SizedBox(height: 1.h),
                           _buildReqCard(
+                            icon: Icons.email_outlined,
+                            iconColor: _accent,
+                            title: 'Email Address',
+                            subtitle:
+                                'Required for e-statements and digital account notifications',
+                            isDark: isDark,
+                          ),
+                          SizedBox(height: 1.h),
+                          _buildReqCard(
                             icon: Icons.account_balance_wallet_outlined,
                             iconColor: _accent,
                             title: 'Initial Deposit',
@@ -1217,16 +1226,6 @@ class _AgencyOpenAccountScreenState extends State<AgencyOpenAccountScreen>
                             title: 'Proof of Address',
                             subtitle:
                                 'Recent utility bill, bank statement or tenancy agreement',
-                            isDark: isDark,
-                            optional: true,
-                          ),
-                          SizedBox(height: 1.h),
-                          _buildReqCard(
-                            icon: Icons.email_outlined,
-                            iconColor: const Color(0xFF7C3AED),
-                            title: 'Email Address',
-                            subtitle:
-                                'For e-statements and digital account notifications',
                             isDark: isDark,
                             optional: true,
                           ),

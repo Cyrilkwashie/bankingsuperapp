@@ -4,6 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../data/agency_customer_lookup.dart';
+import '../../../widgets/verified_customer_card.dart';
+
 part 'stop_cheque_otp_screen.dart';
 part 'stop_cheque_confirmation_screen.dart';
 part 'stop_cheque_success_screen.dart';
@@ -42,6 +45,7 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
   String _accountStatus = '';
   String _accountBalance = '';
   String _resolvedAccountNo = '';
+  String _accountType = '';
   String _customerPhone = '';
   Timer? _debounce;
 
@@ -50,9 +54,8 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
   String _phoneForAccounts = '';
 
   String _lookupType = 'account';
+  String _chequeStopType = 'single';
   String? _selectedReason;
-
-  DateTime? _dateIssued;
 
   // ── Mock Data ──
 
@@ -361,15 +364,40 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
     });
   }
 
+  void _onChequeStopTypeChanged(String type) {
+    setState(() {
+      _chequeStopType = type;
+      if (type == 'single') {
+        _toChequeController.clear();
+      } else {
+        _amountController.clear();
+      }
+    });
+  }
+
   // ── Validation ──
+
+  bool get _chequeDetailsComplete {
+    final from = _fromChequeController.text.trim();
+    if (from.isEmpty) return false;
+
+    if (_chequeStopType == 'single') return true;
+
+    final to = _toChequeController.text.trim();
+    if (to.isEmpty) return false;
+
+    final fromNum = int.tryParse(from);
+    final toNum = int.tryParse(to);
+    if (fromNum == null || toNum == null) return false;
+    return toNum >= fromNum;
+  }
 
   bool get _canSubmit =>
       _accountVerified &&
-      _dateIssued != null &&
-      _fromChequeController.text.trim().isNotEmpty &&
-      _toChequeController.text.trim().isNotEmpty &&
+      _chequeDetailsComplete &&
       _beneficiaryController.text.trim().isNotEmpty &&
-      _amountController.text.trim().isNotEmpty &&
+      (_chequeStopType == 'range' ||
+          _amountController.text.trim().isNotEmpty) &&
       _selectedReason != null;
 
   void _onSubmit() {
@@ -380,15 +408,23 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
         msg = _lookupType == 'phone'
             ? 'Please enter a valid phone number'
             : 'Please enter a valid account number';
-      } else if (_dateIssued == null) {
-        msg = 'Please select the date issued';
       } else if (_fromChequeController.text.trim().isEmpty) {
-        msg = 'Please enter From Cheque No.';
-      } else if (_toChequeController.text.trim().isEmpty) {
+        msg = _chequeStopType == 'single'
+            ? 'Please enter the cheque number'
+            : 'Please enter From Cheque No.';
+      } else if (_chequeStopType == 'range' &&
+          _toChequeController.text.trim().isEmpty) {
         msg = 'Please enter To Cheque No.';
+      } else if (_chequeStopType == 'range') {
+        final fromNum = int.tryParse(_fromChequeController.text.trim());
+        final toNum = int.tryParse(_toChequeController.text.trim());
+        if (fromNum != null && toNum != null && toNum < fromNum) {
+          msg = 'To Cheque No. must be greater than or equal to From Cheque No.';
+        }
       } else if (_beneficiaryController.text.trim().isEmpty) {
         msg = 'Please enter the beneficiary name';
-      } else if (_amountController.text.trim().isEmpty) {
+      } else if (_chequeStopType == 'single' &&
+          _amountController.text.trim().isEmpty) {
         msg = 'Please enter the amount on cheque slip';
       } else if (_selectedReason == null) {
         msg = 'Please select the reason for request';
@@ -410,17 +446,24 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
       return;
     }
 
+    final fromChequeNo = _fromChequeController.text.trim();
+    final toChequeNo = _chequeStopType == 'single'
+        ? fromChequeNo
+        : _toChequeController.text.trim();
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => _StopChequeOtpScreen(
           customerPhone: _customerPhone,
           accountNo: _resolvedAccountNo,
           accountName: _accountName,
-          dateIssued: _dateIssued!,
-          fromChequeNo: _fromChequeController.text.trim(),
-          toChequeNo: _toChequeController.text.trim(),
+          fromChequeNo: fromChequeNo,
+          toChequeNo: toChequeNo,
+          isRangeStop: _chequeStopType == 'range',
           beneficiaryName: _beneficiaryController.text.trim(),
-          amount: _amountController.text.trim(),
+          amount: _chequeStopType == 'single'
+              ? _amountController.text.trim()
+              : '',
           reason: _selectedReason!,
           accentColor: _accent,
           gradientColors: _gradient,
@@ -486,93 +529,18 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
                       _buildSectionCard(
                         isDark: isDark,
                         title: 'Cheque Details',
-                        subtitle: 'Cheque range, amount and stop reason',
+                        subtitle: _chequeStopType == 'single'
+                            ? 'Single leaf, amount and stop reason'
+                            : 'Cheque range and stop reason',
                         icon: Icons.receipt_long_outlined,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildFieldLabel('Date Issued', isDark),
+                            _buildFieldLabel('Stop Type', isDark),
                             SizedBox(height: 0.4.h),
-                            SizedBox(height: 0.4.h),
-                            AgencyDateField(
-                              label: 'Date Issued',
-                              value: _dateIssued,
-                              isDark: isDark,
-                              accentColor: _accent,
-                              fieldRadius: _fieldRadius,
-                              contentPadding: _fieldPadding,
-                              firstDate: DateTime(DateTime.now().year - 2),
-                              lastDate: DateTime.now(),
-                              pickerTitle: 'Cheque Date Issued',
-                              pickerSubtitle:
-                                  'Select the date printed on the cheque',
-                              displayFormat: AgencyDateFormat.withWeekday,
-                              onChanged: (picked) =>
-                                  setState(() => _dateIssued = picked),
-                            ),
+                            _buildChequeStopTypeToggle(isDark),
                             SizedBox(height: 1.3.h),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _buildFieldLabel(
-                                        'From Cheque No.',
-                                        isDark,
-                                      ),
-                                      SizedBox(height: 0.4.h),
-                                      _buildTextField(
-                                        controller: _fromChequeController,
-                                        hint: 'e.g. 000001',
-                                        isDark: isDark,
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter
-                                              .digitsOnly,
-                                          LengthLimitingTextInputFormatter(10),
-                                        ],
-                                        validator: (v) {
-                                          if (v == null || v.isEmpty) {
-                                            return 'Required';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: 3.w),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _buildFieldLabel('To Cheque No.', isDark),
-                                      SizedBox(height: 0.4.h),
-                                      _buildTextField(
-                                        controller: _toChequeController,
-                                        hint: 'e.g. 000025',
-                                        isDark: isDark,
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter
-                                              .digitsOnly,
-                                          LengthLimitingTextInputFormatter(10),
-                                        ],
-                                        validator: (v) {
-                                          if (v == null || v.isEmpty) {
-                                            return 'Required';
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                            _buildChequeNumberFields(isDark),
                             SizedBox(height: 1.3.h),
                             _buildFieldLabel('Beneficiary Name', isDark),
                             SizedBox(height: 0.4.h),
@@ -588,10 +556,12 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
                                 return null;
                               },
                             ),
-                            SizedBox(height: 1.3.h),
-                            _buildFieldLabel('Amount on Cheque Slip', isDark),
-                            SizedBox(height: 0.4.h),
-                            _buildAmountField(isDark),
+                            if (_chequeStopType == 'single') ...[
+                              SizedBox(height: 1.3.h),
+                              _buildFieldLabel('Amount on Cheque Slip', isDark),
+                              SizedBox(height: 0.4.h),
+                              _buildAmountField(isDark),
+                            ],
                             SizedBox(height: 1.3.h),
                             _buildFieldLabel('Reason for Request', isDark),
                             SizedBox(height: 0.4.h),
@@ -860,7 +830,7 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
           SizedBox(width: 2.5.w),
           Expanded(
             child: Text(
-              'Submit a request to stop payment on one or more cheques. A processing fee of GH₵ 15.00 applies per cheque.',
+              'Submit a request to stop a single cheque leaf or a range of cheques. A processing fee of GH₵ 15.00 applies per cheque.',
               style: GoogleFonts.inter(
                 fontSize: 7.5.sp,
                 height: 1.35,
@@ -1096,6 +1066,169 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
     );
   }
 
+  Widget _buildChequeStopTypeToggle(bool isDark) {
+    return Container(
+      padding: EdgeInsets.all(0.4.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          _chequeStopTab(
+            'single',
+            Icons.receipt_outlined,
+            'Single Leaf',
+            isDark,
+          ),
+          _chequeStopTab(
+            'range',
+            Icons.view_week_outlined,
+            'Range',
+            isDark,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _chequeStopTab(
+    String type,
+    IconData icon,
+    String label,
+    bool isDark,
+  ) {
+    final selected = _chequeStopType == type;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onChequeStopTypeChanged(type),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.symmetric(vertical: 0.85.h),
+          decoration: BoxDecoration(
+            color: selected ? _accent : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: _accent.withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 13,
+                color: selected
+                    ? Colors.white
+                    : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+              ),
+              SizedBox(width: 1.2.w),
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 7.5.sp,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected
+                      ? Colors.white
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChequeNumberFields(bool isDark) {
+    final chequeInputFormatters = [
+      FilteringTextInputFormatter.digitsOnly,
+      LengthLimitingTextInputFormatter(10),
+    ];
+
+    if (_chequeStopType == 'single') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildFieldLabel('Cheque No.', isDark),
+          SizedBox(height: 0.4.h),
+          _buildTextField(
+            controller: _fromChequeController,
+            hint: 'e.g. 000001',
+            isDark: isDark,
+            keyboardType: TextInputType.number,
+            inputFormatters: chequeInputFormatters,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'Required';
+              return null;
+            },
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildFieldLabel('From Cheque No.', isDark),
+              SizedBox(height: 0.4.h),
+              _buildTextField(
+                controller: _fromChequeController,
+                hint: 'e.g. 000001',
+                isDark: isDark,
+                keyboardType: TextInputType.number,
+                inputFormatters: chequeInputFormatters,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Required';
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: 3.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildFieldLabel('To Cheque No.', isDark),
+              SizedBox(height: 0.4.h),
+              _buildTextField(
+                controller: _toChequeController,
+                hint: 'e.g. 000025',
+                isDark: isDark,
+                keyboardType: TextInputType.number,
+                inputFormatters: chequeInputFormatters,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Required';
+                  final fromNum =
+                      int.tryParse(_fromChequeController.text.trim());
+                  final toNum = int.tryParse(v.trim());
+                  if (fromNum != null &&
+                      toNum != null &&
+                      toNum < fromNum) {
+                    return 'Must be >= From';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _lookupTab(String type, IconData icon, String label, bool isDark) {
     final selected = _lookupType == type;
     return Expanded(
@@ -1174,106 +1307,17 @@ class _AgencyStopChequeScreenState extends State<AgencyStopChequeScreen>
   }
 
   Widget _buildAccountInfoCard(bool isDark) {
-    final isActive = _accountStatus == 'Active';
-    final statusColor = isActive ? _success : const Color(0xFFF59E0B);
-
-    return Padding(
-      padding: EdgeInsets.only(top: 1.h),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        width: double.infinity,
-        padding: EdgeInsets.all(3.w),
-        decoration: BoxDecoration(
-          color: statusColor.withValues(alpha: isDark ? 0.08 : 0.05),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: statusColor.withValues(alpha: 0.18)),
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        _accent.withValues(alpha: 0.85),
-                        _accent,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _initials(_accountName),
-                      style: GoogleFonts.inter(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 2.5.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _accountName,
-                        style: GoogleFonts.inter(
-                          fontSize: 9.sp,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF111827),
-                        ),
-                      ),
-                      SizedBox(height: 0.15.h),
-                      Text(
-                        _maskAccountNo(_resolvedAccountNo),
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 7.sp,
-                          color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.3.h),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 5,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      SizedBox(width: 1.w),
-                      Text(
-                        _accountStatus,
-                        style: GoogleFonts.inter(
-                          fontSize: 6.5.sp,
-                          fontWeight: FontWeight.w600,
-                          color: statusColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+    return VerifiedCustomerCard(
+      customer: AgencyCustomerLookup.build(
+        name: _accountName,
+        accountNumber: _resolvedAccountNo,
+        status: _accountStatus,
+        balance: _accountBalance,
+        primaryAccount: _accountType,
+        phone: _customerPhone,
       ),
+      accentColor: _accent,
+      isDark: isDark,
     );
   }
 

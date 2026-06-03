@@ -88,7 +88,7 @@ class BranchQuickActionsGrid extends StatelessWidget {
                   const Color(0xFF10B981)),
               _buildAction(context, 'Withdraw', 'arrow_upward',
                   const Color(0xFFEF4444)),
-              _buildAction(context, 'Transactions', 'receipt_long',
+              _buildAction(context, 'History', 'receipt_long',
                   const Color(0xFF6366F1)),
               _buildAction(context, 'Settings', 'settings',
                   const Color(0xFFF59E0B)),
@@ -116,7 +116,7 @@ class BranchQuickActionsGrid extends StatelessWidget {
             );
             return;
           }
-          if (label == 'Transactions') {
+          if (label == 'History') {
             Navigator.of(context).pushNamed(AppRoutes.smartBranchTransactions);
             return;
           }

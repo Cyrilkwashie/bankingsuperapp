@@ -729,7 +729,7 @@ class _StatementResultScreenState extends State<_StatementResultScreen>
           Padding(
             padding: EdgeInsets.fromLTRB(3.5.w, 3.w, 3.5.w, 2.w),
             child: Text(
-              'Transaction History',
+              'History',
               style: GoogleFonts.inter(
                 fontSize: 9.sp,
                 fontWeight: FontWeight.w700,

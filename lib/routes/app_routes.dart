@@ -9,6 +9,7 @@ import '../presentation/merchant/dashboard/merchant_banking_dashboard_screen.dar
 import '../presentation/merchant/login/merchant_login_screen.dart';
 import '../presentation/merchant/settings/merchant_settings_screen.dart';
 import '../presentation/merchant/transaction_history/merchant_transaction_history_screen.dart';
+import '../presentation/shared/login/login_screen.dart';
 import '../presentation/shared/service_selection_screen/service_selection_screen.dart';
 import '../presentation/shared/splash_screen/splash_screen.dart';
 import '../presentation/smart_branch/dashboard/smart_branch_dashboard_screen.dart';
@@ -99,6 +100,7 @@ class AppRoutes {
   static Map<String, WidgetBuilder> get routes => {
     initial: (context) => const SplashScreen(),
     splash: (context) => const SplashScreen(),
+    login: (context) => const LoginScreen(),
     serviceSelection: (context) => const ServiceSelectionScreen(),
     agencyLogin: (context) => const AgencyLoginScreen(),
     merchantLogin: (context) => const MerchantLoginScreen(),

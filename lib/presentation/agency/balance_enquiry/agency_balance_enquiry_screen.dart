@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../data/agency_customer_lookup.dart';
+import '../../../widgets/verified_customer_card.dart';
 part 'balance_otp_screen.dart';
 part 'balance_confirmation_screen.dart';
 part 'balance_result_screen.dart';
@@ -41,7 +43,6 @@ class _AgencyBalanceEnquiryScreenState
   bool _isLookingUp = false;
   bool _accountVerified = false;
   bool _accountNotFound = false;
-  bool _balanceVisible = false;
   String _accountName = '';
   String _accountStatus = '';
   String _accountBalance = '';
@@ -1027,183 +1028,16 @@ class _AgencyBalanceEnquiryScreenState
   // ── Account Info Card ──────────────────────────────────────
 
   Widget _buildAccountInfoCard(bool isDark) {
-    final isActive = _accountStatus == 'Active';
-    final statusColor = isActive ? _success : const Color(0xFFF59E0B);
-
-    return Padding(
-      padding: EdgeInsets.only(top: 1.h),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        width: double.infinity,
-        padding: EdgeInsets.all(3.w),
-        decoration: BoxDecoration(
-          color: statusColor.withValues(alpha: isDark ? 0.08 : 0.05),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: statusColor.withValues(alpha: 0.18)),
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [_accent.withValues(alpha: 0.85), _accent],
-                    ),
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _initials(_accountName),
-                      style: GoogleFonts.inter(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 2.5.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _accountName,
-                        style: GoogleFonts.inter(
-                          fontSize: 9.sp,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF111827),
-                        ),
-                      ),
-                      SizedBox(height: 0.15.h),
-                      Row(
-                        children: [
-                          Text(
-                            _maskAccountNo(_resolvedAccountNo),
-                            style: GoogleFonts.jetBrainsMono(
-                              fontSize: 7.sp,
-                              color: isDark
-                                  ? Colors.white54
-                                  : const Color(0xFF64748B),
-                            ),
-                          ),
-                          SizedBox(width: 2.w),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 1.5.w,
-                              vertical: 0.15.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.08)
-                                  : const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              _accountType,
-                              style: GoogleFonts.inter(
-                                fontSize: 6.sp,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? Colors.white54
-                                    : const Color(0xFF6B7280),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.3.h),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 5,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      SizedBox(width: 1.w),
-                      Text(
-                        _accountStatus,
-                        style: GoogleFonts.inter(
-                          fontSize: 6.5.sp,
-                          fontWeight: FontWeight.w600,
-                          color: statusColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 0.9.h),
-            GestureDetector(
-              onTap: () =>
-                  setState(() => _balanceVisible = !_balanceVisible),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.7.h),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.black.withValues(alpha: 0.2)
-                      : Colors.white.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet_outlined,
-                      size: 14,
-                      color: isDark ? Colors.white38 : const Color(0xFF64748B),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      'Balance',
-                      style: GoogleFonts.inter(
-                        fontSize: 7.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? Colors.white54 : const Color(0xFF64748B),
-                      ),
-                    ),
-                    SizedBox(width: 1.5.w),
-                    Expanded(
-                      child: Text(
-                        _balanceVisible ? _accountBalance : '••••••••',
-                        style: GoogleFonts.inter(
-                          fontSize: 8.5.sp,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF111827),
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      _balanceVisible
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                      size: 14,
-                      color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+    return VerifiedCustomerCard(
+      customer: AgencyCustomerLookup.build(
+        name: _accountName,
+        accountNumber: _resolvedAccountNo,
+        status: _accountStatus,
+        primaryAccount: _accountType,
+        phone: _customerPhone,
       ),
+      accentColor: _accent,
+      isDark: isDark,
     );
   }
 

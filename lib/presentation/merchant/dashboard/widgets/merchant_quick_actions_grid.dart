@@ -87,7 +87,7 @@ class MerchantQuickActionsGrid extends StatelessWidget {
                   const Color(0xFFEF4444)),
               _buildAction(context, 'QR Withdraw', 'qr_code_scanner',
                   const Color(0xFF8B5CF6)),
-              _buildAction(context, 'Transactions', 'receipt_long',
+              _buildAction(context, 'History', 'receipt_long',
                   const Color(0xFFF59E0B)),
               _buildAction(context, 'Settings', 'settings',
                   const Color(0xFF6366F1)),
@@ -115,7 +115,7 @@ class MerchantQuickActionsGrid extends StatelessWidget {
             Navigator.of(context).pushNamed(AppRoutes.merchantQrWithdrawal);
             return;
           }
-          if (label == 'Transactions') {
+          if (label == 'History') {
             Navigator.of(context).pushNamed(AppRoutes.merchantTransactions);
             return;
           }

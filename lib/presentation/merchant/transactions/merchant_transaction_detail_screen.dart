@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../core/activity_helpers.dart';
 import '../../../core/app_export.dart';
 
 class MerchantTransactionDetailScreen extends StatelessWidget {
@@ -13,13 +14,10 @@ class MerchantTransactionDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final isSettled = transaction['settlementStatus'] == 'Settled';
-    final isPending = transaction['settlementStatus'] == 'Pending';
-    final statusColor = isSettled
-        ? const Color(0xFF10B981)
-        : isPending
-        ? const Color(0xFFF59E0B)
-        : const Color(0xFF3B82F6);
+    final isMonetary = ActivityHelpers.isMonetary(transaction);
+    final statusColor = ActivityHelpers.statusColor(transaction);
+    final gradientStart = ActivityHelpers.headerGradientStart(transaction);
+    final gradientEnd = ActivityHelpers.headerGradientEnd(transaction);
 
     return Scaffold(
       backgroundColor: isDark
@@ -31,7 +29,7 @@ class MerchantTransactionDetailScreen extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 16.h,
             pinned: true,
-            backgroundColor: const Color(0xFF059669),
+            backgroundColor: gradientStart,
             leading: IconButton(
               icon: const Icon(
                 Icons.arrow_back_ios_new,
@@ -52,11 +50,11 @@ class MerchantTransactionDetailScreen extends StatelessWidget {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF059669), Color(0xFF10B981)],
+                    colors: [gradientStart, gradientEnd],
                   ),
                 ),
                 child: SafeArea(
@@ -69,24 +67,25 @@ class MerchantTransactionDetailScreen extends StatelessWidget {
                           color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.south_west,
+                        child: Icon(
+                          ActivityHelpers.headerIcon(transaction),
                           color: Colors.white,
                           size: 20,
                         ),
                       ),
                       SizedBox(height: 0.8.h),
                       Text(
-                        '+GH\u20B5${transaction['amount'] ?? 0}',
+                        ActivityHelpers.headerPrimaryText(transaction),
                         style: GoogleFonts.inter(
-                          fontSize: 12.sp,
+                          fontSize: isMonetary ? 12.sp : 10.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 0.3.h),
                       Text(
-                        'PAYMENT RECEIVED',
+                        ActivityHelpers.headerSecondaryText(transaction),
                         style: GoogleFonts.inter(
                           fontSize: 8.sp,
                           fontWeight: FontWeight.w500,
@@ -143,7 +142,7 @@ class MerchantTransactionDetailScreen extends StatelessWidget {
                             ),
                             SizedBox(width: 1.w),
                             Text(
-                              transaction['settlementStatus'] ?? 'Unknown',
+                              ActivityHelpers.statusLabel(transaction),
                               style: GoogleFonts.inter(
                                 fontSize: 8.sp,
                                 fontWeight: FontWeight.w600,
@@ -160,12 +159,12 @@ class MerchantTransactionDetailScreen extends StatelessWidget {
                     // Transaction Details Card
                     _buildCard(
                       icon: Icons.receipt_long_outlined,
-                      title: 'Transaction Details',
+                      title: 'Activity Details',
                       isDark: isDark,
                       children: [
                         _buildRow(
-                          'Transaction ID',
-                          transaction['id'] ?? 'N/A',
+                          'Activity ID',
+                          transaction['id'] ?? transaction['reference'] ?? 'N/A',
                           isDark: isDark,
                           copyable: true,
                         ),
@@ -180,37 +179,62 @@ class MerchantTransactionDetailScreen extends StatelessWidget {
                           transaction['date'] ?? 'N/A',
                           isDark: isDark,
                         ),
-                        _buildRow(
-                          'Payment Method',
-                          transaction['paymentMethod'] ?? 'N/A',
-                          isDark: isDark,
-                        ),
+                        if (transaction['paymentMethod'] != null)
+                          _buildRow(
+                            'Payment Method',
+                            transaction['paymentMethod'],
+                            isDark: isDark,
+                          ),
+                        if (transaction['detail'] != null)
+                          _buildRow(
+                            'Details',
+                            transaction['detail'],
+                            isDark: isDark,
+                          ),
                       ],
                     ),
 
-                    // Amount Card
-                    _buildCard(
-                      icon: Icons.account_balance_wallet_outlined,
-                      title: 'Amount Breakdown',
-                      isDark: isDark,
-                      children: [
-                        _buildRow(
-                          'Amount',
-                          'GH\u20B5${transaction['amount'] ?? 0}',
-                          isDark: isDark,
-                        ),
-                        _buildRow(
-                          'Fee',
-                          'GH\u20B5${transaction['fee'] ?? 0}',
-                          isDark: isDark,
-                        ),
-                        _buildTotalRow(
-                          'Net Amount',
-                          'GH\u20B5${((transaction['amount'] ?? 0) - (transaction['fee'] ?? 0)).toStringAsFixed(2)}',
-                          isDark: isDark,
-                        ),
-                      ],
-                    ),
+                    if (isMonetary)
+                      _buildCard(
+                        icon: Icons.account_balance_wallet_outlined,
+                        title: 'Amount Breakdown',
+                        isDark: isDark,
+                        children: [
+                          _buildRow(
+                            'Amount',
+                            'GH\u20B5${transaction['amount'] ?? 0}',
+                            isDark: isDark,
+                          ),
+                          _buildRow(
+                            'Fee',
+                            'GH\u20B5${transaction['fee'] ?? 0}',
+                            isDark: isDark,
+                          ),
+                          _buildTotalRow(
+                            'Net Amount',
+                            'GH\u20B5${((transaction['amount'] ?? 0) - (transaction['fee'] ?? 0)).toStringAsFixed(2)}',
+                            isDark: isDark,
+                          ),
+                        ],
+                      )
+                    else
+                      _buildCard(
+                        icon: Icons.info_outline,
+                        title: 'Service Details',
+                        isDark: isDark,
+                        children: [
+                          _buildRow(
+                            'Service',
+                            ActivityHelpers.labelFor(transaction),
+                            isDark: isDark,
+                          ),
+                          _buildRow(
+                            'Summary',
+                            transaction['detail'] ?? 'N/A',
+                            isDark: isDark,
+                          ),
+                        ],
+                      ),
 
                     // Customer Card
                     _buildCard(
@@ -220,7 +244,10 @@ class MerchantTransactionDetailScreen extends StatelessWidget {
                       children: [
                         _buildRow(
                           'Name',
-                          transaction['customer'] ?? 'N/A',
+                          ActivityHelpers.personName(
+                            transaction,
+                            fallback: 'N/A',
+                          ),
                           isDark: isDark,
                         ),
                       ],

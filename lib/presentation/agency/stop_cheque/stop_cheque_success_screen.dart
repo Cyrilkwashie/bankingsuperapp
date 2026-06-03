@@ -3,6 +3,7 @@ part of 'agency_stop_cheque_screen.dart';
 class _StopChequeSuccessScreen extends StatelessWidget {
   final String fromChequeNo;
   final String toChequeNo;
+  final bool isRangeStop;
   final String beneficiaryName;
   final String amount;
   final String totalFee;
@@ -13,6 +14,7 @@ class _StopChequeSuccessScreen extends StatelessWidget {
   const _StopChequeSuccessScreen({
     required this.fromChequeNo,
     required this.toChequeNo,
+    required this.isRangeStop,
     required this.beneficiaryName,
     required this.amount,
     required this.totalFee,
@@ -41,7 +43,8 @@ class _StopChequeSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final timestamp = _formatTimestamp(DateTime.now());
-    final chequeRange = '$fromChequeNo – $toChequeNo';
+    final chequeNumberLabel =
+        isRangeStop ? '$fromChequeNo – $toChequeNo' : fromChequeNo;
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
@@ -78,10 +81,19 @@ class _StopChequeSuccessScreen extends StatelessWidget {
                   SizedBox(height: 2.h),
                   _buildReceiptCard(
                     isDark: isDark,
+                    showAmount: !isRangeStop,
                     amountLabel: 'Cheque Amount',
+                    headerTitle: isRangeStop
+                        ? '$chequeCount'
+                        : null,
+                    headerSubtitle: isRangeStop ? 'Cheques to Stop' : null,
                     rows: [
                       _StopChequeReceiptRow('Beneficiary', beneficiaryName),
-                      _StopChequeReceiptRow('Cheque Range', chequeRange, mono: true),
+                      _StopChequeReceiptRow(
+                        isRangeStop ? 'Cheque Range' : 'Cheque No.',
+                        chequeNumberLabel,
+                        mono: true,
+                      ),
                       _StopChequeReceiptRow('Processing Fee', totalFee),
                       _StopChequeReceiptRow('Reference', _referenceNo, mono: true),
                       _StopChequeReceiptRow('Date & Time', timestamp),
@@ -243,7 +255,10 @@ class _StopChequeSuccessScreen extends StatelessWidget {
 
   Widget _buildReceiptCard({
     required bool isDark,
+    required bool showAmount,
     required String amountLabel,
+    String? headerTitle,
+    String? headerSubtitle,
     required List<_StopChequeReceiptRow> rows,
   }) {
     return Container(
@@ -285,7 +300,7 @@ class _StopChequeSuccessScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'GH₵ $amount',
+                    showAmount ? 'GH₵ $amount' : (headerTitle ?? ''),
                     style: GoogleFonts.inter(
                       fontSize: 20.sp,
                       fontWeight: FontWeight.w800,
@@ -295,7 +310,7 @@ class _StopChequeSuccessScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 0.3.h),
                   Text(
-                    amountLabel,
+                    showAmount ? amountLabel : (headerSubtitle ?? ''),
                     style: GoogleFonts.inter(
                       fontSize: 7.5.sp,
                       fontWeight: FontWeight.w500,

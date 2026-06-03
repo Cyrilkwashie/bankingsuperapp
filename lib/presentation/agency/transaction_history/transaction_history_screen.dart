@@ -160,7 +160,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
           SizedBox(width: 2.w),
           Expanded(
             child: Text(
-              'Transaction History',
+              'History',
               style: GoogleFonts.inter(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,

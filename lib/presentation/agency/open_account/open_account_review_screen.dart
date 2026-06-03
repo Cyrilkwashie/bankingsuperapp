@@ -201,8 +201,7 @@ class _OpenAccountReviewScreenState
                               if (widget.altPhone.isNotEmpty)
                                 _OpenAccountSummaryRow(
                                     'Alt Phone', widget.altPhone),
-                              if (widget.email.isNotEmpty)
-                                _OpenAccountSummaryRow('Email', widget.email),
+                              _OpenAccountSummaryRow('Email', widget.email),
                               _OpenAccountSummaryRow('Address', widget.address),
                               _OpenAccountSummaryRow('City', widget.city),
                               _OpenAccountSummaryRow(

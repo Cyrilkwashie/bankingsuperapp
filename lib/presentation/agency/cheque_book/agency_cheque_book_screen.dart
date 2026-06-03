@@ -4,6 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../data/agency_customer_lookup.dart';
+import '../../../widgets/verified_customer_card.dart';
+
 part 'cheque_book_otp_screen.dart';
 part 'cheque_book_confirmation_screen.dart';
 part 'cheque_book_success_screen.dart';
@@ -38,6 +41,7 @@ class _AgencyChequeBookScreenState extends State<AgencyChequeBookScreen>
   String _accountStatus = '';
   String _accountBalance = '';
   String _resolvedAccountNo = '';
+  String _accountType = '';
   String _customerPhone = '';
   Timer? _debounce;
 
@@ -1110,104 +1114,17 @@ class _AgencyChequeBookScreenState extends State<AgencyChequeBookScreen>
   }
 
   Widget _buildAccountInfoCard(bool isDark) {
-    final isActive = _accountStatus == 'Active';
-
-    return Padding(
-      padding: EdgeInsets.only(top: 1.2.h),
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(3.5.w),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isActive
-                ? [
-                    _accent.withValues(alpha: isDark ? 0.15 : 0.08),
-                    _success.withValues(alpha: isDark ? 0.08 : 0.04),
-                  ]
-                : [
-                    const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.15 : 0.08),
-                    const Color(0xFFFBBF24).withValues(alpha: isDark ? 0.08 : 0.04),
-                  ],
-          ),
-          borderRadius: BorderRadius.circular(_fieldRadius),
-          border: Border.all(
-            color: isActive
-                ? _accent.withValues(alpha: 0.3)
-                : const Color(0xFFF59E0B).withValues(alpha: 0.3),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(2.w),
-                  decoration: BoxDecoration(
-                    color: (isActive ? _accent : const Color(0xFFF59E0B))
-                        .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: CustomIconWidget(
-                    iconName: 'person',
-                    color: isActive ? _accent : const Color(0xFFF59E0B),
-                    size: 20,
-                  ),
-                ),
-                SizedBox(width: 3.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _accountName,
-                        style: GoogleFonts.inter(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF1A1D23),
-                        ),
-                      ),
-                      SizedBox(height: 0.3.h),
-                      Text(
-                        'A/C: $_resolvedAccountNo',
-                        style: GoogleFonts.inter(
-                          fontSize: 8.5.sp,
-                          fontWeight: FontWeight.w500,
-                          color: isDark
-                              ? Colors.white60
-                              : const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 2.5.w,
-                    vertical: 0.5.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isActive ? _accent : const Color(0xFFF59E0B),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _accountStatus,
-                    style: GoogleFonts.inter(
-                      fontSize: 7.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+    return VerifiedCustomerCard(
+      customer: AgencyCustomerLookup.build(
+        name: _accountName,
+        accountNumber: _resolvedAccountNo,
+        status: _accountStatus,
+        balance: _accountBalance,
+        primaryAccount: _accountType,
+        phone: _customerPhone,
       ),
+      accentColor: _accent,
+      isDark: isDark,
     );
   }
 

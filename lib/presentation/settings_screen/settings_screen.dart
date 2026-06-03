@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/app_export.dart';
+import '../../data/mock_app_auth.dart';
 
 /// Settings screen with configuration options for agent preferences and security
 class SettingsScreen extends StatelessWidget {
@@ -417,10 +418,11 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamedAndRemoveUntil(
+                      Navigator.pop(context);
+                      MockAppAuth.signOut();
+                      Navigator.pushNamedAndRemoveUntil(
                       context,
-                      AppRoutes.serviceSelection,
+                      AppRoutes.login,
                       (route) => false,
                     );
                   },

@@ -4,36 +4,10 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
 
-class AgentHeaderCard extends StatefulWidget {
+class AgentHeaderCard extends StatelessWidget {
   final bool isDark;
 
   const AgentHeaderCard({super.key, required this.isDark});
-
-  @override
-  State<AgentHeaderCard> createState() => _AgentHeaderCardState();
-}
-
-class _AgentHeaderCardState extends State<AgentHeaderCard> {
-  bool _balanceVisible = false;
-
-  Future<void> _toggleBalanceVisibility() async {
-    if (_balanceVisible) {
-      setState(() => _balanceVisible = false);
-      return;
-    }
-
-    showTransactionAuthBottomSheet(
-      context: context,
-      accentColor: AppTheme.secondaryTealLight,
-      title: 'View Account Balance',
-      subtitle: 'Enter your 4-digit transaction PIN or use biometrics',
-      onAuthenticated: () {
-        if (!mounted) return;
-        HapticFeedback.mediumImpact();
-        setState(() => _balanceVisible = true);
-      },
-    );
-  }
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -44,7 +18,6 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
 
   @override
   Widget build(BuildContext context) {
-    // Status bar light icons on dark gradient
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarBrightness: Brightness.dark,
@@ -58,7 +31,7 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: widget.isDark
+          colors: isDark
               ? [const Color(0xFF0A2A2A), const Color(0xFF0D1117)]
               : [
                   AppTheme.secondaryTealLight,
@@ -100,7 +73,6 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
   Widget _buildTopBar() {
     return Row(
       children: [
-        // Avatar
         Container(
           width: 44,
           height: 44,
@@ -124,7 +96,6 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
           ),
         ),
         SizedBox(width: 3.w),
-        // Greeting + name
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +121,6 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
             ],
           ),
         ),
-        // Notification bell
         GestureDetector(
           onTap: () {},
           child: Container(
@@ -198,45 +168,23 @@ class _AgentHeaderCardState extends State<AgentHeaderCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              'Account Balance',
-              style: GoogleFonts.inter(
-                fontSize: 9.sp,
-                fontWeight: FontWeight.w400,
-                color: Colors.white.withValues(alpha: 0.6),
-              ),
-            ),
-            SizedBox(width: 2.w),
-            GestureDetector(
-              onTap: _toggleBalanceVisibility,
-              child: Icon(
-                _balanceVisible
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: Colors.white.withValues(alpha: 0.5),
-                size: 16,
-              ),
-            ),
-          ],
+        Text(
+          'Account Balance',
+          style: GoogleFonts.inter(
+            fontSize: 9.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.white.withValues(alpha: 0.6),
+          ),
         ),
         SizedBox(height: 0.6.h),
-        GestureDetector(
-          onTap: _balanceVisible ? null : _toggleBalanceVisibility,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Text(
-              _balanceVisible ? 'GH₵ 1,440,840.36' : 'GH₵ ••••••',
-              key: ValueKey(_balanceVisible),
-              style: GoogleFonts.inter(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: -0.5,
-                height: 1.1,
-              ),
-            ),
+        Text(
+          'GH₵ 1,440,840.36',
+          style: GoogleFonts.inter(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            letterSpacing: -0.5,
+            height: 1.1,
           ),
         ),
       ],

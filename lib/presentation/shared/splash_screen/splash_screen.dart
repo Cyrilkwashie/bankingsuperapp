@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../routes/app_routes.dart';
 import '../../../widgets/custom_icon_widget.dart';
 
 /// Splash Screen - Branded app launch experience
@@ -153,12 +154,11 @@ class _SplashScreenState extends State<SplashScreen>
     // - Users with expired sessions → Login Screen
     // - First-time users → Service Selection
 
-    // For this implementation, we'll navigate to Service Selection
-    // In production, this would check actual auth state
+    // Authenticated users → Service Selection; otherwise → Login
     Navigator.of(
       context,
       rootNavigator: true,
-    ).pushReplacementNamed('/service-selection-screen');
+    ).pushReplacementNamed(AppRoutes.login);
   }
 
   @override

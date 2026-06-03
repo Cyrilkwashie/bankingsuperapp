@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../data/mock_app_auth.dart';
 import '../../../main.dart';
 import '../../../widgets/banking_bottom_navigation.dart';
 
@@ -519,9 +520,10 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.pop(context);
+                          MockAppAuth.signOut();
                           Navigator.pushNamedAndRemoveUntil(
                             context,
-                            AppRoutes.serviceSelection,
+                            AppRoutes.login,
                             (route) => false,
                           );
                         },

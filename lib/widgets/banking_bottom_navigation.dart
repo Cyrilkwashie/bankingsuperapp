@@ -89,8 +89,8 @@ class BankingNavigationItems {
         padding: const EdgeInsets.only(bottom: 4),
         child: Icon(Icons.receipt_long, size: 24),
       ),
-      label: 'Transactions',
-      tooltip: 'Transaction History',
+      label: 'History',
+      tooltip: 'History',
     ),
     BottomNavigationBarItem(
       icon: Padding(
@@ -128,8 +128,8 @@ class BankingNavigationItems {
         padding: const EdgeInsets.only(bottom: 4),
         child: Icon(Icons.receipt_long, size: 24),
       ),
-      label: 'Transactions',
-      tooltip: 'Transaction History',
+      label: 'History',
+      tooltip: 'History',
     ),
     BottomNavigationBarItem(
       icon: Padding(
@@ -179,8 +179,8 @@ class BankingNavigationItems {
         padding: const EdgeInsets.only(bottom: 4),
         child: Icon(Icons.receipt_long, size: 24),
       ),
-      label: 'Transactions',
-      tooltip: 'Transaction History',
+      label: 'History',
+      tooltip: 'History',
     ),
     BottomNavigationBarItem(
       icon: Padding(

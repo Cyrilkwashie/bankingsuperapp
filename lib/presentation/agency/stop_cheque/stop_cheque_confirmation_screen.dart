@@ -3,9 +3,9 @@ part of 'agency_stop_cheque_screen.dart';
 class _StopChequeConfirmationScreen extends StatelessWidget {
   final String accountNo;
   final String accountName;
-  final DateTime dateIssued;
   final String fromChequeNo;
   final String toChequeNo;
+  final bool isRangeStop;
   final String beneficiaryName;
   final String amount;
   final String reason;
@@ -15,15 +15,18 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
   const _StopChequeConfirmationScreen({
     required this.accountNo,
     required this.accountName,
-    required this.dateIssued,
     required this.fromChequeNo,
     required this.toChequeNo,
+    required this.isRangeStop,
     required this.beneficiaryName,
     required this.amount,
     required this.reason,
     required this.accentColor,
     required this.gradientColors,
   });
+
+  String get _chequeNumberDisplay =>
+      isRangeStop ? '$fromChequeNo – $toChequeNo' : fromChequeNo;
 
   int get _chequeCount {
     final from = int.tryParse(fromChequeNo) ?? 0;
@@ -32,32 +35,6 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
   }
 
   String get _totalFee => 'GH₵ ${(_chequeCount * 15).toStringAsFixed(2)}';
-
-  static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-
-  static String _formatDate(DateTime d) {
-    final day = d.day.toString().padLeft(2, '0');
-    return '$day ${_months[d.month - 1]} ${d.year}';
-  }
-
-  static String _formatDateShort(DateTime d) {
-    final day = d.day.toString().padLeft(2, '0');
-    final month = d.month.toString().padLeft(2, '0');
-    return '$day/$month/${d.year}';
-  }
 
   String _maskAccountNo(String no) {
     if (no.length >= 7) {
@@ -268,26 +245,29 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 0.8.h),
-                Row(
-                  children: [
-                    Text(
-                      'AMOUNT: ',
-                      style: GoogleFonts.inter(
-                        fontSize: 7.sp,
-                        color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                if (!isRangeStop) ...[
+                  SizedBox(height: 0.8.h),
+                  Row(
+                    children: [
+                      Text(
+                        'AMOUNT: ',
+                        style: GoogleFonts.inter(
+                          fontSize: 7.sp,
+                          color:
+                              isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                        ),
                       ),
-                    ),
-                    Text(
-                      'GH₵ $amount',
-                      style: GoogleFonts.inter(
-                        fontSize: 9.5.sp,
-                        fontWeight: FontWeight.w700,
-                        color: accentColor,
+                      Text(
+                        'GH₵ $amount',
+                        style: GoogleFonts.inter(
+                          fontSize: 9.5.sp,
+                          fontWeight: FontWeight.w700,
+                          color: accentColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
                 SizedBox(height: 1.2.h),
                 Divider(
                   height: 1,
@@ -296,24 +276,12 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                       : const Color(0xFFE5E7EB),
                 ),
                 SizedBox(height: 0.8.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'No: $fromChequeNo – $toChequeNo',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 7.sp,
-                        color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                      ),
-                    ),
-                    Text(
-                      _formatDateShort(dateIssued),
-                      style: GoogleFonts.inter(
-                        fontSize: 7.sp,
-                        color: isDark ? Colors.white54 : const Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
+                Text(
+                  'No: $_chequeNumberDisplay',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 7.sp,
+                    color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+                  ),
                 ),
               ],
             ),
@@ -382,20 +350,23 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
           _divider(isDark),
           _detailRow('Account Name', accountName, isDark),
           _divider(isDark),
-          _detailRow('Date Issued', _formatDate(dateIssued), isDark),
-          _divider(isDark),
-          _detailRow('From Cheque No.', fromChequeNo, isDark, mono: true),
-          _divider(isDark),
-          _detailRow('To Cheque No.', toChequeNo, isDark, mono: true),
+          if (isRangeStop) ...[
+            _detailRow('From Cheque No.', fromChequeNo, isDark, mono: true),
+            _divider(isDark),
+            _detailRow('To Cheque No.', toChequeNo, isDark, mono: true),
+          ] else
+            _detailRow('Cheque No.', fromChequeNo, isDark, mono: true),
           _divider(isDark),
           _detailRow('Beneficiary', beneficiaryName, isDark),
-          _divider(isDark),
-          _detailRow(
-            'Cheque Amount',
-            'GH₵ $amount',
-            isDark,
-            valueColor: accentColor,
-          ),
+          if (!isRangeStop) ...[
+            _divider(isDark),
+            _detailRow(
+              'Cheque Amount',
+              'GH₵ $amount',
+              isDark,
+              valueColor: accentColor,
+            ),
+          ],
           _divider(isDark),
           _detailRow('Reason', reason, isDark),
         ],
@@ -637,6 +608,7 @@ class _StopChequeConfirmationScreen extends StatelessWidget {
                         builder: (_) => _StopChequeSuccessScreen(
                           fromChequeNo: fromChequeNo,
                           toChequeNo: toChequeNo,
+                          isRangeStop: isRangeStop,
                           beneficiaryName: beneficiaryName,
                           amount: amount,
                           totalFee: _totalFee,

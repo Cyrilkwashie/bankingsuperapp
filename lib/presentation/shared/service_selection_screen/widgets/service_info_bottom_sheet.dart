@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
+import '../../../../data/mock_app_auth.dart';
+import '../../../../models/banking_service_type.dart';
 
 class ServiceInfoBottomSheet extends StatelessWidget {
   final Map<String, dynamic> service;
@@ -116,6 +118,21 @@ class ServiceInfoBottomSheet extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
+                final serviceId = service['serviceId'] as BankingServiceType?;
+                if (serviceId != null && !MockAppAuth.canAccess(serviceId)) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'You do not have access to this service',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  return;
+                }
+
                 Navigator.pop(context);
                 Navigator.pushNamed(context, service['route']);
               },

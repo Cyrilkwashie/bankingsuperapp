@@ -69,6 +69,8 @@ class _OpenAccountRequirementsScreenState
   File? _idBackPhoto;
   File? _proofOfAddressPhoto;
 
+  CameraDevice _passportCamera = CameraDevice.rear;
+
   // Signature pad
   final List<List<Offset?>> _signatureStrokes = [];
 
@@ -104,11 +106,19 @@ class _OpenAccountRequirementsScreenState
 
   // ── Passport — camera only (live photo) ───────────────────
 
+  void _togglePassportCamera() {
+    setState(() {
+      _passportCamera = _passportCamera == CameraDevice.front
+          ? CameraDevice.rear
+          : CameraDevice.front;
+    });
+  }
+
   Future<void> _capturePassportPhoto() async {
     try {
       final xFile = await _picker.pickImage(
         source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.front,
+        preferredCameraDevice: _passportCamera,
         imageQuality: 90,
         maxWidth: 1200,
         maxHeight: 1600,
@@ -685,7 +695,8 @@ class _OpenAccountRequirementsScreenState
                     _buildSectionHeader(
                       icon: Icons.person_rounded,
                       title: 'Customer Photograph',
-                      subtitle: 'Front-facing photo of the customer',
+                      subtitle:
+                          'Live photo of the customer — switch camera if needed',
                       badgeText: 'Required',
                       badgeColor: const Color(0xFFDC2626),
                       isDark: isDark,
@@ -693,87 +704,114 @@ class _OpenAccountRequirementsScreenState
                     SizedBox(height: 1.5.h),
 
                     // Compact photo row
-                    GestureDetector(
-                      onTap: _capturePassportPhoto,
-                      child: Container(
-                        padding: EdgeInsets.all(3.w),
-                        decoration: BoxDecoration(
-                          color: cardBg,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: _passportPhoto != null
-                                ? const Color(0xFF059669)
-                                    .withValues(alpha: 0.5)
-                                : borderColor,
-                            width: _passportPhoto != null ? 1.5 : 1,
-                          ),
+                    Container(
+                      padding: EdgeInsets.all(3.w),
+                      decoration: BoxDecoration(
+                        color: cardBg,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: _passportPhoto != null
+                              ? const Color(0xFF059669)
+                                  .withValues(alpha: 0.5)
+                              : borderColor,
+                          width: _passportPhoto != null ? 1.5 : 1,
                         ),
-                        child: Row(
-                          children: [
-                            // Thumbnail
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: SizedBox(
-                                width: 52,
-                                height: 52,
-                                child: _passportPhoto != null
-                                    ? Image.file(
-                                        _passportPhoto!,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Container(
-                                        color: isDark
-                                            ? Colors.white
-                                                .withValues(alpha: 0.04)
-                                            : const Color(0xFFF3F4F6),
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.person_outline_rounded,
-                                            color: isDark
-                                                ? Colors.white24
-                                                : const Color(0xFFD1D5DB),
-                                            size: 24,
-                                          ),
+                      ),
+                      child: Row(
+                        children: [
+                          // Thumbnail
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: SizedBox(
+                              width: 52,
+                              height: 52,
+                              child: _passportPhoto != null
+                                  ? Image.file(
+                                      _passportPhoto!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Container(
+                                      color: isDark
+                                          ? Colors.white
+                                              .withValues(alpha: 0.04)
+                                          : const Color(0xFFF3F4F6),
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.person_outline_rounded,
+                                          color: isDark
+                                              ? Colors.white24
+                                              : const Color(0xFFD1D5DB),
+                                          size: 24,
                                         ),
                                       ),
+                                    ),
+                            ),
+                          ),
+                          SizedBox(width: 3.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _passportPhoto != null
+                                      ? 'Photo captured'
+                                      : 'Take customer photo',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 9.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: _passportPhoto != null
+                                        ? const Color(0xFF059669)
+                                        : (isDark
+                                            ? Colors.white
+                                            : const Color(0xFF111827)),
+                                  ),
+                                ),
+                                SizedBox(height: 0.3.h),
+                                Text(
+                                  _passportPhoto != null
+                                      ? 'Tap camera to retake'
+                                      : _passportCamera ==
+                                              CameraDevice.rear
+                                          ? 'Rear camera · for agent capture'
+                                          : 'Front camera · for selfie',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 7.5.sp,
+                                    color: isDark
+                                        ? Colors.white38
+                                        : const Color(0xFF9CA3AF),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _togglePassportCamera,
+                            child: Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: widget.accentColor
+                                    .withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: widget.accentColor
+                                      .withValues(alpha: 0.15),
+                                ),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.cameraswitch_rounded,
+                                  size: 18,
+                                  color: widget.accentColor,
+                                ),
                               ),
                             ),
-                            SizedBox(width: 3.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _passportPhoto != null
-                                        ? 'Photo captured'
-                                        : 'Take customer photo',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 9.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: _passportPhoto != null
-                                          ? const Color(0xFF059669)
-                                          : (isDark
-                                              ? Colors.white
-                                              : const Color(0xFF111827)),
-                                    ),
-                                  ),
-                                  SizedBox(height: 0.3.h),
-                                  Text(
-                                    _passportPhoto != null
-                                        ? 'Tap to retake'
-                                        : 'Front-facing · camera only',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 7.5.sp,
-                                      color: isDark
-                                          ? Colors.white38
-                                          : const Color(0xFF9CA3AF),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
+                          ),
+                          SizedBox(width: 2.w),
+                          GestureDetector(
+                            onTap: _capturePassportPhoto,
+                            child: Container(
                               width: 34,
                               height: 34,
                               decoration: BoxDecoration(
@@ -796,32 +834,32 @@ class _OpenAccountRequirementsScreenState
                                 ),
                               ),
                             ),
-                            if (_passportPhoto != null) ...[
-                              SizedBox(width: 2.w),
-                              GestureDetector(
-                                onTap: () => setState(
-                                    () => _passportPhoto = null),
-                                child: Container(
-                                  width: 34,
-                                  height: 34,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFDC2626)
-                                        .withValues(alpha: 0.08),
-                                    borderRadius:
-                                        BorderRadius.circular(10),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.delete_outline_rounded,
-                                      size: 18,
-                                      color: Color(0xFFDC2626),
-                                    ),
+                          ),
+                          if (_passportPhoto != null) ...[
+                            SizedBox(width: 2.w),
+                            GestureDetector(
+                              onTap: () => setState(
+                                  () => _passportPhoto = null),
+                              child: Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFDC2626)
+                                      .withValues(alpha: 0.08),
+                                  borderRadius:
+                                      BorderRadius.circular(10),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.delete_outline_rounded,
+                                    size: 18,
+                                    color: Color(0xFFDC2626),
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
                           ],
-                        ),
+                        ],
                       ),
                     ),
                     SizedBox(height: 2.5.h),

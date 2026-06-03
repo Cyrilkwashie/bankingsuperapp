@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../data/mock_app_auth.dart';
+import '../../../models/banking_service_type.dart';
 import './widgets/service_card_widget.dart';
 import './widgets/service_carousel_widget.dart';
 import './widgets/service_info_bottom_sheet.dart';
@@ -25,6 +27,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
 
   final List<Map<String, dynamic>> _carouselItems = [
     {
+      "serviceId": BankingServiceType.smartBranch,
       "title": "Smart Branch",
       "image":
           "https://img.rocket.new/generatedImages/rocket_gen_img_16d5b7740-1766841180313.png",
@@ -32,6 +35,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
           "Modern banking office interior with digital screens displaying financial data and comfortable seating areas",
     },
     {
+      "serviceId": BankingServiceType.agency,
       "title": "Agency Banking",
       "image":
           "https://img.rocket.new/generatedImages/rocket_gen_img_1dbceb335-1766845727744.png",
@@ -39,6 +43,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
           "Professional banking agent assisting customer with mobile banking services at a service counter",
     },
     {
+      "serviceId": BankingServiceType.merchant,
       "title": "Merchant Banking",
       "image":
           "https://img.rocket.new/generatedImages/rocket_gen_img_15a8f6ab7-1769689328768.png",
@@ -47,32 +52,35 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
     },
   ];
 
-  final List<Map<String, dynamic>> _serviceCards = [
+  final List<Map<String, dynamic>> _allServiceCards = [
     {
+      "serviceId": BankingServiceType.smartBranch,
       "icon": "account_balance",
       "title": "Smart Branch",
       "subtitle": "Digital banking operations and account management",
       "description":
           "Access comprehensive digital banking services including account opening, loan applications, investment management, and real-time transaction monitoring with advanced security features.",
-      "route": "/smart-branch-login-screen",
+      "route": AppRoutes.smartBranchDashboard,
       "gradientColors": [Color(0xFF1B365D), Color(0xFF2E5A8F)],
     },
     {
+      "serviceId": BankingServiceType.agency,
       "icon": "people",
       "title": "Agency Banking",
       "subtitle": "Agent-powered banking services",
       "description":
           "Empower banking agents to provide essential financial services to customers in remote locations, including cash deposits, withdrawals, bill payments, and account inquiries with secure authentication.",
-      "route": "/agency-login-screen",
+      "route": AppRoutes.agencyBankingDashboard,
       "gradientColors": [Color(0xFF2E8B8B), Color(0xFF3FA5A5)],
     },
     {
+      "serviceId": BankingServiceType.merchant,
       "icon": "store",
       "title": "Merchant Banking",
       "subtitle": "Payment and collection solutions",
       "description":
           "Complete merchant payment processing platform with QR code payments, invoice generation, sales analytics, inventory management, and multi-channel payment acceptance for growing businesses.",
-      "route": "/merchant-login-screen",
+      "route": AppRoutes.merchantBankingDashboard,
       "gradientColors": [Color(0xFF059669), Color(0xFF10B981)],
     },
   ];
@@ -80,7 +88,65 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!MockAppAuth.isSignedIn && mounted) {
+        Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+          AppRoutes.login,
+        );
+        return;
+      }
+
+      final directRoute = MockAppAuth.postLoginRoute();
+      if (directRoute != null &&
+          directRoute != AppRoutes.serviceSelection &&
+          mounted) {
+        Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+          directRoute,
+        );
+      }
+    });
     _startAutoSlide();
+  }
+
+  List<Map<String, dynamic>> get _availableCarouselItems {
+    return _carouselItems
+        .where(
+          (item) => MockAppAuth.canAccess(
+            item['serviceId'] as BankingServiceType,
+          ),
+        )
+        .toList();
+  }
+
+  List<Map<String, dynamic>> get _availableServiceCards {
+    return _allServiceCards
+        .where(
+          (card) => MockAppAuth.canAccess(
+            card['serviceId'] as BankingServiceType,
+          ),
+        )
+        .toList();
+  }
+
+  void _openService(Map<String, dynamic> service) {
+    final serviceId = service['serviceId'] as BankingServiceType;
+    if (!MockAppAuth.canAccess(serviceId)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'You do not have access to this service',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).pushNamed(service['route'] as String);
   }
 
   @override
@@ -92,14 +158,15 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
 
   void _startAutoSlide() {
     _autoSlideTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (_pageController.hasClients) {
-        final nextPage = (_currentPage + 1) % _carouselItems.length;
-        _pageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
-        );
-      }
+      final items = _availableCarouselItems;
+      if (items.isEmpty || !_pageController.hasClients) return;
+
+      final nextPage = (_currentPage + 1) % items.length;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
     });
   }
 
@@ -313,7 +380,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                     child: Column(
                       children: [
                         ServiceCarouselWidget(
-                          carouselItems: _carouselItems,
+                          carouselItems: _availableCarouselItems,
                           pageController: _pageController,
                           currentPage: _currentPage,
                           onPageChanged: _onPageChanged,
@@ -335,6 +402,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
 
   Widget _buildHeader(ThemeData theme) {
     final isDark = theme.brightness == Brightness.dark;
+    final user = MockAppAuth.currentUser;
 
     return Row(
       children: [
@@ -357,38 +425,43 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             ],
           ),
           child: Center(
-            child: CustomIconWidget(
-              iconName: 'account_balance',
-              color: Colors.white,
-              size: 22,
+            child: Text(
+              user?.displayName.substring(0, 1).toUpperCase() ?? 'F',
+              style: GoogleFonts.inter(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
         SizedBox(width: 3.w),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Fieldsmart',
-              style: GoogleFonts.inter(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark
-                    ? const Color(0xFFFAFBFC)
-                    : const Color(0xFF1A1D23),
-                letterSpacing: 0.2,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user != null ? 'Welcome, ${user.displayName}' : 'Fieldsmart',
+                style: GoogleFonts.inter(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  color: isDark
+                      ? const Color(0xFFFAFBFC)
+                      : const Color(0xFF1A1D23),
+                  letterSpacing: 0.2,
+                ),
               ),
-            ),
-            SizedBox(height: 0.2.h),
-            Text(
-              'Banking,Anywhere,Smarter.',
-              style: GoogleFonts.inter(
-                fontSize: 8.sp,
-                fontWeight: FontWeight.w500,
-                color: theme.colorScheme.primary,
+              SizedBox(height: 0.2.h),
+              Text(
+                'Select a banking service to continue',
+                style: GoogleFonts.inter(
+                  fontSize: 8.sp,
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.primary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -435,18 +508,14 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: _serviceCards.length,
+          itemCount: _availableServiceCards.length,
           separatorBuilder: (context, index) => SizedBox(height: 1.5.h),
           itemBuilder: (context, index) {
+            final service = _availableServiceCards[index];
             return ServiceCardWidget(
-              service: _serviceCards[index],
-              onTap: () {
-                Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).pushNamed(_serviceCards[index]["route"] as String);
-              },
-              onLongPress: () => _showServiceInfo(_serviceCards[index]),
+              service: service,
+              onTap: () => _openService(service),
+              onLongPress: () => _showServiceInfo(service),
             );
           },
         ),
