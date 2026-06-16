@@ -44,8 +44,8 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
   String _accountName = '';
   String _accountStatus = '';
   String _accountBalance = '';
-  String _accountType = '';
-  String _customerPhone = '';
+  final String _accountType = '';
+  final String _customerPhone = '';
 
   static const _mockAccounts = {
     '0012345678': {
@@ -889,20 +889,6 @@ class _AgencyQrDepositScreenState extends State<AgencyQrDepositScreen>
         ],
       ),
     );
-  }
-
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
-  }
-
-  String _maskAccountNo(String no) {
-    if (no.length >= 7) {
-      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
-    }
-    return no;
   }
 
   Widget _buildAccountInfoCard(bool isDark) {

@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import '../../../routes/app_routes.dart';
-import '../../../widgets/custom_icon_widget.dart';
 
 /// Splash Screen - Branded app launch experience
 ///

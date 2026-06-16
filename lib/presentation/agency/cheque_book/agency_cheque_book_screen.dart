@@ -41,7 +41,7 @@ class _AgencyChequeBookScreenState extends State<AgencyChequeBookScreen>
   String _accountStatus = '';
   String _accountBalance = '';
   String _resolvedAccountNo = '';
-  String _accountType = '';
+  final String _accountType = '';
   String _customerPhone = '';
   Timer? _debounce;
 

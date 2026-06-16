@@ -11,6 +11,7 @@ class AgencyFlowStepIndicator extends StatelessWidget {
   final List<String> stepLabels;
   final bool isDark;
   final Color accentColor;
+  final ValueChanged<int>? onStepTap;
 
   static const Color _success = Color(0xFF059669);
 
@@ -20,15 +21,17 @@ class AgencyFlowStepIndicator extends StatelessWidget {
     required this.stepLabels,
     required this.isDark,
     this.accentColor = const Color(0xFF2E8B8B),
+    this.onStepTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final stepCount = stepLabels.length;
+    final useCompactLayout = stepCount > 5;
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0D1117) : Colors.white,
         border: Border(
@@ -39,43 +42,72 @@ class AgencyFlowStepIndicator extends StatelessWidget {
           ),
         ),
       ),
-      child: Row(
-        children: List.generate(stepCount, (i) {
-          final step = i + 1;
-          final isLast = step == stepCount;
-          return Expanded(
-            flex: isLast ? 0 : 1,
-            child: Row(
-              children: [
-                _stepDot(step, stepLabels[i]),
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      height: 2,
-                      margin: EdgeInsets.symmetric(horizontal: 1.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(2),
-                        color: step < currentStep
-                            ? _success
-                            : (isDark
-                                  ? Colors.white.withValues(alpha: 0.08)
-                                  : const Color(0xFFE5E7EB)),
-                      ),
-                    ),
+      child: useCompactLayout
+          ? SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(stepCount, (i) {
+                  final step = i + 1;
+                  final isLast = step == stepCount;
+                  return Row(
+                    children: [
+                      _stepDot(step, stepLabels[i], onStepTap),
+                      if (!isLast)
+                        Container(
+                          width: 5.w,
+                          height: 2,
+                          margin: EdgeInsets.only(bottom: 2.2.h, left: 0.4.w, right: 0.4.w),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            color: step < currentStep
+                                ? _success
+                                : (isDark
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : const Color(0xFFE5E7EB)),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
+              ),
+            )
+          : Row(
+              children: List.generate(stepCount, (i) {
+                final step = i + 1;
+                final isLast = step == stepCount;
+                return Expanded(
+                  flex: isLast ? 0 : 1,
+                  child: Row(
+                    children: [
+                      _stepDot(step, stepLabels[i], onStepTap),
+                      if (!isLast)
+                        Expanded(
+                          child: Container(
+                            height: 2,
+                            margin: EdgeInsets.symmetric(horizontal: 1.w),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(2),
+                              color: step < currentStep
+                                  ? _success
+                                  : (isDark
+                                        ? Colors.white.withValues(alpha: 0.08)
+                                        : const Color(0xFFE5E7EB)),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
+                );
+              }),
             ),
-          );
-        }),
-      ),
     );
   }
 
-  Widget _stepDot(int step, String label) {
+  Widget _stepDot(int step, String label, ValueChanged<int>? onStepTap) {
     final isActive = step <= currentStep;
     final isCurrent = step == currentStep;
 
-    return Column(
+    final content = Column(
       children: [
         Container(
           width: 22,
@@ -118,17 +150,31 @@ class AgencyFlowStepIndicator extends StatelessWidget {
           ),
         ),
         SizedBox(height: 0.4.h),
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 6.5.sp,
-            fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
-            color: isCurrent
-                ? accentColor
-                : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+        SizedBox(
+          width: 11.w,
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 6.sp,
+              fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
+              color: isCurrent
+                  ? accentColor
+                  : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
+    );
+
+    if (onStepTap == null) return content;
+
+    return GestureDetector(
+      onTap: () => onStepTap(step),
+      behavior: HitTestBehavior.opaque,
+      child: content,
     );
   }
 }
@@ -145,6 +191,7 @@ class AgencyOtpVerificationScreen extends StatefulWidget {
   final List<String> stepLabels;
   final Future<void> Function(BuildContext context) onVerified;
   final String mockOtp;
+  final ValueChanged<int>? onStepTap;
 
   const AgencyOtpVerificationScreen({
     super.key,
@@ -158,6 +205,7 @@ class AgencyOtpVerificationScreen extends StatefulWidget {
     required this.onVerified,
     this.headerTitle = 'OTP Verification',
     this.mockOtp = '123456',
+    this.onStepTap,
   });
 
   static String maskPhone(String phone) {
@@ -296,6 +344,7 @@ class _AgencyOtpVerificationScreenState extends State<AgencyOtpVerificationScree
             stepLabels: widget.stepLabels,
             isDark: isDark,
             accentColor: widget.accentColor,
+            onStepTap: widget.onStepTap,
           ),
           Expanded(
             child: SingleChildScrollView(

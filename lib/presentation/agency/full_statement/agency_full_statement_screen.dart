@@ -42,7 +42,7 @@ class _AgencyFullStatementScreenState extends State<AgencyFullStatementScreen>
   String _accountStatus = '';
   String _accountBalance = '';
   String _resolvedAccountNo = '';
-  String _accountType = '';
+  final String _accountType = '';
   String _customerPhone = '';
   Timer? _debounce;
 
@@ -781,20 +781,6 @@ class _AgencyFullStatementScreenState extends State<AgencyFullStatementScreen>
         ],
       ),
     );
-  }
-
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty || parts.first.isEmpty) return '?';
-    if (parts.length == 1) return parts.first[0].toUpperCase();
-    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
-  }
-
-  String _maskAccountNo(String no) {
-    if (no.length >= 7) {
-      return '${no.substring(0, 3)} •••• ${no.substring(no.length - 3)}';
-    }
-    return no;
   }
 
   Widget _buildStickyActionBar(bool isDark) {

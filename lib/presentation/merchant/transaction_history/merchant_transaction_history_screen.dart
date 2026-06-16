@@ -189,7 +189,7 @@ class _MerchantTransactionHistoryScreenState
                   style: const pw.TextStyle(fontSize: 12),
                 ),
                 pw.SizedBox(height: 20),
-                pw.Table.fromTextArray(
+                pw.TableHelper.fromTextArray(
                   headers: ['ID', 'Customer', 'Amount', 'Date', 'Status'],
                   data: _filteredTransactions.map((txn) {
                     return [
@@ -274,7 +274,7 @@ class _MerchantTransactionHistoryScreenState
     if (kIsWeb) {
       final blob = html.Blob([bytes]);
       final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
+      html.AnchorElement(href: url)
         ..setAttribute('download', filename)
         ..click();
       html.Url.revokeObjectUrl(url);

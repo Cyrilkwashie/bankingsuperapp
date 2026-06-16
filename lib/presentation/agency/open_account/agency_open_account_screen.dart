@@ -11,10 +11,16 @@ import '../../../core/app_export.dart';
 import '../cash_deposit/agency_cash_deposit_screen.dart';
 import 'widgets/open_account_signature_painter.dart';
 
+part 'open_account_verify_screen.dart';
+part 'open_account_face_capture_screen.dart';
+part 'open_account_otp_screen.dart';
 part 'open_account_personal_screen.dart';
-part 'open_account_id_contact_screen.dart';
+part 'open_account_contact_screen.dart';
+part 'open_account_address_screen.dart';
+part 'open_account_emergency_contact_screen.dart';
+part 'open_account_employment_screen.dart';
 part 'open_account_requirements_screen.dart';
-part 'open_account_signature_screen.dart';
+part 'open_account_declaration_screen.dart';
 part 'open_account_review_screen.dart';
 part 'open_account_success_screen.dart';
 
@@ -30,11 +36,19 @@ abstract class _OpenAccountUi {
       EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 0.95.h);
 
   static const List<String> wizardLabels = [
+    'Verify',
+    'Photo',
     'Personal',
-    'ID & Contact',
-    'Documents',
+    'Contact',
+    'Address',
+    'Emergency',
+    'Employment',
+    'Mandate',
+    'Declaration',
     'Review',
   ];
+
+  static const int wizardStepCount = 10;
 
   static Widget buildAgencyHeader({
     required BuildContext context,
@@ -201,10 +215,11 @@ abstract class _OpenAccountUi {
     bool isDark,
     int currentStep, {
     required Color accentColor,
+    ValueChanged<int>? onStepTap,
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0D1117) : Colors.white,
         border: Border(
@@ -215,21 +230,24 @@ abstract class _OpenAccountUi {
           ),
         ),
       ),
-      child: Row(
-        children: [
-          for (var i = 0; i < wizardLabels.length; i++) ...[
-            _wizardStepDot(
-              step: i + 1,
-              current: currentStep,
-              label: wizardLabels[i],
-              isDark: isDark,
-              accentColor: accentColor,
-            ),
-            if (i < wizardLabels.length - 1)
-              Expanded(
-                child: Container(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (var i = 0; i < wizardLabels.length; i++) ...[
+              _wizardStepDot(
+                step: i + 1,
+                current: currentStep,
+                label: wizardLabels[i],
+                isDark: isDark,
+                accentColor: accentColor,
+                onTap: onStepTap != null ? () => onStepTap(i + 1) : null,
+              ),
+              if (i < wizardLabels.length - 1)
+                Container(
+                  width: 5.w,
                   height: 2,
-                  margin: EdgeInsets.only(bottom: 2.2.h, left: 0.5.w, right: 0.5.w),
+                  margin: EdgeInsets.only(bottom: 2.2.h, left: 0.4.w, right: 0.4.w),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(2),
                     gradient: currentStep > i + 1
@@ -247,11 +265,32 @@ abstract class _OpenAccountUi {
                             : const Color(0xFFE5E7EB)),
                   ),
                 ),
-              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
+  }
+
+  static void popWizardSteps(BuildContext context, int count) {
+    for (var i = 0; i < count; i++) {
+      if (!Navigator.canPop(context)) break;
+      Navigator.pop(context);
+    }
+  }
+
+  static void handleWizardStepTap(
+    BuildContext context, {
+    required int currentStep,
+    required int targetStep,
+    required ValueChanged<int> onForwardStep,
+  }) {
+    if (targetStep == currentStep) return;
+    if (targetStep < currentStep) {
+      popWizardSteps(context, currentStep - targetStep);
+      return;
+    }
+    onForwardStep(targetStep);
   }
 
   static Widget _wizardStepDot({
@@ -260,10 +299,11 @@ abstract class _OpenAccountUi {
     required String label,
     required bool isDark,
     required Color accentColor,
+    VoidCallback? onTap,
   }) {
     final completed = step < current;
     final isCurrent = step == current;
-    return Column(
+    final content = Column(
       children: [
         Container(
           width: 24,
@@ -313,11 +353,11 @@ abstract class _OpenAccountUi {
         ),
         SizedBox(height: 0.4.h),
         SizedBox(
-          width: 16.w,
+          width: 11.w,
           child: Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 6.sp,
+              fontSize: 5.8.sp,
               fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w500,
               color: isCurrent || completed
                   ? accentColor
@@ -329,6 +369,14 @@ abstract class _OpenAccountUi {
           ),
         ),
       ],
+    );
+
+    if (onTap == null) return content;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: content,
     );
   }
 
@@ -459,12 +507,83 @@ abstract class _OpenAccountUi {
     );
   }
 
+  static Widget buildReadOnlyField({
+    required String label,
+    required String value,
+    required bool isDark,
+    required Color accentColor,
+    IconData? icon,
+    String? helperText,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        buildFieldLabel(label, isDark),
+        SizedBox(height: 0.4.h),
+        Container(
+          width: double.infinity,
+          padding: fieldPadding,
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.03)
+                : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(fieldRadius),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.06)
+                  : const Color(0xFFE5E7EB),
+            ),
+          ),
+          child: Row(
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                  size: 17,
+                ),
+                SizedBox(width: 2.w),
+              ],
+              Expanded(
+                child: Text(
+                  value.isEmpty ? '—' : value,
+                  style: GoogleFonts.inter(
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white70 : const Color(0xFF374151),
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.lock_outline_rounded,
+                size: 14,
+                color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+              ),
+            ],
+          ),
+        ),
+        if (helperText != null) ...[
+          SizedBox(height: 0.35.h),
+          Text(
+            helperText,
+            style: GoogleFonts.inter(
+              fontSize: 6.8.sp,
+              height: 1.35,
+              color: accentColor.withValues(alpha: 0.9),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   static Widget buildTextField({
     required TextEditingController controller,
     required String hint,
     required bool isDark,
     required Color accentColor,
     bool required = true,
+    bool readOnly = false,
     IconData? icon,
     IconData? suffixIcon,
     TextInputType? keyboardType,
@@ -475,6 +594,7 @@ abstract class _OpenAccountUi {
   }) {
     return TextFormField(
       controller: controller,
+      readOnly: readOnly,
       keyboardType: keyboardType,
       inputFormatters: formatters,
       maxLines: maxLines,
@@ -496,7 +616,11 @@ abstract class _OpenAccountUi {
           color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
         ),
         filled: true,
-        fillColor: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+        fillColor: readOnly
+            ? (isDark
+                ? Colors.white.withValues(alpha: 0.03)
+                : const Color(0xFFF1F5F9))
+            : (isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC)),
         contentPadding: fieldPadding,
         prefixIcon: icon != null
             ? Icon(icon,
@@ -688,6 +812,131 @@ abstract class _OpenAccountUi {
         ],
       ),
       child: SafeArea(top: false, child: child),
+    );
+  }
+
+  static Widget buildReviewSummaryRow(_OpenAccountSummaryRow row, bool isDark) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4.5.w, vertical: 0.75.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 34.w,
+            child: Text(
+              row.label,
+              style: GoogleFonts.inter(
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              row.value,
+              style: row.mono
+                  ? GoogleFonts.jetBrainsMono(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w600,
+                      color: row.valueColor ??
+                          (isDark ? Colors.white : const Color(0xFF111827)),
+                      height: 1.35,
+                    )
+                  : GoogleFonts.inter(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: row.valueColor ??
+                          (isDark ? Colors.white : const Color(0xFF111827)),
+                      height: 1.35,
+                    ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget buildReviewSectionCard({
+    required bool isDark,
+    required Color accentColor,
+    required String title,
+    required IconData icon,
+    required List<_OpenAccountSummaryRow> rows,
+  }) {
+    if (rows.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: 1.5.h),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(4.5.w, 1.6.h, 4.5.w, 1.4.h),
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: isDark ? 0.1 : 0.06),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(17),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, color: accentColor, size: 18),
+                ),
+                SizedBox(width: 3.w),
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF111827),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          for (var i = 0; i < rows.length; i++) ...[
+            buildReviewSummaryRow(rows[i], isDark),
+            if (i < rows.length - 1)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.5.w),
+                child: Divider(
+                  height: 1,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : const Color(0xFFF3F4F6),
+                ),
+              ),
+          ],
+          SizedBox(height: 0.6.h),
+        ],
+      ),
     );
   }
 
@@ -1158,76 +1407,42 @@ class _AgencyOpenAccountScreenState extends State<AgencyOpenAccountScreen>
                     SizedBox(height: 1.5.h),
                     _OpenAccountUi.buildSectionCard(
                       isDark: isDark,
-                      title: 'Required Documents',
-                      subtitle: 'Customer must have these before proceeding',
-                      icon: Icons.checklist_rounded,
+                      title: 'Before You Start',
+                      subtitle: 'General guidance for every account opening',
+                      icon: Icons.info_outline_rounded,
                       accentColor: _accent,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Text(
+                            'Each product has its own required documents and minimum deposit. '
+                            'On the next step, review the full checklist on the product card '
+                            'before you begin the application.',
+                            style: GoogleFonts.inter(
+                              fontSize: 7.5.sp,
+                              height: 1.45,
+                              color: isDark
+                                  ? Colors.white54
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                          SizedBox(height: 1.2.h),
                           _buildReqCard(
-                            icon: Icons.badge_outlined,
+                            icon: Icons.assignment_outlined,
                             iconColor: _accent,
-                            title: 'Valid Government-Issued ID',
+                            title: 'Product-specific requirements',
                             subtitle:
-                                'Ghana Card, Voter ID, Passport or Driver\'s License',
+                                'Savings, Current, Fixed Deposit and Susu each list what the customer needs',
                             isDark: isDark,
                           ),
                           SizedBox(height: 1.h),
                           _buildReqCard(
-                            icon: Icons.photo_camera_outlined,
+                            icon: Icons.timer_outlined,
                             iconColor: _accent,
-                            title: 'Passport-Sized Photograph',
+                            title: 'Estimated time',
                             subtitle:
-                                'A recent, clear front-facing photo of the customer',
+                                'Allow 10–15 minutes if all documents are ready',
                             isDark: isDark,
-                          ),
-                          SizedBox(height: 1.h),
-                          _buildReqCard(
-                            icon: Icons.phone_outlined,
-                            iconColor: _accent,
-                            title: 'Active Phone Number',
-                            subtitle:
-                                'Ghanaian mobile number for SMS alerts and OTP',
-                            isDark: isDark,
-                          ),
-                          SizedBox(height: 1.h),
-                          _buildReqCard(
-                            icon: Icons.email_outlined,
-                            iconColor: _accent,
-                            title: 'Email Address',
-                            subtitle:
-                                'Required for e-statements and digital account notifications',
-                            isDark: isDark,
-                          ),
-                          SizedBox(height: 1.h),
-                          _buildReqCard(
-                            icon: Icons.account_balance_wallet_outlined,
-                            iconColor: _accent,
-                            title: 'Initial Deposit',
-                            subtitle:
-                                'Minimum amount varies by the selected account type',
-                            isDark: isDark,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 1.5.h),
-                    _OpenAccountUi.buildSectionCard(
-                      isDark: isDark,
-                      title: 'Good to Have',
-                      subtitle: 'Optional but helpful for faster processing',
-                      icon: Icons.star_outline_rounded,
-                      accentColor: const Color(0xFF7C3AED),
-                      child: Column(
-                        children: [
-                          _buildReqCard(
-                            icon: Icons.home_outlined,
-                            iconColor: const Color(0xFF7C3AED),
-                            title: 'Proof of Address',
-                            subtitle:
-                                'Recent utility bill, bank statement or tenancy agreement',
-                            isDark: isDark,
-                            optional: true,
                           ),
                         ],
                       ),
@@ -1414,7 +1629,39 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
       features: [
         'Monthly interest accrual',
         'Unlimited deposits',
-        'Flexible withdrawals'
+        'Flexible withdrawals',
+      ],
+      requirements: [
+        _AccountRequirement(
+          icon: Icons.badge_outlined,
+          title: 'Valid Government-Issued ID',
+          subtitle: 'Ghana Card, Voter ID, Passport or Driver\'s License',
+        ),
+        _AccountRequirement(
+          icon: Icons.photo_camera_outlined,
+          title: 'Passport-Sized Photograph',
+          subtitle: 'Recent clear front-facing photo of the customer',
+        ),
+        _AccountRequirement(
+          icon: Icons.phone_outlined,
+          title: 'Active Phone Number',
+          subtitle: 'Ghanaian mobile number for SMS alerts and OTP',
+        ),
+        _AccountRequirement(
+          icon: Icons.email_outlined,
+          title: 'Email Address',
+          subtitle: 'For e-statements and digital notifications',
+        ),
+        _AccountRequirement(
+          icon: Icons.home_outlined,
+          title: 'Proof of Address',
+          subtitle: 'Utility bill, bank statement or tenancy agreement',
+        ),
+        _AccountRequirement(
+          icon: Icons.payments_outlined,
+          title: 'Initial Deposit',
+          subtitle: 'Minimum GH₵ 20.00 to activate the account',
+        ),
       ],
     ),
     _AccountTypeOption(
@@ -1428,7 +1675,44 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
       features: [
         'Cheque-book facility',
         'Overdraft eligible',
-        'High transaction volume'
+        'High transaction volume',
+      ],
+      requirements: [
+        _AccountRequirement(
+          icon: Icons.badge_outlined,
+          title: 'Valid Government-Issued ID',
+          subtitle: 'Ghana Card, Voter ID, Passport or Driver\'s License',
+        ),
+        _AccountRequirement(
+          icon: Icons.photo_camera_outlined,
+          title: 'Passport-Sized Photograph',
+          subtitle: 'Recent clear front-facing photo of the customer',
+        ),
+        _AccountRequirement(
+          icon: Icons.phone_outlined,
+          title: 'Active Phone Number',
+          subtitle: 'Ghanaian mobile number for SMS alerts and OTP',
+        ),
+        _AccountRequirement(
+          icon: Icons.email_outlined,
+          title: 'Email Address',
+          subtitle: 'Required for business correspondence and e-statements',
+        ),
+        _AccountRequirement(
+          icon: Icons.home_outlined,
+          title: 'Proof of Address',
+          subtitle: 'Business or residential utility bill or tenancy agreement',
+        ),
+        _AccountRequirement(
+          icon: Icons.storefront_outlined,
+          title: 'Business / Trade Certificate',
+          subtitle: 'For registered businesses, traders and sole proprietors',
+        ),
+        _AccountRequirement(
+          icon: Icons.payments_outlined,
+          title: 'Initial Deposit',
+          subtitle: 'Minimum GH₵ 50.00 to activate the account',
+        ),
       ],
     ),
     _AccountTypeOption(
@@ -1442,7 +1726,44 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
       features: [
         'Above-average interest rate',
         'Defined maturity date',
-        'Capital guaranteed'
+        'Capital guaranteed',
+      ],
+      requirements: [
+        _AccountRequirement(
+          icon: Icons.badge_outlined,
+          title: 'Valid Government-Issued ID',
+          subtitle: 'Ghana Card, Voter ID, Passport or Driver\'s License',
+        ),
+        _AccountRequirement(
+          icon: Icons.photo_camera_outlined,
+          title: 'Passport-Sized Photograph',
+          subtitle: 'Recent clear front-facing photo of the customer',
+        ),
+        _AccountRequirement(
+          icon: Icons.phone_outlined,
+          title: 'Active Phone Number',
+          subtitle: 'Ghanaian mobile number for maturity alerts and OTP',
+        ),
+        _AccountRequirement(
+          icon: Icons.email_outlined,
+          title: 'Email Address',
+          subtitle: 'For maturity alerts and investment statements',
+        ),
+        _AccountRequirement(
+          icon: Icons.home_outlined,
+          title: 'Proof of Address',
+          subtitle: 'Utility bill, bank statement or tenancy agreement',
+        ),
+        _AccountRequirement(
+          icon: Icons.receipt_long_outlined,
+          title: 'Source of Funds Declaration',
+          subtitle: 'Required for fixed deposits of GH₵ 500 and above',
+        ),
+        _AccountRequirement(
+          icon: Icons.payments_outlined,
+          title: 'Initial Deposit',
+          subtitle: 'Minimum GH₵ 500.00 locked for the agreed term',
+        ),
       ],
     ),
     _AccountTypeOption(
@@ -1456,7 +1777,39 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
       features: [
         'Daily contribution model',
         'Low entry threshold',
-        'Community-friendly'
+        'Community-friendly',
+      ],
+      requirements: [
+        _AccountRequirement(
+          icon: Icons.badge_outlined,
+          title: 'Valid Government-Issued ID',
+          subtitle: 'Ghana Card, Voter ID, Passport or Driver\'s License',
+        ),
+        _AccountRequirement(
+          icon: Icons.photo_camera_outlined,
+          title: 'Passport-Sized Photograph',
+          subtitle: 'Recent clear front-facing photo of the customer',
+        ),
+        _AccountRequirement(
+          icon: Icons.phone_outlined,
+          title: 'Active Phone Number',
+          subtitle: 'Required for daily contribution alerts',
+        ),
+        _AccountRequirement(
+          icon: Icons.home_outlined,
+          title: 'Proof of Address',
+          subtitle: 'Utility bill, bank statement or tenancy agreement',
+        ),
+        _AccountRequirement(
+          icon: Icons.groups_outlined,
+          title: 'Occupation Reference',
+          subtitle: 'Trade association or market leader reference',
+        ),
+        _AccountRequirement(
+          icon: Icons.payments_outlined,
+          title: 'Initial Deposit',
+          subtitle: 'Minimum GH₵ 5.00 to activate the susu plan',
+        ),
       ],
     ),
   ];
@@ -1485,7 +1838,7 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
     final selected = _accountTypes[_selectedTypeIndex];
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => _OpenAccountPersonalScreen(
+        builder: (_) => _OpenAccountVerifyScreen(
           accountType: selected.title,
           minDeposit: selected.minDeposit,
           accentColor: _accent,
@@ -1498,9 +1851,6 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selected = _selectedTypeIndex >= 0
-        ? _accountTypes[_selectedTypeIndex]
-        : null;
 
     return Scaffold(
       backgroundColor:
@@ -1526,14 +1876,14 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
                   children: [
                     _OpenAccountUi.buildIntroTip(
                       isDark,
-                      'Pick the product that best fits the customer. You can review features before continuing.',
+                      'Select a product below. Each card lists the documents and deposit required for that account type.',
                       accentColor: _accent,
                     ),
                     SizedBox(height: 1.2.h),
                     Row(
                       children: [
                         Icon(
-                          Icons.grid_view_rounded,
+                          Icons.view_agenda_outlined,
                           size: 14,
                           color: _accent,
                         ),
@@ -1550,7 +1900,7 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
                         ),
                         const Spacer(),
                         Text(
-                          '4 options',
+                          '${_accountTypes.length} options',
                           style: GoogleFonts.inter(
                             fontSize: 7.sp,
                             color: isDark
@@ -1560,30 +1910,15 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
                         ),
                       ],
                     ),
-                    SizedBox(height: 0.9.h),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 2.5.w,
-                        mainAxisSpacing: 1.h,
-                        childAspectRatio: 1.18,
+                    SizedBox(height: 1.h),
+                    for (var i = 0; i < _accountTypes.length; i++) ...[
+                      if (i > 0) SizedBox(height: 1.2.h),
+                      _buildAccountTypeCard(
+                        _accountTypes[i],
+                        _selectedTypeIndex == i,
+                        i,
+                        isDark,
                       ),
-                      itemCount: _accountTypes.length,
-                      itemBuilder: (context, i) {
-                        final t = _accountTypes[i];
-                        return _buildAccountTypeTile(
-                          t,
-                          _selectedTypeIndex == i,
-                          i,
-                          isDark,
-                        );
-                      },
-                    ),
-                    if (selected != null) ...[
-                      SizedBox(height: 1.2.h),
-                      _buildSelectedPreview(selected, isDark),
                     ],
                   ],
                 ),
@@ -1604,224 +1939,423 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
     );
   }
 
-  Widget _buildAccountTypeTile(
+  Widget _buildAccountTypeCard(
     _AccountTypeOption type,
     bool selected,
     int index,
     bool isDark,
   ) {
     final accent = selected ? _accent : type.iconColor;
+    final borderColor = selected
+        ? _accent
+        : (isDark
+            ? Colors.white.withValues(alpha: 0.07)
+            : const Color(0xFFE5E7EB));
 
     return GestureDetector(
       onTap: () => setState(() => _selectedTypeIndex = index),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.fromLTRB(2.8.w, 1.1.h, 2.8.w, 1.h),
+        duration: const Duration(milliseconds: 200),
+        width: double.infinity,
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF161B22) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected
-                ? _accent
-                : (isDark
-                    ? Colors.white.withValues(alpha: 0.07)
-                    : const Color(0xFFE5E7EB)),
+            color: borderColor,
             width: selected ? 1.5 : 1,
           ),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: _accent.withValues(alpha: 0.12),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: _accent.withValues(alpha: 0.14),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.08 : 0.03),
-                    blurRadius: 6,
-                    offset: const Offset(0, 1),
+                    color: Colors.black.withValues(alpha: isDark ? 0.08 : 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: isDark ? 0.18 : 0.1),
-                    borderRadius: BorderRadius.circular(9),
+            Padding(
+              padding: EdgeInsets.fromLTRB(3.5.w, 1.4.h, 3.5.w, 1.2.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: accent.withValues(alpha: isDark ? 0.18 : 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(type.icon, color: accent, size: 22),
+                      ),
+                      SizedBox(width: 3.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              type.title,
+                              style: GoogleFonts.inter(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF111827),
+                                height: 1.2,
+                              ),
+                            ),
+                            SizedBox(height: 0.45.h),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 2.w,
+                                vertical: 0.25.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: type.badgeColor
+                                    .withValues(alpha: isDark ? 0.14 : 0.08),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                type.badge,
+                                style: GoogleFonts.inter(
+                                  fontSize: 6.5.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: type.badgeColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: selected ? _accent : Colors.transparent,
+                          border: Border.all(
+                            color: selected
+                                ? _accent
+                                : (isDark
+                                    ? Colors.white.withValues(alpha: 0.12)
+                                    : const Color(0xFFD1D5DB)),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: selected
+                            ? const Icon(
+                                Icons.check_rounded,
+                                color: Colors.white,
+                                size: 14,
+                              )
+                            : null,
+                      ),
+                    ],
                   ),
-                  child: Icon(type.icon, color: accent, size: 17),
-                ),
-                const Spacer(),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  width: 18,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: selected ? _accent : Colors.transparent,
-                    border: Border.all(
-                      color: selected
-                          ? _accent
-                          : (isDark
-                              ? Colors.white.withValues(alpha: 0.12)
-                              : const Color(0xFFD1D5DB)),
-                      width: 1.2,
-                    ),
-                  ),
-                  child: selected
-                      ? const Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 11,
-                        )
-                      : null,
-                ),
-              ],
-            ),
-            SizedBox(height: 0.7.h),
-            Text(
-              type.title.replaceAll(' Account', ''),
-              style: GoogleFonts.inter(
-                fontSize: 8.5.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF111827),
-                height: 1.15,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 0.35.h),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 1.8.w, vertical: 0.25.h),
-              decoration: BoxDecoration(
-                color: type.badgeColor.withValues(alpha: isDark ? 0.14 : 0.08),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Text(
-                type.badge,
-                style: GoogleFonts.inter(
-                  fontSize: 6.sp,
-                  fontWeight: FontWeight.w600,
-                  color: type.badgeColor,
-                ),
-              ),
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                Icon(
-                  Icons.payments_outlined,
-                  size: 11,
-                  color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                ),
-                SizedBox(width: 1.w),
-                Expanded(
-                  child: Text(
-                    type.minDeposit,
+                  SizedBox(height: 1.h),
+                  Text(
+                    type.subtitle,
                     style: GoogleFonts.inter(
-                      fontSize: 6.5.sp,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+                      fontSize: 7.5.sp,
+                      height: 1.4,
+                      color: isDark ? Colors.white54 : const Color(0xFF64748B),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSelectedPreview(_AccountTypeOption type, bool isDark) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      width: double.infinity,
-      padding: EdgeInsets.all(3.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            _accent.withValues(alpha: isDark ? 0.14 : 0.07),
-            _accent.withValues(alpha: isDark ? 0.06 : 0.02),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _accent.withValues(alpha: 0.18)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline_rounded, color: _accent, size: 14),
-              SizedBox(width: 2.w),
-              Expanded(
-                child: Text(
-                  type.title,
-                  style: GoogleFonts.inter(
-                    fontSize: 8.5.sp,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF111827),
+                  SizedBox(height: 0.9.h),
+                  Wrap(
+                    spacing: 1.2.w,
+                    runSpacing: 0.45.h,
+                    children: type.features
+                        .map(
+                          (f) => Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle_rounded,
+                                size: 11,
+                                color: accent.withValues(alpha: 0.85),
+                              ),
+                              SizedBox(width: 1.w),
+                              Text(
+                                f,
+                                style: GoogleFonts.inter(
+                                  fontSize: 6.8.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark
+                                      ? Colors.white60
+                                      : const Color(0xFF475569),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                        .toList(),
                   ),
-                ),
+                  SizedBox(height: 1.h),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 2.5.w,
+                      vertical: 0.7.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: isDark ? 0.08 : 0.05),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: accent.withValues(alpha: 0.12),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.payments_outlined,
+                          size: 14,
+                          color: accent,
+                        ),
+                        SizedBox(width: 2.w),
+                        Text(
+                          'Minimum deposit: ${type.minDeposit}',
+                          style: GoogleFonts.inter(
+                            fontSize: 7.5.sp,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white70 : accent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          SizedBox(height: 0.5.h),
-          Text(
-            type.subtitle,
-            style: GoogleFonts.inter(
-              fontSize: 7.sp,
-              height: 1.35,
-              color: isDark ? Colors.white54 : const Color(0xFF64748B),
             ),
-          ),
-          SizedBox(height: 0.8.h),
-          Wrap(
-            spacing: 1.2.w,
-            runSpacing: 0.45.h,
-            children: type.features
-                .map(
-                  (f) => Row(
-                    mainAxisSize: MainAxisSize.min,
+            Divider(
+              height: 1,
+              thickness: 1,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.06)
+                  : const Color(0xFFF1F5F9),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(3.5.w, 1.1.h, 3.5.w, 1.4.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
                       Icon(
-                        Icons.check_circle_rounded,
-                        size: 10,
-                        color: _accent.withValues(alpha: 0.85),
+                        Icons.checklist_rounded,
+                        size: 14,
+                        color: accent,
                       ),
-                      SizedBox(width: 1.w),
+                      SizedBox(width: 1.5.w),
                       Text(
-                        f,
+                        'Requirements',
                         style: GoogleFonts.inter(
-                          fontSize: 6.5.sp,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? Colors.white60 : const Color(0xFF475569),
+                          fontSize: 8.sp,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : const Color(0xFF111827),
                         ),
                       ),
                     ],
                   ),
-                )
-                .toList(),
-          ),
-        ],
+                  SizedBox(height: 0.9.h),
+                  ...type.requirements.map(
+                    (req) => Padding(
+                      padding: EdgeInsets.only(bottom: 0.8.h),
+                      child: _buildProductRequirementRow(
+                        requirement: req,
+                        accent: accent,
+                        isDark: isDark,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildProductRequirementRow({
+    required _AccountRequirement requirement,
+    required Color accent,
+    required bool isDark,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: isDark ? 0.12 : 0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Icon(
+              requirement.icon,
+              color: accent,
+              size: 14,
+            ),
+          ),
+        ),
+        SizedBox(width: 2.5.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                requirement.title,
+                style: GoogleFonts.inter(
+                  fontSize: 7.8.sp,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : const Color(0xFF111827),
+                  height: 1.25,
+                ),
+              ),
+              SizedBox(height: 0.15.h),
+              Text(
+                requirement.subtitle,
+                style: GoogleFonts.inter(
+                  fontSize: 6.8.sp,
+                  height: 1.35,
+                  color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
-// ── Account Type Model ────────────────────────────────────────
+// ── Ghana Card lookup ───────────────────────────────────────────
+
+class _GhanaCardProfile {
+  final String nationalId;
+  final String firstName;
+  final String lastName;
+  final String otherName;
+  final String gender;
+  final DateTime dateOfBirth;
+  final String issueDate;
+  final String expiryDate;
+  final String address;
+  final String city;
+  final String phone;
+
+  const _GhanaCardProfile({
+    required this.nationalId,
+    required this.firstName,
+    required this.lastName,
+    required this.otherName,
+    required this.gender,
+    required this.dateOfBirth,
+    required this.issueDate,
+    required this.expiryDate,
+    required this.address,
+    required this.city,
+    required this.phone,
+  });
+
+  String get dobDisplay => AgencyDatePicker.formatSlash(dateOfBirth);
+}
+
+abstract class _OpenAccountGhanaCardLookup {
+  static final RegExp _idPattern = RegExp(r'^GHA-\d{9}-\d$');
+
+  static String normalizeNationalId(String value) {
+    final raw = value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), '');
+    final compact = raw.replaceAll('-', '');
+    final compactMatch = RegExp(r'^GHA(\d{9})(\d)$').firstMatch(compact);
+    if (compactMatch != null) {
+      return 'GHA-${compactMatch.group(1)}-${compactMatch.group(2)}';
+    }
+    return raw;
+  }
+
+  static bool isValidNationalId(String value) =>
+      _idPattern.hasMatch(normalizeNationalId(value));
+
+  static _GhanaCardProfile? lookup(String nationalId) {
+    final normalized = normalizeNationalId(nationalId);
+    if (!isValidNationalId(normalized)) return null;
+
+    final suffix = normalized.substring(normalized.length - 1);
+    final profiles = {
+      '1': _GhanaCardProfile(
+        nationalId: normalized,
+        firstName: 'Kwame',
+        lastName: 'Mensah',
+        otherName: 'Kofi',
+        gender: 'Male',
+        dateOfBirth: DateTime(1990, 5, 15),
+        issueDate: '12/03/2021',
+        expiryDate: '11/03/2031',
+        address: 'House No. 12, Ring Road East',
+        city: 'Accra',
+        phone: '0244123456',
+      ),
+      '2': _GhanaCardProfile(
+        nationalId: normalized,
+        firstName: 'Ama',
+        lastName: 'Boateng',
+        otherName: 'Serwaa',
+        gender: 'Female',
+        dateOfBirth: DateTime(1995, 8, 22),
+        issueDate: '04/06/2022',
+        expiryDate: '03/06/2032',
+        address: 'Plot 8, Adum Street',
+        city: 'Kumasi',
+        phone: '0209876543',
+      ),
+      '3': _GhanaCardProfile(
+        nationalId: normalized,
+        firstName: 'Kofi',
+        lastName: 'Asante',
+        otherName: 'Yaw',
+        gender: 'Male',
+        dateOfBirth: DateTime(1988, 1, 9),
+        issueDate: '18/09/2020',
+        expiryDate: '17/09/2030',
+        address: 'Block C, Tamale Central',
+        city: 'Tamale',
+        phone: '0271112233',
+      ),
+    };
+
+    return profiles[suffix] ?? profiles['1']!;
+  }
+}
+
+// ── Account Type Models ─────────────────────────────────────────
+
+class _AccountRequirement {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _AccountRequirement({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+}
 
 class _AccountTypeOption {
   final IconData icon;
@@ -1832,6 +2366,7 @@ class _AccountTypeOption {
   final Color badgeColor;
   final String minDeposit;
   final List<String> features;
+  final List<_AccountRequirement> requirements;
 
   const _AccountTypeOption({
     required this.icon,
@@ -1842,5 +2377,6 @@ class _AccountTypeOption {
     required this.badgeColor,
     required this.minDeposit,
     required this.features,
+    required this.requirements,
   });
 }

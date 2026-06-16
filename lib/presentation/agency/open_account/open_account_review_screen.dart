@@ -1,7 +1,7 @@
 part of 'agency_open_account_screen.dart';
 
 // ══════════════════════════════════════════════════════════════
-// ── Step 4 – Review & Confirm ──
+// ── Step 10 – Review & Confirm ──
 // ══════════════════════════════════════════════════════════════
 
 class _OpenAccountReviewScreen extends StatefulWidget {
@@ -14,7 +14,8 @@ class _OpenAccountReviewScreen extends StatefulWidget {
   final String gender;
   final String maritalStatus;
   final String dob;
-  final String occupation;
+  final String educationalLevel;
+  final String disabilityStatus;
   final String idType;
   final String idNumber;
   final String issueDate;
@@ -22,12 +23,45 @@ class _OpenAccountReviewScreen extends StatefulWidget {
   final String phone;
   final String altPhone;
   final String email;
-  final String address;
+  final String streetName;
+  final String houseAddress;
+  final String digitalAddress;
+  final String poBox;
   final String city;
+  final String region;
+  final String metroMunicipal;
+  final String proofOfAddressType;
+  final String emergencyTitle;
+  final String emergencySurname;
+  final String emergencyOtherNames;
+  final String emergencyGender;
+  final String emergencyRelationship;
+  final String emergencyResidentialAddress;
+  final String emergencyPhone;
+  final String employmentStatus;
+  final String employmentCategory;
+  final String employmentEmployerName;
+  final String employmentJobTitle;
+  final String employmentStartDate;
+  final String employmentCountry;
+  final String employmentRegion;
+  final String employmentDistrict;
+  final String employmentCityTown;
+  final String employmentEmployerAddress;
+  final String employmentMonthlyIncome;
+  final String employmentOfficePhone;
+  final String employmentEmployerEmail;
   final bool hasIdCopy;
   final bool hasPassportPhoto;
   final bool hasProofOfAddress;
   final bool hasSignature;
+  final String mandateSignatoryName;
+  final String mandateAuthorization;
+  final String mandateSignatureMethod;
+  final bool declarationsAccepted;
+  final File? verificationPhoto;
+  final File? mandateSignatureUpload;
+  final List<List<Offset?>> mandateSignatureStrokes;
   final Color accentColor;
   final List<Color> gradientColors;
 
@@ -41,7 +75,8 @@ class _OpenAccountReviewScreen extends StatefulWidget {
     required this.gender,
     required this.maritalStatus,
     required this.dob,
-    required this.occupation,
+    required this.educationalLevel,
+    required this.disabilityStatus,
     required this.idType,
     required this.idNumber,
     required this.issueDate,
@@ -49,12 +84,45 @@ class _OpenAccountReviewScreen extends StatefulWidget {
     required this.phone,
     required this.altPhone,
     required this.email,
-    required this.address,
+    required this.streetName,
+    required this.houseAddress,
+    required this.digitalAddress,
+    required this.poBox,
     required this.city,
+    required this.region,
+    required this.metroMunicipal,
+    required this.proofOfAddressType,
+    required this.emergencyTitle,
+    required this.emergencySurname,
+    required this.emergencyOtherNames,
+    required this.emergencyGender,
+    required this.emergencyRelationship,
+    required this.emergencyResidentialAddress,
+    required this.emergencyPhone,
+    required this.employmentStatus,
+    required this.employmentCategory,
+    required this.employmentEmployerName,
+    required this.employmentJobTitle,
+    required this.employmentStartDate,
+    required this.employmentCountry,
+    required this.employmentRegion,
+    required this.employmentDistrict,
+    required this.employmentCityTown,
+    required this.employmentEmployerAddress,
+    required this.employmentMonthlyIncome,
+    required this.employmentOfficePhone,
+    required this.employmentEmployerEmail,
     required this.hasIdCopy,
     required this.hasPassportPhoto,
     required this.hasProofOfAddress,
     required this.hasSignature,
+    required this.mandateSignatoryName,
+    required this.mandateAuthorization,
+    required this.mandateSignatureMethod,
+    required this.declarationsAccepted,
+    this.verificationPhoto,
+    this.mandateSignatureUpload,
+    this.mandateSignatureStrokes = const [],
     required this.accentColor,
     required this.gradientColors,
   });
@@ -135,6 +203,15 @@ class _OpenAccountReviewScreenState
     );
   }
 
+  void _handleWizardStepTap(int targetStep) {
+    _OpenAccountUi.handleWizardStepTap(
+      context,
+      currentStep: 10,
+      targetStep: targetStep,
+      onForwardStep: (_) {},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -150,14 +227,16 @@ class _OpenAccountReviewScreenState
               context: context,
               isDark: isDark,
               title: 'Review & Confirm',
-              subtitle: 'Open Account · Step 4 of 4',
+              subtitle:
+                  'Open Account · Step 10 of ${_OpenAccountUi.wizardStepCount}',
               gradientColors: widget.gradientColors,
               icon: Icons.fact_check_outlined,
             ),
             _OpenAccountUi.buildWizardStepIndicator(
               isDark,
-              4,
+              10,
               accentColor: widget.accentColor,
+              onStepTap: _handleWizardStepTap,
             ),
             Expanded(
               child: _isSubmitting
@@ -166,7 +245,10 @@ class _OpenAccountReviewScreenState
                       physics: const BouncingScrollPhysics(),
                       padding: EdgeInsets.fromLTRB(5.w, 2.h, 5.w, 2.h),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _buildCustomerVerificationPanel(isDark),
+                          SizedBox(height: 1.5.h),
                           _OpenAccountUi.buildHeroBanner(
                             isDark: isDark,
                             accentColor: widget.accentColor,
@@ -176,21 +258,35 @@ class _OpenAccountReviewScreenState
                             subtitle: 'Min. deposit ${widget.minDeposit}',
                           ),
                           SizedBox(height: 1.5.h),
-                          _OpenAccountUi.buildSummaryCard(
+                          _OpenAccountUi.buildReviewSectionCard(
                             isDark: isDark,
                             accentColor: widget.accentColor,
-                            title: 'Application Summary',
+                            title: 'Personal Details',
+                            icon: Icons.person_outline_rounded,
                             rows: [
                               _OpenAccountSummaryRow('Full Name', _fullName),
-                              _OpenAccountSummaryRow('Date of Birth', widget.dob),
+                              _OpenAccountSummaryRow(
+                                  'Date of Birth', widget.dob),
                               _OpenAccountSummaryRow('Gender', widget.gender),
                               _OpenAccountSummaryRow(
                                   'Marital Status', widget.maritalStatus),
+                              _OpenAccountSummaryRow('Educational Level',
+                                  widget.educationalLevel),
+                              _OpenAccountSummaryRow('Disability Status',
+                                  widget.disabilityStatus),
+                            ],
+                          ),
+                          _OpenAccountUi.buildReviewSectionCard(
+                            isDark: isDark,
+                            accentColor: widget.accentColor,
+                            title: 'Identity & Contact',
+                            icon: Icons.badge_outlined,
+                            rows: [
                               _OpenAccountSummaryRow(
-                                  'Occupation', widget.occupation),
-                              _OpenAccountSummaryRow('ID Type', widget.idType),
-                              _OpenAccountSummaryRow(
-                                  'ID Number', widget.idNumber, mono: true),
+                                  'National ID Type', widget.idType),
+                              _OpenAccountSummaryRow('National ID Number',
+                                  widget.idNumber,
+                                  mono: true),
                               if (widget.issueDate.isNotEmpty)
                                 _OpenAccountSummaryRow(
                                     'Issue Date', widget.issueDate),
@@ -202,19 +298,131 @@ class _OpenAccountReviewScreenState
                                 _OpenAccountSummaryRow(
                                     'Alt Phone', widget.altPhone),
                               _OpenAccountSummaryRow('Email', widget.email),
-                              _OpenAccountSummaryRow('Address', widget.address),
-                              _OpenAccountSummaryRow('City', widget.city),
+                            ],
+                          ),
+                          _OpenAccountUi.buildReviewSectionCard(
+                            isDark: isDark,
+                            accentColor: widget.accentColor,
+                            title: 'Residential Address',
+                            icon: Icons.home_outlined,
+                            rows: [
                               _OpenAccountSummaryRow(
-                                'ID Copy',
-                                _docStatus(widget.hasIdCopy),
-                                valueColor: widget.hasIdCopy
+                                  'Street Name', widget.streetName),
+                              _OpenAccountSummaryRow(
+                                  'House / Building', widget.houseAddress),
+                              _OpenAccountSummaryRow(
+                                  'Digital Address', widget.digitalAddress),
+                              if (widget.poBox.isNotEmpty)
+                                _OpenAccountSummaryRow(
+                                    'P.O. Box', widget.poBox),
+                              _OpenAccountSummaryRow('City', widget.city),
+                              _OpenAccountSummaryRow('Region', widget.region),
+                              _OpenAccountSummaryRow('Metro / Municipal',
+                                  widget.metroMunicipal),
+                              _OpenAccountSummaryRow('Proof of Address',
+                                  widget.proofOfAddressType),
+                            ],
+                          ),
+                          _OpenAccountUi.buildReviewSectionCard(
+                            isDark: isDark,
+                            accentColor: widget.accentColor,
+                            title: 'Emergency Contact',
+                            icon: Icons.contact_emergency_outlined,
+                            rows: [
+                              _OpenAccountSummaryRow(
+                                  'Title', widget.emergencyTitle),
+                              _OpenAccountSummaryRow(
+                                  'Surname', widget.emergencySurname),
+                              if (widget.emergencyOtherNames.isNotEmpty)
+                                _OpenAccountSummaryRow('Other Names',
+                                    widget.emergencyOtherNames),
+                              _OpenAccountSummaryRow(
+                                  'Gender', widget.emergencyGender),
+                              _OpenAccountSummaryRow('Relationship',
+                                  widget.emergencyRelationship),
+                              _OpenAccountSummaryRow('Address',
+                                  widget.emergencyResidentialAddress),
+                              _OpenAccountSummaryRow(
+                                  'Phone', widget.emergencyPhone),
+                            ],
+                          ),
+                          _OpenAccountUi.buildReviewSectionCard(
+                            isDark: isDark,
+                            accentColor: widget.accentColor,
+                            title: 'Employment',
+                            icon: Icons.work_outline_rounded,
+                            rows: [
+                              _OpenAccountSummaryRow('Status',
+                                  widget.employmentStatus),
+                              _OpenAccountSummaryRow('Category',
+                                  widget.employmentCategory),
+                              if (widget.employmentEmployerName.isNotEmpty)
+                                _OpenAccountSummaryRow('Employer / Business',
+                                    widget.employmentEmployerName),
+                              if (widget.employmentJobTitle.isNotEmpty)
+                                _OpenAccountSummaryRow(
+                                    'Job Title', widget.employmentJobTitle),
+                              if (widget.employmentStartDate.isNotEmpty)
+                                _OpenAccountSummaryRow('Start Date',
+                                    widget.employmentStartDate),
+                              if (widget.employmentCountry.isNotEmpty)
+                                _OpenAccountSummaryRow(
+                                    'Country', widget.employmentCountry),
+                              if (widget.employmentRegion.isNotEmpty)
+                                _OpenAccountSummaryRow(
+                                    'Region', widget.employmentRegion),
+                              if (widget.employmentDistrict.isNotEmpty)
+                                _OpenAccountSummaryRow('District (MMDA)',
+                                    widget.employmentDistrict),
+                              if (widget.employmentCityTown.isNotEmpty)
+                                _OpenAccountSummaryRow('City / Town',
+                                    widget.employmentCityTown),
+                              if (widget.employmentEmployerAddress.isNotEmpty)
+                                _OpenAccountSummaryRow('Employer Address',
+                                    widget.employmentEmployerAddress),
+                              _OpenAccountSummaryRow('Monthly Salary',
+                                  widget.employmentMonthlyIncome),
+                              if (widget.employmentOfficePhone.isNotEmpty)
+                                _OpenAccountSummaryRow('Office Phone',
+                                    widget.employmentOfficePhone),
+                              if (widget.employmentEmployerEmail.isNotEmpty)
+                                _OpenAccountSummaryRow('Employer Email',
+                                    widget.employmentEmployerEmail),
+                            ],
+                          ),
+                          _OpenAccountUi.buildReviewSectionCard(
+                            isDark: isDark,
+                            accentColor: widget.accentColor,
+                            title: 'Account Mandate',
+                            icon: Icons.assignment_ind_outlined,
+                            rows: [
+                              _OpenAccountSummaryRow('Signatory Name',
+                                  widget.mandateSignatoryName),
+                              _OpenAccountSummaryRow('Authorization',
+                                  widget.mandateAuthorization),
+                              _OpenAccountSummaryRow(
+                                'Signature',
+                                widget.hasSignature
+                                    ? widget.mandateSignatureMethod
+                                    : 'Not captured',
+                                valueColor: widget.hasSignature
                                     ? _OpenAccountUi.success
                                     : null,
                               ),
+                            ],
+                          ),
+                          _OpenAccountUi.buildReviewSectionCard(
+                            isDark: isDark,
+                            accentColor: widget.accentColor,
+                            title: 'Declarations & Documents',
+                            icon: Icons.folder_open_outlined,
+                            rows: [
                               _OpenAccountSummaryRow(
-                                'Passport Photo',
-                                _docStatus(widget.hasPassportPhoto),
-                                valueColor: widget.hasPassportPhoto
+                                'Terms & Declarations',
+                                widget.declarationsAccepted
+                                    ? 'Accepted'
+                                    : 'Not accepted',
+                                valueColor: widget.declarationsAccepted
                                     ? _OpenAccountUi.success
                                     : null,
                               ),
@@ -225,16 +433,8 @@ class _OpenAccountReviewScreenState
                                     ? _OpenAccountUi.success
                                     : null,
                               ),
-                              _OpenAccountSummaryRow(
-                                'Signature',
-                                _docStatus(widget.hasSignature),
-                                valueColor: widget.hasSignature
-                                    ? _OpenAccountUi.success
-                                    : null,
-                              ),
                             ],
                           ),
-                          SizedBox(height: 1.5.h),
                           _OpenAccountUi.buildSecurityNote(
                             isDark,
                             'You will be asked to authorize this account opening with your transaction PIN.',
@@ -274,6 +474,259 @@ class _OpenAccountReviewScreenState
                   ],
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomerVerificationPanel(bool isDark) {
+    final linePaint = isDark
+        ? Colors.white.withValues(alpha: 0.85)
+        : const Color(0xFF1B365D);
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161B22) : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE5E7EB),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(4.5.w, 1.6.h, 4.5.w, 1.2.h),
+            child: Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: widget.accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.verified_user_outlined,
+                    color: widget.accentColor,
+                    size: 18,
+                  ),
+                ),
+                SizedBox(width: 3.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Customer Verification',
+                        style: GoogleFonts.inter(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : const Color(0xFF111827),
+                        ),
+                      ),
+                      SizedBox(height: 0.2.h),
+                      Text(
+                        _fullName,
+                        style: GoogleFonts.inter(
+                          fontSize: 9.sp,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white54 : const Color(0xFF6B7280),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(4.5.w, 0, 4.5.w, 2.h),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildVerificationTile(
+                    isDark: isDark,
+                    label: 'Identity Photo',
+                    caption: widget.hasPassportPhoto ? 'Captured' : 'Not provided',
+                    isProvided: widget.hasPassportPhoto,
+                    child: widget.verificationPhoto != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              widget.verificationPhoto!,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                          )
+                        : _buildVerificationPlaceholder(
+                            isDark: isDark,
+                            icon: Icons.face_retouching_natural_outlined,
+                            text: 'No photo',
+                          ),
+                  ),
+                ),
+                SizedBox(width: 3.w),
+                Expanded(
+                  child: _buildVerificationTile(
+                    isDark: isDark,
+                    label: 'Signature',
+                    caption: widget.hasSignature
+                        ? widget.mandateSignatureMethod
+                        : 'Not captured',
+                    isProvided: widget.hasSignature,
+                    child: widget.mandateSignatureUpload != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              widget.mandateSignatureUpload!,
+                              fit: BoxFit.contain,
+                              width: double.infinity,
+                              height: double.infinity,
+                            ),
+                          )
+                        : widget.mandateSignatureStrokes.isNotEmpty
+                            ? ColoredBox(
+                                color: isDark
+                                    ? const Color(0xFF0D1117)
+                                    : const Color(0xFFF8FAFC),
+                                child: SizedBox.expand(
+                                  child: CustomPaint(
+                                    painter: OpenAccountSignaturePainter(
+                                      strokes: widget.mandateSignatureStrokes,
+                                      color: linePaint,
+                                      fitToBounds: true,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : _buildVerificationPlaceholder(
+                                isDark: isDark,
+                                icon: Icons.draw_outlined,
+                                text: 'No signature',
+                              ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerificationTile({
+    required bool isDark,
+    required String label,
+    required String caption,
+    required bool isProvided,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 9.5.sp,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : const Color(0xFF111827),
+              ),
+            ),
+            const Spacer(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.25.h),
+              decoration: BoxDecoration(
+                color: isProvided
+                    ? _OpenAccountUi.success.withValues(alpha: 0.12)
+                    : (isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : const Color(0xFFF1F5F9)),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                isProvided ? '✓' : '—',
+                style: GoogleFonts.inter(
+                  fontSize: 8.sp,
+                  fontWeight: FontWeight.w700,
+                  color: isProvided
+                      ? _OpenAccountUi.success
+                      : (isDark ? Colors.white38 : const Color(0xFF9CA3AF)),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 0.5.h),
+        Container(
+          height: 18.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isProvided
+                  ? widget.accentColor.withValues(alpha: 0.35)
+                  : (isDark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : const Color(0xFFE5E7EB)),
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(13),
+            child: child,
+          ),
+        ),
+        SizedBox(height: 0.5.h),
+        Text(
+          caption,
+          style: GoogleFonts.inter(
+            fontSize: 8.sp,
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVerificationPlaceholder({
+    required bool isDark,
+    required IconData icon,
+    required String text,
+  }) {
+    return Container(
+      color: isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 32,
+              color: isDark ? Colors.white12 : const Color(0xFFE5E7EB),
+            ),
+            SizedBox(height: 0.6.h),
+            Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 8.sp,
+                color: isDark ? Colors.white24 : const Color(0xFFD1D5DB),
+              ),
+            ),
           ],
         ),
       ),
