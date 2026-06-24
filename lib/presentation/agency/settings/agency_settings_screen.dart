@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import '../../../data/mock_app_auth.dart';
+import '../../../data/agency/agency_auth_service.dart';
 import '../../../main.dart';
 import '../../../widgets/banking_bottom_navigation.dart';
 
@@ -270,6 +270,8 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
   }
 
   Widget _buildProfileCard(BuildContext context, bool isDark) {
+    final session = AgencyAuthService.currentSession;
+
     return Container(
       padding: EdgeInsets.all(2.w),
       decoration: BoxDecoration(
@@ -303,7 +305,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Cyril Tetteh Kwashie',
+                  session?.agentName ?? 'Agent',
                   style: GoogleFonts.inter(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
@@ -314,7 +316,7 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                 ),
                 SizedBox(height: 0.3.h),
                 Text(
-                  'AG-2024-1523',
+                  session?.username ?? '—',
                   style: GoogleFonts.inter(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w400,
@@ -325,7 +327,18 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                 ),
                 SizedBox(height: 0.3.h),
                 Text(
-                  'cyril.kwashie@agency.com',
+                  'Account: ${session?.displayAccountNo ?? '—'}',
+                  style: GoogleFonts.inter(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w400,
+                    color: isDark
+                        ? const Color(0xFF9CA3AF)
+                        : const Color(0xFF6B7280),
+                  ),
+                ),
+                SizedBox(height: 0.3.h),
+                Text(
+                  'Branch: ${session?.displayBranch ?? '—'}',
                   style: GoogleFonts.inter(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w400,
@@ -518,12 +531,13 @@ class _AgencySettingsScreenState extends State<AgencySettingsScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.pop(context);
-                          MockAppAuth.signOut();
+                          await AgencyAuthService.signOut();
+                          if (!context.mounted) return;
                           Navigator.pushNamedAndRemoveUntil(
                             context,
-                            AppRoutes.login,
+                            AppRoutes.serviceSelection,
                             (route) => false,
                           );
                         },

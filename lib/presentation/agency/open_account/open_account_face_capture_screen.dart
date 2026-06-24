@@ -30,10 +30,12 @@ class _OpenAccountFaceCaptureScreen extends StatefulWidget {
 
 class _OpenAccountFaceCaptureScreenState
     extends State<_OpenAccountFaceCaptureScreen>
-    with SingleTickerProviderStateMixin {
-  final _picker = ImagePicker();
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  CameraController? _cameraController;
   File? _capturedPhoto;
   bool _isCapturing = false;
+  bool _cameraError = false;
+  bool _isInitializingCamera = true;
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -41,18 +43,83 @@ class _OpenAccountFaceCaptureScreenState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
     _fadeIn = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
     _animController.forward();
+    _initCamera();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _cameraController?.dispose();
     _animController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final controller = _cameraController;
+    if (controller == null || !controller.value.isInitialized) return;
+
+    if (state == AppLifecycleState.inactive) {
+      controller.dispose();
+      _cameraController = null;
+    } else if (state == AppLifecycleState.resumed && _capturedPhoto == null) {
+      _initCamera();
+    }
+  }
+
+  Future<void> _initCamera() async {
+    if (_capturedPhoto != null) return;
+
+    setState(() {
+      _isInitializingCamera = true;
+      _cameraError = false;
+    });
+
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) {
+        throw StateError('No cameras available');
+      }
+
+      final frontCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front,
+        orElse: () => cameras.first,
+      );
+
+      final controller = CameraController(
+        frontCamera,
+        ResolutionPreset.high,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.jpeg,
+      );
+
+      await controller.initialize();
+
+      if (!mounted) {
+        await controller.dispose();
+        return;
+      }
+
+      await _cameraController?.dispose();
+      setState(() {
+        _cameraController = controller;
+        _isInitializingCamera = false;
+        _cameraError = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _cameraError = true;
+        _isInitializingCamera = false;
+      });
+    }
   }
 
   void _handleWizardStepTap(int targetStep) {
@@ -89,7 +156,7 @@ class _OpenAccountFaceCaptureScreenState
             maritalStatus: 'Single',
             dob: widget.ghanaCardProfile.dobDisplay,
             educationalLevel: 'SHS / Secondary',
-            disabilityStatus: 'No Disability',
+            disabilityStatus: 'No',
             idType: 'National ID',
             idNumber: widget.ghanaCardProfile.nationalId,
             issueDate: widget.ghanaCardProfile.issueDate,
@@ -120,16 +187,21 @@ class _OpenAccountFaceCaptureScreenState
   }
 
   Future<void> _capturePhoto() async {
+    final controller = _cameraController;
+    if (controller == null ||
+        !controller.value.isInitialized ||
+        _isCapturing ||
+        _capturedPhoto != null) {
+      return;
+    }
+
     setState(() => _isCapturing = true);
     try {
-      final xFile = await _picker.pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.front,
-        imageQuality: 90,
-        maxWidth: 1200,
-        maxHeight: 1600,
-      );
-      if (xFile != null && mounted) {
+      final xFile = await controller.takePicture();
+      await controller.dispose();
+      _cameraController = null;
+
+      if (mounted) {
         setState(() => _capturedPhoto = File(xFile.path));
       }
     } catch (_) {
@@ -137,7 +209,7 @@ class _OpenAccountFaceCaptureScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Camera not available on this device.',
+            'Could not capture photo. Please try again.',
             style: GoogleFonts.inter(fontWeight: FontWeight.w500),
           ),
           behavior: SnackBarBehavior.floating,
@@ -147,6 +219,11 @@ class _OpenAccountFaceCaptureScreenState
     } finally {
       if (mounted) setState(() => _isCapturing = false);
     }
+  }
+
+  Future<void> _retakePhoto() async {
+    setState(() => _capturedPhoto = null);
+    await _initCamera();
   }
 
   void _onContinue() {
@@ -167,9 +244,72 @@ class _OpenAccountFaceCaptureScreenState
     );
   }
 
+  Widget _buildPreviewContent(bool isDark) {
+    if (_capturedPhoto != null) {
+      return Image.file(
+        _capturedPhoto!,
+        fit: BoxFit.cover,
+      );
+    }
+
+    final controller = _cameraController;
+    if (controller != null && controller.value.isInitialized) {
+      return FittedBox(
+        fit: BoxFit.cover,
+        clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: controller.value.previewSize!.height,
+          height: controller.value.previewSize!.width,
+          child: Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.rotationY(pi),
+            child: CameraPreview(controller),
+          ),
+        ),
+      );
+    }
+
+    if (_isInitializingCamera) {
+      return Container(
+        color: isDark ? const Color(0xFF161B22) : const Color(0xFF111827),
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: widget.accentColor,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      color: isDark ? const Color(0xFF161B22) : const Color(0xFF111827),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.videocam_off_outlined,
+            size: 40,
+            color: isDark ? Colors.white24 : Colors.white38,
+          ),
+          SizedBox(height: 0.8.h),
+          Text(
+            _cameraError
+                ? 'Camera unavailable on this device'
+                : 'Starting camera...',
+            style: GoogleFonts.inter(
+              fontSize: 7.5.sp,
+              color: Colors.white54,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cameraReady = _cameraController?.value.isInitialized ?? false;
 
     return Scaffold(
       backgroundColor:
@@ -204,37 +344,7 @@ class _OpenAccountFaceCaptureScreenState
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            if (_capturedPhoto != null)
-                              Image.file(
-                                _capturedPhoto!,
-                                fit: BoxFit.cover,
-                              )
-                            else
-                              Container(
-                                color: isDark
-                                    ? const Color(0xFF161B22)
-                                    : const Color(0xFF111827),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.face_outlined,
-                                      size: 40,
-                                      color: isDark
-                                          ? Colors.white24
-                                          : Colors.white38,
-                                    ),
-                                    SizedBox(height: 0.8.h),
-                                    Text(
-                                      'Camera preview',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 7.5.sp,
-                                        color: Colors.white54,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            _buildPreviewContent(isDark),
                             CustomPaint(
                               painter: _FaceCaptureFramePainter(
                                 accentColor: widget.accentColor,
@@ -307,10 +417,8 @@ class _OpenAccountFaceCaptureScreenState
               child: _capturedPhoto == null
                   ? _OpenAccountUi.buildPrimaryButton(
                       isDark: isDark,
-                      label: _isCapturing
-                          ? 'Opening camera...'
-                          : 'Capture Photo',
-                      onTap: _isCapturing ? null : _capturePhoto,
+                      label: _isCapturing ? 'Capturing...' : 'Capture Photo',
+                      onTap: _isCapturing || !cameraReady ? null : _capturePhoto,
                       accentColor: widget.accentColor,
                       icon: Icons.camera_alt_outlined,
                       showArrow: false,
@@ -325,11 +433,11 @@ class _OpenAccountFaceCaptureScreenState
                         ),
                         SizedBox(height: 0.8.h),
                         GestureDetector(
-                          onTap: _isCapturing ? null : _capturePhoto,
+                          onTap: _isCapturing ? null : _retakePhoto,
                           child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 0.6.h),
                             child: Text(
-                              _isCapturing ? 'Opening camera...' : 'Retake Photo',
+                              _isCapturing ? 'Restarting camera...' : 'Retake Photo',
                               style: GoogleFonts.inter(
                                 fontSize: 8.5.sp,
                                 fontWeight: FontWeight.w600,

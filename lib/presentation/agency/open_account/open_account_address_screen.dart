@@ -678,41 +678,22 @@ class _OpenAccountAddressScreenState extends State<_OpenAccountAddressScreen>
             height: 14.h,
             width: double.infinity,
             child: hasDoc
-                ? isPdf
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.picture_as_pdf_outlined,
-                              size: 36,
-                              color: widget.accentColor,
-                            ),
-                            SizedBox(height: 0.6.h),
-                            Text(
-                              'PDF document attached',
-                              style: GoogleFonts.inter(
-                                fontSize: 7.sp,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? Colors.white70
-                                    : const Color(0xFF64748B),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(11),
-                        ),
-                        child: Image.file(
-                          _proofOfAddressPhoto!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                      )
+                ? ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(11),
+                    ),
+                    child: isPdf
+                        ? _ProofDocumentPdfPreview(
+                            key: ValueKey(_proofOfAddressPhoto!.path),
+                            file: _proofOfAddressPhoto!,
+                          )
+                        : Image.file(
+                            _proofOfAddressPhoto!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                  )
                 : Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1098,6 +1079,113 @@ class _OpenAccountAddressScreenState extends State<_OpenAccountAddressScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ProofDocumentPdfPreview extends StatefulWidget {
+  final File file;
+
+  const _ProofDocumentPdfPreview({super.key, required this.file});
+
+  @override
+  State<_ProofDocumentPdfPreview> createState() =>
+      _ProofDocumentPdfPreviewState();
+}
+
+class _ProofDocumentPdfPreviewState extends State<_ProofDocumentPdfPreview> {
+  Uint8List? _previewBytes;
+  bool _isLoading = true;
+  String? _error;
+  PdfDocument? _document;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreview();
+  }
+
+  Future<void> _loadPreview() async {
+    try {
+      final fileBytes = await widget.file.readAsBytes();
+      final document = await PdfDocument.openData(fileBytes);
+      _document = document;
+
+      final page = await document.getPage(1);
+      try {
+        const renderWidth = 1400.0;
+        final renderHeight = renderWidth * (page.height / page.width);
+        final image = await page.render(
+          width: renderWidth,
+          height: renderHeight,
+          format: PdfPageImageFormat.jpeg,
+          backgroundColor: '#FFFFFF',
+        );
+
+        if (!mounted) return;
+        setState(() {
+          _previewBytes = image?.bytes;
+          _isLoading = false;
+          if (_previewBytes == null) {
+            _error = 'Could not preview PDF';
+          }
+        });
+      } finally {
+        await page.close();
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Could not preview PDF';
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _document?.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const ColoredBox(
+        color: Colors.white,
+        child: Center(
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
+
+    if (_error != null || _previewBytes == null) {
+      return ColoredBox(
+        color: Colors.white,
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Text(
+              _error ?? 'Could not preview PDF',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 7.sp,
+                color: const Color(0xFF64748B),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ColoredBox(
+      color: Colors.white,
+      child: Image.memory(
+        _previewBytes!,
+        fit: BoxFit.contain,
+        width: double.infinity,
+        height: double.infinity,
       ),
     );
   }

@@ -152,11 +152,10 @@ class _SplashScreenState extends State<SplashScreen>
     // - Users with expired sessions → Login Screen
     // - First-time users → Service Selection
 
-    // Authenticated users → Service Selection; otherwise → Login
     Navigator.of(
       context,
       rootNavigator: true,
-    ).pushReplacementNamed(AppRoutes.login);
+    ).pushReplacementNamed(AppRoutes.serviceSelection);
   }
 
   @override

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-import '../../../data/mock_app_auth.dart';
 import '../../../models/banking_service_type.dart';
 import './widgets/service_card_widget.dart';
 import './widgets/service_carousel_widget.dart';
@@ -59,7 +58,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       "subtitle": "Digital banking operations and account management",
       "description":
           "Access comprehensive digital banking services including account opening, loan applications, investment management, and real-time transaction monitoring with advanced security features.",
-      "route": AppRoutes.smartBranchDashboard,
+      "route": AppRoutes.smartBranchLogin,
       "gradientColors": [Color(0xFF1B365D), Color(0xFF2E5A8F)],
     },
     {
@@ -69,7 +68,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       "subtitle": "Agent-powered banking services",
       "description":
           "Empower banking agents to provide essential financial services to customers in remote locations, including cash deposits, withdrawals, bill payments, and account inquiries with secure authentication.",
-      "route": AppRoutes.agencyBankingDashboard,
+      "route": AppRoutes.agencyLogin,
       "gradientColors": [Color(0xFF2E8B8B), Color(0xFF3FA5A5)],
     },
     {
@@ -79,7 +78,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       "subtitle": "Payment and collection solutions",
       "description":
           "Complete merchant payment processing platform with QR code payments, invoice generation, sales analytics, inventory management, and multi-channel payment acceptance for growing businesses.",
-      "route": AppRoutes.merchantBankingDashboard,
+      "route": AppRoutes.merchantLogin,
       "gradientColors": [Color(0xFF059669), Color(0xFF10B981)],
     },
   ];
@@ -87,61 +86,10 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!MockAppAuth.isSignedIn && mounted) {
-        Navigator.of(context, rootNavigator: true).pushReplacementNamed(
-          AppRoutes.login,
-        );
-        return;
-      }
-
-      final directRoute = MockAppAuth.postLoginRoute();
-      if (directRoute != null &&
-          directRoute != AppRoutes.serviceSelection &&
-          mounted) {
-        Navigator.of(context, rootNavigator: true).pushReplacementNamed(
-          directRoute,
-        );
-      }
-    });
     _startAutoSlide();
   }
 
-  List<Map<String, dynamic>> get _availableCarouselItems {
-    return _carouselItems
-        .where(
-          (item) => MockAppAuth.canAccess(
-            item['serviceId'] as BankingServiceType,
-          ),
-        )
-        .toList();
-  }
-
-  List<Map<String, dynamic>> get _availableServiceCards {
-    return _allServiceCards
-        .where(
-          (card) => MockAppAuth.canAccess(
-            card['serviceId'] as BankingServiceType,
-          ),
-        )
-        .toList();
-  }
-
   void _openService(Map<String, dynamic> service) {
-    final serviceId = service['serviceId'] as BankingServiceType;
-    if (!MockAppAuth.canAccess(serviceId)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'You do not have access to this service',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w500),
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
     Navigator.of(
       context,
       rootNavigator: true,
@@ -157,7 +105,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
 
   void _startAutoSlide() {
     _autoSlideTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      final items = _availableCarouselItems;
+      final items = _carouselItems;
       if (items.isEmpty || !_pageController.hasClients) return;
 
       final nextPage = (_currentPage + 1) % items.length;
@@ -242,7 +190,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                     child: Column(
                       children: [
                         ServiceCarouselWidget(
-                          carouselItems: _availableCarouselItems,
+                          carouselItems: _carouselItems,
                           pageController: _pageController,
                           currentPage: _currentPage,
                           onPageChanged: _onPageChanged,
@@ -264,8 +212,6 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
 
   Widget _buildHeader(ThemeData theme) {
     final isDark = theme.brightness == Brightness.dark;
-    final user = MockAppAuth.currentUser;
-
     return Row(
       children: [
         Container(
@@ -288,7 +234,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
           ),
           child: Center(
             child: Text(
-              user?.displayName.substring(0, 1).toUpperCase() ?? 'F',
+              'F',
               style: GoogleFonts.inter(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w700,
@@ -303,7 +249,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                user != null ? 'Welcome, ${user.displayName}' : 'Fieldsmart',
+                'Fieldsmart',
                 style: GoogleFonts.inter(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
@@ -370,10 +316,10 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: _availableServiceCards.length,
+          itemCount: _allServiceCards.length,
           separatorBuilder: (context, index) => SizedBox(height: 1.5.h),
           itemBuilder: (context, index) {
-            final service = _availableServiceCards[index];
+            final service = _allServiceCards[index];
             return ServiceCardWidget(
               service: service,
               onTap: () => _openService(service),

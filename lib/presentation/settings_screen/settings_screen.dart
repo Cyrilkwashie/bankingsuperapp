@@ -422,7 +422,7 @@ class SettingsScreen extends StatelessWidget {
                       MockAppAuth.signOut();
                       Navigator.pushNamedAndRemoveUntil(
                       context,
-                      AppRoutes.login,
+                      AppRoutes.serviceSelection,
                       (route) => false,
                     );
                   },

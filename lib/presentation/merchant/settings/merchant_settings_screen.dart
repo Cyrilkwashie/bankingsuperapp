@@ -520,7 +520,7 @@ class _MerchantSettingsScreenState extends State<MerchantSettingsScreen> {
                           MockAppAuth.signOut();
                           Navigator.pushNamedAndRemoveUntil(
                             context,
-                            AppRoutes.login,
+                            AppRoutes.serviceSelection,
                             (route) => false,
                           );
                         },

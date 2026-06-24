@@ -279,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               ),
               SizedBox(height: 0.8.h),
               Text(
-                'Demo: cyril/1 · grace/2 · obed/3',
+                'Enter any user ID and password to sign in',
                 style: GoogleFonts.inter(
                   fontSize: 7.5.sp,
                   fontWeight: FontWeight.w500,

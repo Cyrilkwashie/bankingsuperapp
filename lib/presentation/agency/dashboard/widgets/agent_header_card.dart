@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/app_export.dart';
+import '../../../../data/agency/agency_auth_service.dart';
 
 class AgentHeaderCard extends StatelessWidget {
   final bool isDark;
@@ -18,6 +19,13 @@ class AgentHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = AgencyAuthService.currentSession;
+    final agentName = session?.agentName ?? 'Agent';
+    final initials = session?.initials ?? 'A';
+    final balance = session?.formattedBalance ?? 'GH₵ 0.00';
+    final accountNo = session?.displayAccountNo ?? '—';
+    final branch = session?.displayBranch ?? '—';
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarBrightness: Brightness.dark,
@@ -56,11 +64,11 @@ class AgentHeaderCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTopBar(),
+              _buildTopBar(initials: initials, agentName: agentName),
               SizedBox(height: 2.5.h),
-              _buildBalanceSection(),
+              _buildBalanceSection(balance),
               SizedBox(height: 1.2.h),
-              _buildAccountNumber(),
+              _buildAgentDetails(accountNo: accountNo, branch: branch),
               SizedBox(height: 2.h),
               _buildActionButtons(),
             ],
@@ -70,7 +78,7 @@ class AgentHeaderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar({required String initials, required String agentName}) {
     return Row(
       children: [
         Container(
@@ -86,7 +94,7 @@ class AgentHeaderCard extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              'KC',
+              initials,
               style: GoogleFonts.inter(
                 color: Colors.white,
                 fontSize: 15,
@@ -109,7 +117,7 @@ class AgentHeaderCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'KWASHIE CYRIL',
+                agentName.toUpperCase(),
                 style: GoogleFonts.inter(
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
@@ -164,7 +172,7 @@ class AgentHeaderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBalanceSection() {
+  Widget _buildBalanceSection(String balance) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -178,7 +186,7 @@ class AgentHeaderCard extends StatelessWidget {
         ),
         SizedBox(height: 0.6.h),
         Text(
-          'GH₵ 1,440,840.36',
+          balance,
           style: GoogleFonts.inter(
             fontSize: 16.sp,
             fontWeight: FontWeight.w700,
@@ -191,14 +199,33 @@ class AgentHeaderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAccountNumber() {
-    return Text(
-      'Account no: *** *** 4521',
-      style: GoogleFonts.inter(
-        fontSize: 8.sp,
-        fontWeight: FontWeight.w400,
-        color: Colors.white.withValues(alpha: 0.45),
-      ),
+  Widget _buildAgentDetails({required String accountNo, required String branch}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildDetailRow(Icons.account_balance_wallet_outlined, 'Account no: $accountNo'),
+        SizedBox(height: 0.5.h),
+        _buildDetailRow(Icons.storefront_outlined, 'Branch: $branch'),
+      ],
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, size: 13, color: Colors.white.withValues(alpha: 0.45)),
+        SizedBox(width: 1.5.w),
+        Expanded(
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 8.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withValues(alpha: 0.75),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

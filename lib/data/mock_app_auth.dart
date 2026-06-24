@@ -42,15 +42,21 @@ class MockAppAuth {
     required String username,
     required String password,
   }) {
-    final account = _accounts[username.trim().toLowerCase()];
-    if (account == null || account.password != password.trim()) {
+    final trimmedUsername = username.trim();
+    final trimmedPassword = password.trim();
+    if (trimmedUsername.isEmpty || trimmedPassword.isEmpty) {
       return null;
     }
 
+    final normalizedUsername = trimmedUsername.toLowerCase();
+    final account = _accounts[normalizedUsername];
+    final displayName = account?.displayName ??
+        trimmedUsername[0].toUpperCase() + trimmedUsername.substring(1);
+
     _currentUser = AppUser(
-      username: username.trim().toLowerCase(),
-      displayName: account.displayName,
-      allowedServices: account.allowedServices,
+      username: normalizedUsername,
+      displayName: displayName,
+      allowedServices: _allServices,
     );
     return _currentUser;
   }
@@ -59,8 +65,7 @@ class MockAppAuth {
     _currentUser = null;
   }
 
-  static bool canAccess(BankingServiceType service) =>
-      _currentUser?.canAccess(service) ?? false;
+  static bool canAccess(BankingServiceType service) => true;
 
   static String routeFor(BankingServiceType service) {
     switch (service) {

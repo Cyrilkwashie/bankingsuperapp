@@ -516,7 +516,7 @@ class _DeclarationDocumentPage extends StatelessWidget {
   final Color accentColor;
   final List<Color> gradientColors;
 
-  _DeclarationDocumentPage({
+  const _DeclarationDocumentPage({
     required this.document,
     required this.accentColor,
     required this.gradientColors,

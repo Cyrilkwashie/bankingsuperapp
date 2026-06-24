@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:pdfx/pdfx.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -935,110 +937,6 @@ abstract class _OpenAccountUi {
               ),
           ],
           SizedBox(height: 0.6.h),
-        ],
-      ),
-    );
-  }
-
-  static Widget buildSummaryCard({
-    required bool isDark,
-    required Color accentColor,
-    required String title,
-    required List<_OpenAccountSummaryRow> rows,
-    Widget? footer,
-  }) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161B22) : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : const Color(0xFFE5E7EB),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(4.5.w, 2.h, 4.5.w, 1.5.h),
-            child: Row(
-              children: [
-                Icon(Icons.receipt_long_outlined, color: accentColor, size: 18),
-                SizedBox(width: 2.5.w),
-                Text(
-                  title,
-                  style: GoogleFonts.inter(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF111827),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          for (var i = 0; i < rows.length; i++) ...[
-            buildSummaryRow(rows[i], isDark),
-            if (i < rows.length - 1)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.5.w),
-                child: Divider(
-                  height: 1,
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.06)
-                      : const Color(0xFFF3F4F6),
-                ),
-              ),
-          ],
-          if (footer != null) footer,
-        ],
-      ),
-    );
-  }
-
-  static Widget buildSummaryRow(_OpenAccountSummaryRow row, bool isDark) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4.5.w, vertical: 0.5.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 32.w,
-            child: Text(
-              row.label,
-              style: GoogleFonts.inter(
-                fontSize: 7.5.sp,
-                color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              row.value,
-              style: row.mono
-                  ? GoogleFonts.jetBrainsMono(
-                      fontSize: 7.sp,
-                      fontWeight: FontWeight.w500,
-                      color: row.valueColor ??
-                          (isDark ? Colors.white70 : const Color(0xFF374151)),
-                      height: 1.35,
-                    )
-                  : GoogleFonts.inter(
-                      fontSize: 8.sp,
-                      fontWeight: FontWeight.w500,
-                      color: row.valueColor ??
-                          (isDark ? Colors.white : const Color(0xFF111827)),
-                    ),
-              textAlign: TextAlign.right,
-            ),
-          ),
         ],
       ),
     );
@@ -2148,7 +2046,7 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
                   : const Color(0xFFF1F5F9),
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(3.5.w, 1.1.h, 3.5.w, 1.4.h),
+              padding: EdgeInsets.fromLTRB(3.5.w, 0.9.h, 3.5.w, 1.1.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2170,10 +2068,10 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
                       ),
                     ],
                   ),
-                  SizedBox(height: 0.9.h),
+                  SizedBox(height: 0.6.h),
                   ...type.requirements.map(
                     (req) => Padding(
-                      padding: EdgeInsets.only(bottom: 0.8.h),
+                      padding: EdgeInsets.only(bottom: 0.45.h),
                       child: _buildProductRequirementRow(
                         requirement: req,
                         accent: accent,
@@ -2196,47 +2094,30 @@ class _OpenAccountTypeScreenState extends State<_OpenAccountTypeScreen>
     required bool isDark,
   }) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 28,
-          height: 28,
+          width: 24,
+          height: 24,
           decoration: BoxDecoration(
             color: accent.withValues(alpha: isDark ? 0.12 : 0.08),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(6),
           ),
-          child: Center(
-            child: Icon(
-              requirement.icon,
-              color: accent,
-              size: 14,
-            ),
+          child: Icon(
+            requirement.icon,
+            color: accent,
+            size: 13,
           ),
         ),
-        SizedBox(width: 2.5.w),
+        SizedBox(width: 2.w),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                requirement.title,
-                style: GoogleFonts.inter(
-                  fontSize: 7.8.sp,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : const Color(0xFF111827),
-                  height: 1.25,
-                ),
-              ),
-              SizedBox(height: 0.15.h),
-              Text(
-                requirement.subtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 6.8.sp,
-                  height: 1.35,
-                  color: isDark ? Colors.white38 : const Color(0xFF9CA3AF),
-                ),
-              ),
-            ],
+          child: Text(
+            requirement.title,
+            style: GoogleFonts.inter(
+              fontSize: 7.2.sp,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white70 : const Color(0xFF374151),
+              height: 1.2,
+            ),
           ),
         ),
       ],
@@ -2300,9 +2181,9 @@ abstract class _OpenAccountGhanaCardLookup {
     final profiles = {
       '1': _GhanaCardProfile(
         nationalId: normalized,
-        firstName: 'Kwame',
-        lastName: 'Mensah',
-        otherName: 'Kofi',
+        firstName: 'Cyril',
+        lastName: 'Kwashie',
+        otherName: 'Tetteh',
         gender: 'Male',
         dateOfBirth: DateTime(1990, 5, 15),
         issueDate: '12/03/2021',
@@ -2313,9 +2194,9 @@ abstract class _OpenAccountGhanaCardLookup {
       ),
       '2': _GhanaCardProfile(
         nationalId: normalized,
-        firstName: 'Ama',
-        lastName: 'Boateng',
-        otherName: 'Serwaa',
+        firstName: 'Grace',
+        lastName: 'Oppong',
+        otherName: 'Yaa',
         gender: 'Female',
         dateOfBirth: DateTime(1995, 8, 22),
         issueDate: '04/06/2022',
@@ -2326,9 +2207,9 @@ abstract class _OpenAccountGhanaCardLookup {
       ),
       '3': _GhanaCardProfile(
         nationalId: normalized,
-        firstName: 'Kofi',
-        lastName: 'Asante',
-        otherName: 'Yaw',
+        firstName: 'Obed',
+        lastName: 'Attepor',
+        otherName: 'Horlali',
         gender: 'Male',
         dateOfBirth: DateTime(1988, 1, 9),
         issueDate: '18/09/2020',

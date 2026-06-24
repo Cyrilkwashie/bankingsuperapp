@@ -4,6 +4,7 @@ import 'package:sizer/sizer.dart';
 
 import '../core/app_export.dart';
 import '../core/theme_provider.dart';
+import '../data/agency/agency_auth_service.dart';
 import '../widgets/custom_error_widget.dart';
 
 /// Global theme provider instance
@@ -11,6 +12,8 @@ final ThemeProvider themeProvider = ThemeProvider();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AgencyAuthService.initialize();
 
   bool hasShownError = false;
 

@@ -4,6 +4,8 @@ import 'package:local_auth/local_auth.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../core/api/api_exception.dart';
+import '../../../data/agency/agency_auth_service.dart';
 import './widgets/agency_biometric_section_widget.dart';
 import './widgets/agency_login_form_widget.dart';
 import './widgets/agency_security_badge_widget.dart';
@@ -77,6 +79,12 @@ class _AgencyLoginScreenState extends State<AgencyLoginScreen>
       _showError('Biometric authentication not available on this device');
       return;
     }
+
+    if (!AgencyAuthService.isLoggedIn) {
+      _showError('Sign in with your agent credentials first');
+      return;
+    }
+
     try {
       final ok = await _localAuth.authenticate(
         localizedReason: 'Authenticate to access Agency Banking',
@@ -100,17 +108,41 @@ class _AgencyLoginScreenState extends State<AgencyLoginScreen>
       HapticFeedback.heavyImpact();
       return;
     }
+
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
-    HapticFeedback.mediumImpact();
-    _navigateToDashboard();
+
+    try {
+      await AgencyAuthService.login(
+        username: _agentIdController.text,
+        password: _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      HapticFeedback.mediumImpact();
+      _navigateToDashboard();
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _shakeController.forward().then((_) => _shakeController.reverse());
+      HapticFeedback.heavyImpact();
+      _showError(error.message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _shakeController.forward().then((_) => _shakeController.reverse());
+      HapticFeedback.heavyImpact();
+      _showError('Login failed. Please try again.');
+    }
   }
 
   void _navigateToDashboard() {
+    if (!mounted) return;
+    setState(() => _isLoading = false);
     Navigator.of(
       context,
       rootNavigator: true,
-    ).pushReplacementNamed('/agency-banking-dashboard');
+    ).pushReplacementNamed(AppRoutes.agencyBankingDashboard);
   }
 
   void _showError(String msg) {

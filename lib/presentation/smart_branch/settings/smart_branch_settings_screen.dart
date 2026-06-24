@@ -521,7 +521,7 @@ class _SmartBranchSettingsScreenState extends State<SmartBranchSettingsScreen> {
                           MockAppAuth.signOut();
                           Navigator.pushNamedAndRemoveUntil(
                             context,
-                            AppRoutes.login,
+                            AppRoutes.serviceSelection,
                             (route) => false,
                           );
                         },

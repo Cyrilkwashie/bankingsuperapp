@@ -44,7 +44,8 @@ class _OpenAccountPersonalScreenState
   String _selectedGender = '';
   String _selectedMarital = '';
   String _selectedEducation = '';
-  String _selectedDisability = '';
+  String _disabilityAnswer = '';
+  String _disabilityType = '';
 
   static const _titles = [
     'Mr.',
@@ -76,15 +77,15 @@ class _OpenAccountPersonalScreenState
     'Doctorate / PhD',
     'Other',
   ];
-  static const _disabilityStatuses = [
-    'No Disability',
+  static const _disabilityOptions = ['Yes', 'No'];
+  static const _disabilityTypes = [
     'Physical Disability',
     'Visual Impairment',
     'Hearing Impairment',
     'Speech Impairment',
     'Intellectual Disability',
     'Multiple Disabilities',
-    'Prefer Not to Say',
+    'Other',
   ];
 
   @override
@@ -119,7 +120,16 @@ class _OpenAccountPersonalScreenState
       _selectedTitle.isNotEmpty &&
       _selectedMarital.isNotEmpty &&
       _selectedEducation.isNotEmpty &&
-      _selectedDisability.isNotEmpty;
+      _disabilityAnswer.isNotEmpty &&
+      (_disabilityAnswer == 'No' || _disabilityType.isNotEmpty);
+
+  String get _resolvedDisabilityStatus {
+    if (_disabilityAnswer == 'No') return 'No';
+    if (_disabilityAnswer == 'Yes' && _disabilityType.isNotEmpty) {
+      return _disabilityType;
+    }
+    return '';
+  }
 
   void _onContinue() {
     if (!_formKey.currentState!.validate()) return;
@@ -153,7 +163,7 @@ class _OpenAccountPersonalScreenState
           maritalStatus: _selectedMarital,
           dob: _dobCtrl.text,
           educationalLevel: _selectedEducation,
-          disabilityStatus: _selectedDisability,
+          disabilityStatus: _resolvedDisabilityStatus,
           idType: 'National ID',
           idNumber: widget.ghanaCardProfile.nationalId,
           issueDate: widget.ghanaCardProfile.issueDate,
@@ -188,9 +198,9 @@ class _OpenAccountPersonalScreenState
         'education': _selectedEducation.isNotEmpty
             ? _selectedEducation
             : 'SHS / Secondary',
-        'disability': _selectedDisability.isNotEmpty
-            ? _selectedDisability
-            : 'No Disability',
+        'disability': _resolvedDisabilityStatus.isNotEmpty
+            ? _resolvedDisabilityStatus
+            : 'No',
       };
 
   void _openWizardStep(int step) {
@@ -891,17 +901,38 @@ class _OpenAccountPersonalScreenState
                             'Disability Status *', isDark),
                         SizedBox(height: 0.4.h),
                         _OpenAccountUi.buildDropdown(
-                          value: _selectedDisability.isEmpty
+                          value: _disabilityAnswer.isEmpty
                               ? null
-                              : _selectedDisability,
-                          items: _disabilityStatuses,
-                          hint: 'Select disability status',
+                              : _disabilityAnswer,
+                          items: _disabilityOptions,
+                          hint: 'Select Yes or No',
                           icon: Icons.accessible_outlined,
                           isDark: isDark,
                           accentColor: widget.accentColor,
-                          onChanged: (v) =>
-                              setState(() => _selectedDisability = v ?? ''),
+                          onChanged: (v) => setState(() {
+                            _disabilityAnswer = v ?? '';
+                            if (_disabilityAnswer != 'Yes') {
+                              _disabilityType = '';
+                            }
+                          }),
                         ),
+                        if (_disabilityAnswer == 'Yes') ...[
+                          _fieldGap(),
+                          _OpenAccountUi.buildFieldLabel(
+                              'Type of Disability *', isDark),
+                          SizedBox(height: 0.4.h),
+                          _OpenAccountUi.buildDropdown(
+                            value:
+                                _disabilityType.isEmpty ? null : _disabilityType,
+                            items: _disabilityTypes,
+                            hint: 'Select disability type',
+                            icon: Icons.medical_information_outlined,
+                            isDark: isDark,
+                            accentColor: widget.accentColor,
+                            onChanged: (v) =>
+                                setState(() => _disabilityType = v ?? ''),
+                          ),
+                        ],
                       ],
                     ),
                   ),
